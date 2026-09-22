@@ -34,13 +34,17 @@ export { SwitchField } from './SwitchField'
 export { RecordBoundary } from './RecordBoundary'
 export { Tooltip, TooltipProvider } from './Tooltip'
 export {
+  AmountCell,
   CodeCell,
   Dash,
   DateCell,
   DateTimeCell,
   ImageCell,
+  MoneyCell,
   NumberCell,
   OptionsCell,
+  PercentCell,
+  RecordLink,
   TextCell,
   YesNoCell,
 } from './cells'

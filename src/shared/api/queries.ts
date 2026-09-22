@@ -6,8 +6,10 @@ export function useTableListQuery<Dto, Model>(
   slug: string,
   params: ListParams,
   map: (dto: Dto) => Model,
+  options: { enabled?: boolean } = {},
 ) {
   return useQuery({
+    enabled: options.enabled ?? true,
     queryKey: [slug, 'list', params],
     queryFn: async () => {
       const result = await getTableItems<Dto>(slug, params)

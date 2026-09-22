@@ -32,17 +32,30 @@ import {
 const FILTER_KEYS = ['investor', 'exp_from', 'exp_to'] as const
 
 // `card_token` is never shown: it's a payment token (see entities/investor-card).
+// Investor first (who owns it), then the card. `card_token` is never shown (see entities/investor-card).
 function buildColumns(label: (f: string) => string): Column<InvestorCard>[] {
   return [
+    {
+      id: 'investor',
+      header: label('investors_id'),
+      skeleton: 'w-44',
+      cell: (c) => (
+        <span className="font-medium">
+          <TextCell value={c.investorName} />
+        </span>
+      ),
+    },
+    {
+      id: 'phone',
+      header: 'Phone',
+      skeleton: 'w-32',
+      cell: (c) => <CodeCell value={c.investorPhone && formatPhone(c.investorPhone)} />,
+    },
     {
       id: 'masked_pan',
       header: label('masked_pan'),
       skeleton: 'w-40',
-      cell: (c) => (
-        <span className="font-medium">
-          <CodeCell value={c.maskedPan} />
-        </span>
-      ),
+      cell: (c) => <CodeCell value={c.maskedPan} />,
     },
     { id: 'card_name', header: label('card_name'), cell: (c) => <TextCell value={c.cardName} /> },
     {
@@ -56,18 +69,6 @@ function buildColumns(label: (f: string) => string): Column<InvestorCard>[] {
       header: label('expiry_date'),
       align: 'right',
       cell: (c) => <DateCell value={c.expiryDate} />,
-    },
-    {
-      id: 'investor',
-      header: label('investors_id'),
-      skeleton: 'w-40',
-      cell: (c) => <TextCell value={c.investorName} />,
-    },
-    {
-      id: 'phone',
-      header: 'Phone',
-      skeleton: 'w-32',
-      cell: (c) => <CodeCell value={c.investorPhone && formatPhone(c.investorPhone)} />,
     },
     {
       id: 'created_time',

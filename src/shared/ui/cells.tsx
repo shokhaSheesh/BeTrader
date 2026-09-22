@@ -1,5 +1,13 @@
+import type { ReactNode } from 'react'
+import { Link } from 'react-router'
 import { ImageOff, User } from 'lucide-react'
-import { formatDate, formatDateTime, formatNumber } from '@/shared/lib/format'
+import {
+  formatAmount,
+  formatDate,
+  formatDateTime,
+  formatMoney,
+  formatNumber,
+} from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
 import { Badge } from './Badge'
 
@@ -84,5 +92,45 @@ export function ImageCell({
     >
       <Fallback size={size * 0.45} strokeWidth={1.75} />
     </span>
+  )
+}
+
+/** Money whose currency the backend states (in the field label or a currency field). */
+export function MoneyCell({
+  value,
+  currency,
+}: {
+  value: number | null | undefined
+  currency: 'UZS' | 'USD'
+}) {
+  return value != null ? <span className="num">{formatMoney(value, currency)}</span> : <Dash />
+}
+
+/** An amount with no currency in the backend: shown as a plain number, never with a guessed currency. */
+export function AmountCell({ value }: { value: number | null | undefined }) {
+  return value != null ? <span className="num">{formatAmount(value)}</span> : <Dash />
+}
+
+export function PercentCell({ value }: { value: number | null | undefined }) {
+  return value != null ? <span className="num">{formatNumber(value)}%</span> : <Dash />
+}
+
+/** A linked record (investor, project, order…) opening its own detail page. Stops row clicks. */
+export function RecordLink({
+  to,
+  children,
+}: {
+  to: string | null | undefined
+  children: ReactNode
+}) {
+  if (!to) return <>{children}</>
+  return (
+    <Link
+      to={to}
+      onClick={(e) => e.stopPropagation()}
+      className="font-medium underline-offset-4 hover:underline"
+    >
+      {children}
+    </Link>
   )
 }

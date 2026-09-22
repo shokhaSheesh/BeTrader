@@ -19,6 +19,11 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.investors.list]: lazy(() => import('@/pages/investors')),
   [ROUTES.investors.accounts]: lazy(() => import('@/pages/accounts')),
   [ROUTES.investors.cards]: lazy(() => import('@/pages/cards')),
+  [ROUTES.finance.orders]: lazy(() => import('@/pages/orders')),
+  [ROUTES.finance.transactions]: lazy(() => import('@/pages/transactions')),
+  [ROUTES.finance.dividends]: lazy(() => import('@/pages/dividends')),
+  [ROUTES.finance.currencyRates]: lazy(() => import('@/pages/currency-rates')),
+  [ROUTES.finance.currencyPercent]: lazy(() => import('@/pages/currency-percent')),
 }
 
 /** Detail / create / edit pages per record type. */
@@ -63,6 +68,34 @@ const RECORD_PAGES: {
     detail: lazy(() => import('@/pages/cards/DetailPage')),
     create: lazy(() => import('@/pages/cards/CreatePage')),
     edit: lazy(() => import('@/pages/cards/EditPage')),
+  },
+  {
+    routes: RECORDS.orders,
+    detail: lazy(() => import('@/pages/orders/DetailPage')),
+    create: lazy(() => import('@/pages/orders/CreatePage')),
+    edit: lazy(() => import('@/pages/orders/EditPage')),
+  },
+  {
+    routes: RECORDS.transactions,
+    detail: lazy(() => import('@/pages/transactions/DetailPage')),
+  },
+  {
+    routes: RECORDS.dividends,
+    detail: lazy(() => import('@/pages/dividends/DetailPage')),
+    create: lazy(() => import('@/pages/dividends/CreatePage')),
+    edit: lazy(() => import('@/pages/dividends/EditPage')),
+  },
+  {
+    routes: RECORDS.currencyRates,
+    detail: lazy(() => import('@/pages/currency-rates/DetailPage')),
+    create: lazy(() => import('@/pages/currency-rates/CreatePage')),
+    edit: lazy(() => import('@/pages/currency-rates/EditPage')),
+  },
+  {
+    routes: RECORDS.currencyPercent,
+    detail: lazy(() => import('@/pages/currency-percent/DetailPage')),
+    create: lazy(() => import('@/pages/currency-percent/CreatePage')),
+    edit: lazy(() => import('@/pages/currency-percent/EditPage')),
   },
 ]
 

@@ -96,11 +96,11 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Investors | `/investors` | `investors` | 10 705 ✅ wired (list, detail; create/edit/delete pages built, not wired) |
 | Accounts | `/investors/accounts` | `account` | 10 742 ✅ wired (no search: broken on this table) |
 | Cards | `/investors/cards` | `investor_cards` | 1 084 ✅ wired |
-| Orders | `/finance/orders` | `orders` | 209 |
-| Transactions | `/finance/transactions` | `transactions` | 3 158 |
-| Dividends | `/finance/dividends` | `dividend` | 2 047 |
-| Currency rates | `/finance/currency-rates` | `currency_rates` | 500 |
-| Currency percent | `/finance/currency-percent` | `currency_percent` | 3 |
+| Orders | `/finance/orders` | `orders` | 209 ✅ wired (search: order ID, transaction ID) |
+| Transactions | `/finance/transactions` | `transactions` | 3 158 ✅ wired, read-only (search: transaction ID) |
+| Dividends | `/finance/dividends` | `dividend` | 2 047 ✅ wired (no search) |
+| Currency rates | `/finance/currency-rates` | `currency_rates` | 500 ✅ wired (no search; date filter) |
+| Currency percent | `/finance/currency-percent` | `currency_percent` | 3 ✅ wired |
 | Transaction policy | `/finance/transaction-policy` | `transaction_policy` | 6 |
 | Financial modeling | `/finance/financial-modeling` | `financial_modeling` | 166 |
 | AML blacklist | `/compliance/aml-blacklist` | `black_list` | 22 700 |
@@ -143,6 +143,12 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `investor_cards.type` | Free text ("Humo", "Uzcard"), not a select with options, so we can't offer a type filter without hardcoding values. Make it a select field? |
 | `account` | `search` returns 0 rows for any term (even "a"), so the page has no search box. `full_name` and `tranzit` are empty on every row we checked. Are they still used? |
 | `account` | Sorting by `created_at` returns 500; only schema fields can be sorted. Add a `created_time` field like the other tables? |
+| `orders` / `transactions` | **Security:** every row sends `otp` (a one-time password) to the admin client. Never shown, but it shouldn't leave the backend. |
+| `transactions` | `snapshot_full_name`, `snapshot_phone`, `snapshot_pinfl` and `score` are empty on every row checked. What are they for? There are also two investor links (`investors_id` "Investor" and `investors_id_2` "Investors"). What's the difference? |
+| `transactions.type` | Free text "+" / "-" rather than a select. Shown as sent. |
+| `orders`, `transactions`, `dividend`, `currency_rates` | No currency on `transaction_fee`, `insurance`, `order_amount` and the rate `amount`, so they're shown as plain numbers. The field labels could state the currency, as the amount fields do. |
+| `orders.transaction_id` | Label typo: "Tranasction Id". |
+| `dividend`, `currency_rates`, `currency_percent` | `search` is ignored; the pages rely on filters. |
 | `investors.full_name` (Russian) | Same `<nil>` bug in Russian too: `"<nil> Пользователь <nil>"`. |
 | KPIs | Sum endpoints for `project_investors.investment` and `dividend`, plus a distinct count of `investors_id`, so the "Backend pending" cards can show real numbers. |
 

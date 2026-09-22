@@ -83,4 +83,9 @@ export const RECORDS = {
   investors: recordRoutes(ROUTES.investors.list),
   accounts: recordRoutes(ROUTES.investors.accounts),
   cards: recordRoutes(ROUTES.investors.cards),
+  orders: recordRoutes(ROUTES.finance.orders),
+  transactions: recordRoutes(ROUTES.finance.transactions),
+  dividends: recordRoutes(ROUTES.finance.dividends),
+  currencyRates: recordRoutes(ROUTES.finance.currencyRates),
+  currencyPercent: recordRoutes(ROUTES.finance.currencyPercent),
 }

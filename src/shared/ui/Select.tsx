@@ -38,7 +38,8 @@ export function Select({
     // Until the current value's option has loaded, show the placeholder instead of a blank field.
     <S.Root
       value={value && options.some((o) => o.value === value) ? value : ''}
-      onValueChange={onChange}
+      // Radix reports "" while the value has no loaded option yet; never let that wipe the real value.
+      onValueChange={(v) => v && onChange(v)}
       disabled={disabled}
     >
       <S.Trigger
