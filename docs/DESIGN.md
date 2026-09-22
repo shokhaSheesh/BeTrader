@@ -244,7 +244,8 @@ The rest of the UI is neutral, and color is saved for **what someone should noti
 | --- | --- |
 | **Statuses** | Pending → warning · Confirmed → success · Canceled → danger. Projects: Investment → success, Testing → warning, Closed → neutral |
 | **Transaction operation** | Top up → success · Withdraw → warning · Buy → info · Dividend → accent (lime) · Transfer → neutral |
-| **Key types** | Order Buy → info · Order **Sell → danger** (money out) · Dividend Profit → success (Debit neutral) |
+| **Key types** | Order Buy → info · Order **Sell → danger** (money out) · Dividend Profit → success · Dividend **Debit → danger** |
+| **Compliance alerts** | STR/SAR cause → warning (a filed report is something to notice). RBA scores stay neutral until the backend defines what they mean |
 | **Identification** | Identified → success · Not identified → warning |
 | **Money direction** (`transactions.type` +/−) | `DirectionCell`: arrow up in a green circle for **in**, arrow down in a **red** circle for **out** (§2) |
 | **KPI icons** | The icon circle takes the tone of what it counts (Withdraw KPI = warning, Total = accent). Neutral when nothing stands out |

@@ -5,3 +5,4 @@ export {
   useInvestorsQuery,
 } from './api/queries'
 export type { Investor } from './model/types'
+export { InvestorPickerField } from './ui/InvestorPickerField'

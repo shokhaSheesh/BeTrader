@@ -88,4 +88,11 @@ export const RECORDS = {
   dividends: recordRoutes(ROUTES.finance.dividends),
   currencyRates: recordRoutes(ROUTES.finance.currencyRates),
   currencyPercent: recordRoutes(ROUTES.finance.currencyPercent),
+  transactionPolicy: recordRoutes(ROUTES.finance.transactionPolicy),
+  financialModeling: recordRoutes(ROUTES.finance.financialModeling),
+  amlBlacklist: recordRoutes(ROUTES.compliance.amlBlacklist),
+  investorScore: recordRoutes(ROUTES.compliance.investorScore),
+  rbaMatrix: recordRoutes(ROUTES.compliance.rbaMatrix),
+  strSar: recordRoutes(ROUTES.compliance.strSar),
+  policyTypes: recordRoutes(ROUTES.compliance.policyTypes),
 }

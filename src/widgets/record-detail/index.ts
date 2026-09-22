@@ -1,0 +1,1 @@
+export { RecordDetail } from './RecordDetail'

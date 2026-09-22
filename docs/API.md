@@ -101,13 +101,13 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Dividends | `/finance/dividends` | `dividend` | 2 047 ✅ wired (no search) |
 | Currency rates | `/finance/currency-rates` | `currency_rates` | 500 ✅ wired (no search; date filter) |
 | Currency percent | `/finance/currency-percent` | `currency_percent` | 3 ✅ wired |
-| Transaction policy | `/finance/transaction-policy` | `transaction_policy` | 6 |
-| Financial modeling | `/finance/financial-modeling` | `financial_modeling` | 166 |
-| AML blacklist | `/compliance/aml-blacklist` | `black_list` | 22 700 |
-| Investor score | `/compliance/investor-score` | `investor_score` | 0 |
-| RBA matrix | `/compliance/rba-matrix` | `rba_matrix` | 4 |
-| STR/SAR | `/compliance/str-sar` | `str_sar` | 1 |
-| Policy types | `/compliance/policy-types` | `policy_Type` (capital T) | 6 |
+| Transaction policy | `/finance/transaction-policy` | `transaction_policy` | 6 ✅ wired |
+| Financial modeling | `/finance/financial-modeling` | `financial_modeling` | 166 ✅ wired (no search: broken; date filter) |
+| AML blacklist | `/compliance/aml-blacklist` | `black_list` | 22 700 ✅ wired (search: name, passport, PIN) |
+| Investor score | `/compliance/investor-score` | `investor_score` | 0 ✅ wired (empty table) |
+| RBA matrix | `/compliance/rba-matrix` | `rba_matrix` | 4 ✅ wired |
+| STR/SAR | `/compliance/str-sar` | `str_sar` | 1 ✅ wired |
+| Policy types | `/compliance/policy-types` | `policy_Type` (capital T) | 6 ✅ wired |
 | News | `/content/news` | `news` | 0 |
 | FAQ | `/content/faq` | `faq` | 6 |
 | Documents | `/content/documents` | `documents` | 21 590 |
@@ -147,7 +147,12 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `transactions` | Checked all 3 158 rows: `snapshot_full_name`, `snapshot_phone`, `snapshot_pinfl` are **always empty**, `score` is filled on 2 rows, and `investors_id_2` ("Investors") **equals `investors_id` on every row**. The admin hides them from the table (snapshot shown on the detail page only if ever filled). Can they be removed or explained? |
 | `transactions.type` | Free text "+" / "-" (money in / out; 38 top-ups have none). Shown as arrows. A select with options would be cleaner. |
 | `orders`, `transactions`, `dividend`, `currency_rates` | No currency on `transaction_fee`, `insurance`, `order_amount` and the rate `amount`, so they're shown as plain numbers. The field labels could state the currency, as the amount fields do. |
-| `orders.transaction_id` | Label typo: "Tranasction Id". |
+| Field labels (fixable in u-code's table settings) | Shown exactly as the backend sends them (DESIGN.md §0): `orders.transaction_id` "Tranasction Id" · `black_list.name` **"nadejda"** (should be "Name") · `black_list.pin` " Pin" (leading space) · `policy_Type.label_ru` "Laber" · `str_sar.investors_id_2` "Passport" (it's an investor link) |
+| `transaction_policy.amount` | Labelled "Amount (USD)" for every policy, but 4 of the 6 are **counts** (monthly/daily top-up and withdrawal limits: 5, 30). Shown without a currency. Split into an amount and a count, or relabel? |
+| `black_list.surname` | Empty on every row checked; names are stored whole in `name`. |
+| `str_sar` | The only report has no investor linked (`investors_id` and `investors_id_2` are empty). |
+| `rba_matrix` | Scores 1/3/5/7 per amount band: what do they mean (risk level?), and in which currency are the bands? The admin shows them uncolored until that's defined. |
+| `financial_modeling` | `search` returns 0 for every term; only one series (SP500) so far. |
 | `dividend`, `currency_rates`, `currency_percent` | `search` is ignored; the pages rely on filters. |
 | `investors.full_name` (Russian) | Same `<nil>` bug in Russian too: `"<nil> Пользователь <nil>"`. |
 | KPIs | Sum endpoints for `project_investors.investment` and `dividend`, plus a distinct count of `investors_id`, so the "Backend pending" cards can show real numbers. |

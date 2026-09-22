@@ -24,6 +24,13 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.finance.dividends]: lazy(() => import('@/pages/dividends')),
   [ROUTES.finance.currencyRates]: lazy(() => import('@/pages/currency-rates')),
   [ROUTES.finance.currencyPercent]: lazy(() => import('@/pages/currency-percent')),
+  [ROUTES.finance.transactionPolicy]: lazy(() => import('@/pages/transaction-policy')),
+  [ROUTES.finance.financialModeling]: lazy(() => import('@/pages/financial-modeling')),
+  [ROUTES.compliance.amlBlacklist]: lazy(() => import('@/pages/aml-blacklist')),
+  [ROUTES.compliance.investorScore]: lazy(() => import('@/pages/investor-score')),
+  [ROUTES.compliance.rbaMatrix]: lazy(() => import('@/pages/rba-matrix')),
+  [ROUTES.compliance.strSar]: lazy(() => import('@/pages/str-sar')),
+  [ROUTES.compliance.policyTypes]: lazy(() => import('@/pages/policy-types')),
 }
 
 /** Detail / create / edit pages per record type. */
@@ -96,6 +103,48 @@ const RECORD_PAGES: {
     detail: lazy(() => import('@/pages/currency-percent/DetailPage')),
     create: lazy(() => import('@/pages/currency-percent/CreatePage')),
     edit: lazy(() => import('@/pages/currency-percent/EditPage')),
+  },
+  {
+    routes: RECORDS.transactionPolicy,
+    detail: lazy(() => import('@/pages/transaction-policy/DetailPage')),
+    create: lazy(() => import('@/pages/transaction-policy/CreatePage')),
+    edit: lazy(() => import('@/pages/transaction-policy/EditPage')),
+  },
+  {
+    routes: RECORDS.financialModeling,
+    detail: lazy(() => import('@/pages/financial-modeling/DetailPage')),
+    create: lazy(() => import('@/pages/financial-modeling/CreatePage')),
+    edit: lazy(() => import('@/pages/financial-modeling/EditPage')),
+  },
+  {
+    routes: RECORDS.amlBlacklist,
+    detail: lazy(() => import('@/pages/aml-blacklist/DetailPage')),
+    create: lazy(() => import('@/pages/aml-blacklist/CreatePage')),
+    edit: lazy(() => import('@/pages/aml-blacklist/EditPage')),
+  },
+  {
+    routes: RECORDS.investorScore,
+    detail: lazy(() => import('@/pages/investor-score/DetailPage')),
+    create: lazy(() => import('@/pages/investor-score/CreatePage')),
+    edit: lazy(() => import('@/pages/investor-score/EditPage')),
+  },
+  {
+    routes: RECORDS.rbaMatrix,
+    detail: lazy(() => import('@/pages/rba-matrix/DetailPage')),
+    create: lazy(() => import('@/pages/rba-matrix/CreatePage')),
+    edit: lazy(() => import('@/pages/rba-matrix/EditPage')),
+  },
+  {
+    routes: RECORDS.strSar,
+    detail: lazy(() => import('@/pages/str-sar/DetailPage')),
+    create: lazy(() => import('@/pages/str-sar/CreatePage')),
+    edit: lazy(() => import('@/pages/str-sar/EditPage')),
+  },
+  {
+    routes: RECORDS.policyTypes,
+    detail: lazy(() => import('@/pages/policy-types/DetailPage')),
+    create: lazy(() => import('@/pages/policy-types/CreatePage')),
+    edit: lazy(() => import('@/pages/policy-types/EditPage')),
   },
 ]
 

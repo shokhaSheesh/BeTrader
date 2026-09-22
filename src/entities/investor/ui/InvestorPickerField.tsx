@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useInvestorOptions } from '@/entities/investor'
+import { useInvestorOptions } from '../api/queries'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
 import { Field, SearchSelect } from '@/shared/ui'
 
