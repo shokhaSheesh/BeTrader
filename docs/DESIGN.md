@@ -117,7 +117,7 @@ Every list page has the same anatomy, built from the same shared components. No 
 | Create button | Always the primary `<Button>` with a `+` icon, in the page header. Label is "Create {thing}" or "Add {thing}". Never a floating button, never inside the table. |
 | `FilterBar` | Search first and on the left, then `FilterSelect` (one of), `FilterMultiSelect` (any of), `DateRangeFilter` (range calendar with presets). All are 40 px white controls; an active filter gets an ink border and shows its value ("Gender: Male"). "Reset" appears only while something is active. Search and filters live in the URL (`?identified=no&gender=male&from=2026-09-01`) via `useListParams`, so any view can be shared as a link. |
 | Filtering and search | **Always on the backend.** Never filter, search or sort rows on the front end: it would only cover the current page and give wrong totals. Only add a filter or search box the backend actually honours (check first, docs/API.md). If it doesn't, leave the control out. |
-| KPI cards | Only where they help a decision (Investors, Project investors), not on every page. Every card has an icon in a **neutral tile** (`bg-surface-muted`, ink icon), never a colored circle. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet (sums, distinct counts) is a `KpiCard pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
+| KPI cards | Only where they help a decision; currently **Investors only**. Layout (`KpiCard`): **title** (what is counted, muted) on top, **count** below (`text-2xl font-semibold`), and the **icon on the right in a 56 px neutral circle** (`bg-surface-muted`, ink icon, never colored), vertically centered. No hint line under the count. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet is `pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
 | `DataTable` | Same row height, header style, hover, borders and padding on every page. Status is always a `<Badge>`. Row actions are always an icon menu in the last column. |
 | Columns | **Show every field the backend sends**; never trim columns to fit. Wide tables scroll sideways, and the first column (what the row is) and the ⋯ column stay pinned. Headers are the backend's labels. Cells use the shared renderers in `shared/ui/cells.tsx` (`TextCell`, `CodeCell`, `NumberCell`, `YesNoCell`, `OptionsCell`, `DateCell`, `DateTimeCell`, `ImageCell`), so "—", badges and dates are identical everywhere. **The only exception is secrets:** `pin_code`, push tokens and auth IDs are never shown. |
 | Sidebar | Collapsible (the button at the bottom), remembered per browser. Collapsed shows icons only: a tooltip names each item, and a section's pages open in a flyout. The active section stays lime. |
@@ -187,7 +187,7 @@ The sure signs of a vibe-coded dashboard, all banned:
 **Shapes and layout**
 - A radius that isn't on the scale (see §5 "Shape")
 - Everything in a rounded card with 32 px padding, which is too airy for an admin tool; tables should be dense and easy to scan
-- Decorative icons next to every heading, or icons in colored circles (KPI icons sit in a neutral tile, §3)
+- Decorative icons next to every heading, or icons in colored circles (KPI icons sit in a neutral grey circle, §3)
 - Emoji anywhere in the UI
 
 **Copy**

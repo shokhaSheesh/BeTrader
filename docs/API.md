@@ -87,7 +87,7 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Projects | `/projects` | `projects` | 3 ✅ wired |
 | Project types | `/projects/types` | `project_types` | 3 ✅ wired |
 | Project investors | `/projects/investors` | `project_investors` | 109 ✅ wired (no search, see below) |
-| Investors | `/investors` | `investors` | 10 705 ✅ wired (list + detail; no create/edit, since investors sign up in the app) |
+| Investors | `/investors` | `investors` | 10 705 ✅ wired (list, detail; create/edit/delete pages built, not wired) |
 | Accounts | `/investors/accounts` | `account` | 10 737 |
 | Cards | `/investors/cards` | `investor_cards` | 1 084 |
 | Orders | `/finance/orders` | `orders` | 209 |

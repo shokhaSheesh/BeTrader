@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useProjectOptions } from '@/entities/project'
-import { ClipboardList, HandCoins, Plus, UsersRound, Wallet } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import {
   PROJECT_INVESTORS_TABLE,
   useProjectInvestorsQuery,
@@ -9,7 +9,6 @@ import {
 } from '@/entities/project-investor'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
-import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
 import { useListParams } from '@/shared/hooks/useListParams'
@@ -24,8 +23,6 @@ import {
   DateRangeFilter,
   FilterBar,
   FilterSelect,
-  KpiCard,
-  KpiGrid,
   ListEmptyState,
   PageHeader,
   Pagination,
@@ -103,7 +100,6 @@ export default function ProjectInvestorsPage() {
     filters,
     order: { created_time: -1 },
   })
-  const investmentsCount = useTableCount(PROJECT_INVESTORS_TABLE)
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   const navigate = useNavigate()
   const [toDelete, setToDelete] = useState<ProjectInvestor | null>(null)
@@ -128,28 +124,6 @@ export default function ProjectInvestorsPage() {
           </ButtonLink>
         }
       />
-
-      <KpiGrid>
-        <KpiCard
-          label="Investments"
-          icon={ClipboardList}
-          value={investmentsCount.data}
-          hint="All time, every project"
-        />
-        <KpiCard label="Total invested" icon={Wallet} pending hint="Needs a sum endpoint" />
-        <KpiCard
-          label="Total interest income"
-          icon={HandCoins}
-          pending
-          hint="Needs a sum endpoint"
-        />
-        <KpiCard
-          label="Investors with investments"
-          icon={UsersRound}
-          pending
-          hint="Needs a distinct-count endpoint"
-        />
-      </KpiGrid>
 
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
         <FilterSelect

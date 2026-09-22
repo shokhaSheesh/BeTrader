@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { Pencil, Trash2 } from 'lucide-react'
+import { DeleteRecordDialog } from '@/features/record-actions'
 import { INVESTORS_TABLE, useInvestorQuery } from '@/entities/investor'
 import {
   PROJECT_INVESTORS_TABLE,
@@ -11,6 +13,8 @@ import { RECORDS } from '@/shared/config/routes'
 import { formatAmount, formatDateTime, formatNumber, formatPhone } from '@/shared/lib/format'
 import {
   Badge,
+  Button,
+  ButtonLink,
   ImageCell,
   DataTable,
   DetailSection,
@@ -29,6 +33,7 @@ export default function InvestorDetailPage() {
   const { id } = useParams()
   const query = useInvestorQuery(id)
   const fields = useTableFields(INVESTORS_TABLE)
+  const [deleting, setDeleting] = useState(false)
   const back = { to: RECORDS.investors.list, label: 'Investors' }
 
   return (
@@ -54,6 +59,16 @@ export default function InvestorDetailPage() {
               }
               description={
                 i.phone ? <span className="num">{formatPhone(i.phone)}</span> : undefined
+              }
+              actions={
+                <>
+                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                    Delete
+                  </Button>
+                  <ButtonLink to={RECORDS.investors.edit(i.id)} icon={Pencil}>
+                    Edit investor
+                  </ButtonLink>
+                </>
               }
             />
             <div className="flex flex-col gap-6">
@@ -128,6 +143,11 @@ export default function InvestorDetailPage() {
                 ]}
               />
             </div>
+            <DeleteRecordDialog
+              noun="investor"
+              target={deleting ? { name: i.fullName ?? i.phone ?? 'This investor' } : null}
+              onClose={() => setDeleting(false)}
+            />
           </>
         )
       }}

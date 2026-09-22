@@ -5,39 +5,40 @@ import { Badge } from './Badge'
 import { Loader } from './Loader'
 
 interface KpiCardProps {
+  /** What is counted, e.g. "Identified" */
   label: string
-  /** What the number counts, in a neutral tile (never a colored circle, DESIGN.md §4) */
+  /** Neutral circle on the right: never colored (DESIGN.md §3) */
   icon: LucideIcon
   /** A number from the backend; `undefined` while loading */
   value?: number
-  /** Small line under the value, e.g. "All time" */
-  hint?: ReactNode
   /** The backend can't provide this yet: a placeholder and a "Backend pending" badge, never a front-end calculation */
   pending?: boolean
 }
 
-export function KpiCard({ label, icon: Icon, value, hint, pending }: KpiCardProps) {
+/** Label on top, count below, icon in a neutral circle on the right. */
+export function KpiCard({ label, icon: Icon, value, pending }: KpiCardProps) {
   return (
-    <div className="flex min-h-36 flex-col justify-between gap-4 rounded-md border border-line bg-surface p-5">
-      <div className="flex items-start justify-between gap-3">
-        <span className="pt-1.5 text-fg-muted">{label}</span>
-        <span className="grid size-9 shrink-0 place-items-center rounded-sm bg-surface-muted text-fg">
-          <Icon size={18} strokeWidth={1.75} />
-        </span>
-      </div>
-      <div>
+    <div className="flex items-center justify-between gap-4 rounded-md border border-line bg-surface px-5 py-4">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="truncate text-fg-muted">{label}</span>
         {pending ? (
-          <div className="flex items-center gap-2">
+          <span className="flex items-center gap-2">
             <span className="text-2xl font-semibold tracking-tight text-fg-subtle">—</span>
             <Badge tone="warning">Backend pending</Badge>
-          </div>
+          </span>
         ) : value === undefined ? (
-          <Loader size={28} label={`Loading ${label}`} />
+          <span className="flex h-10 items-center">
+            <Loader size={28} label={`Loading ${label}`} />
+          </span>
         ) : (
-          <span className="num text-2xl font-semibold tracking-tight">{formatNumber(value)}</span>
+          <span className="num text-2xl leading-10 font-semibold tracking-tight">
+            {formatNumber(value)}
+          </span>
         )}
-        {hint && <p className="mt-1 text-xs text-fg-muted">{hint}</p>}
       </div>
+      <span className="grid size-14 shrink-0 place-items-center rounded-full bg-surface-muted text-fg">
+        <Icon size={24} strokeWidth={1.75} />
+      </span>
     </div>
   )
 }

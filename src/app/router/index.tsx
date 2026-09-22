@@ -20,7 +20,6 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
 }
 
 /** Detail / create / edit pages per record type. */
-// Only pages that exist are listed: investors are created by the app itself, so they have a detail page only.
 const RECORD_PAGES: {
   routes: (typeof RECORDS)[keyof typeof RECORDS]
   detail: LazyExoticComponent<ComponentType>
@@ -45,7 +44,12 @@ const RECORD_PAGES: {
     create: lazy(() => import('@/pages/project-investors/CreatePage')),
     edit: lazy(() => import('@/pages/project-investors/EditPage')),
   },
-  { routes: RECORDS.investors, detail: lazy(() => import('@/pages/investors/DetailPage')) },
+  {
+    routes: RECORDS.investors,
+    detail: lazy(() => import('@/pages/investors/DetailPage')),
+    create: lazy(() => import('@/pages/investors/CreatePage')),
+    edit: lazy(() => import('@/pages/investors/EditPage')),
+  },
 ]
 
 const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(

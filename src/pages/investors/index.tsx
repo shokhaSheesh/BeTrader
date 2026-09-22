@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { BadgeCheck, UserPlus, Users, UserX } from 'lucide-react'
+import { BadgeCheck, Plus, UserPlus, Users, UserX } from 'lucide-react'
 import { INVESTORS_TABLE, useInvestorsQuery, type Investor } from '@/entities/investor'
+import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters'
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
@@ -10,6 +12,7 @@ import { toIsoDate } from '@/shared/lib/date'
 import { formatPhone } from '@/shared/lib/format'
 import {
   Badge,
+  ButtonLink,
   CodeCell,
   DataTable,
   DateTimeCell,
@@ -179,6 +182,7 @@ export default function InvestorsPage() {
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(INVESTORS_TABLE)
   const navigate = useNavigate()
+  const [toDelete, setToDelete] = useState<Investor | null>(null)
 
   const identified = list.filter('identified')
   const filters = {
@@ -208,28 +212,21 @@ export default function InvestorsPage() {
 
   return (
     <>
-      <PageHeader title="Investors" description="Everyone registered in the Niyat app." />
+      <PageHeader
+        title="Investors"
+        description="Everyone registered in the Niyat app."
+        actions={
+          <ButtonLink to={RECORDS.investors.create} icon={Plus}>
+            Create investor
+          </ButtonLink>
+        }
+      />
 
       <KpiGrid>
-        <KpiCard label="Total investors" icon={Users} value={total.data} hint="All time" />
-        <KpiCard
-          label="Identified"
-          icon={BadgeCheck}
-          value={identifiedCount.data}
-          hint="Passed identity verification"
-        />
-        <KpiCard
-          label="Not identified"
-          icon={UserX}
-          value={notIdentifiedCount.data}
-          hint="Registered, not verified yet"
-        />
-        <KpiCard
-          label="New this month"
-          icon={UserPlus}
-          value={newThisMonth.data}
-          hint="Registered since the 1st"
-        />
+        <KpiCard label="Total investors" icon={Users} value={total.data} />
+        <KpiCard label="Identified" icon={BadgeCheck} value={identifiedCount.data} />
+        <KpiCard label="Not identified" icon={UserX} value={notIdentifiedCount.data} />
+        <KpiCard label="New this month" icon={UserPlus} value={newThisMonth.data} />
       </KpiGrid>
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -259,7 +256,14 @@ export default function InvestorsPage() {
       </FilterBar>
 
       <DataTable
-        columns={buildColumns(fields.fieldLabel, fields.optionLabel)}
+        columns={[
+          ...buildColumns(fields.fieldLabel, fields.optionLabel),
+          actionsColumn<Investor>({
+            onView: (i) => navigate(RECORDS.investors.detail(i.id)),
+            onEdit: (i) => navigate(RECORDS.investors.edit(i.id)),
+            onDelete: setToDelete,
+          }),
+        ]}
         rows={query.data?.items}
         getRowId={(i) => i.id}
         onRowClick={(i) => navigate(RECORDS.investors.detail(i.id))}
@@ -288,6 +292,11 @@ export default function InvestorsPage() {
             />
           )
         }
+      />
+      <DeleteRecordDialog
+        noun="investor"
+        target={toDelete && { name: toDelete.fullName ?? toDelete.phone ?? 'This investor' }}
+        onClose={() => setToDelete(null)}
       />
     </>
   )
