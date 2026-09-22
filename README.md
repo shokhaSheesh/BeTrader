@@ -18,6 +18,11 @@ npm run dev        # http://localhost:3000
 | `npm run lint`      | oxlint                       |
 | `npm run format`    | Prettier on `src/`           |
 
+## Deploying (Vercel)
+
+- **No environment variables are required.** The app defaults to u-code's public API hosts (`shared/config/env.ts`). Set `VITE_API_URL` / `VITE_AUTH_URL` only to use a different backend.
+- `vercel.json` sends every path to `index.html`, so deep links and page refreshes (e.g. `/finance/orders`) work.
+
 ## Stack
 
 | Concern      | Choice                                  |
