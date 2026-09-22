@@ -51,7 +51,7 @@ export function Sidebar() {
       </div>
       <nav
         className={cn(
-          'flex flex-1 flex-col gap-0.5 overflow-y-auto pb-4',
+          'flex flex-1 flex-col gap-0.5 overflow-y-auto pb-4 [&>*]:shrink-0',
           collapsed ? 'items-center px-2' : 'px-3',
         )}
       >
