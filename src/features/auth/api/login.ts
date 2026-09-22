@@ -14,6 +14,7 @@ interface LoginResponse {
       token: { access_token: string; refresh_token: string; expires_at: string }
       environment_id: string
       resource_id: string
+      role: { id: string; project_id: string }
     }
   }
 }
@@ -24,7 +25,7 @@ async function login({ login, password }: LoginCredentials): Promise<Session> {
     username: login,
     password,
   })
-  const { token, environment_id, resource_id } = data.data.response
+  const { token, environment_id, resource_id, role } = data.data.response
   return {
     accessToken: token.access_token,
     refreshToken: token.refresh_token,
@@ -32,6 +33,8 @@ async function login({ login, password }: LoginCredentials): Promise<Session> {
     environmentId: environment_id,
     resourceId: resource_id,
     login,
+    roleId: role.id,
+    projectId: role.project_id,
   }
 }
 

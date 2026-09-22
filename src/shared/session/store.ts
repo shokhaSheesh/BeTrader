@@ -9,6 +9,9 @@ export interface Session {
   environmentId: string
   resourceId: string
   login: string
+  /** The signed-in user's role and project: permissions are looked up by these */
+  roleId: string
+  projectId: string
 }
 
 interface SessionState {
@@ -24,7 +27,12 @@ export const useSessionStore = create<SessionState>()(
       setSession: (session) => set({ session }),
       logout: () => set({ session: null }),
     }),
-    { name: 'niyat-admin-auth', version: 1 },
+    {
+      name: 'niyat-admin-auth',
+      version: 2,
+      // v1 sessions have no role: sign in again so permissions can be loaded.
+      migrate: () => ({ session: null }) as unknown as SessionState,
+    },
   ),
 )
 

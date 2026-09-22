@@ -11,6 +11,7 @@ import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatAmount, formatPhone } from '@/shared/lib/format'
 import {
@@ -107,6 +108,7 @@ export default function ProjectInvestorsPage() {
   const columns = [
     ...buildColumns(fields.fieldLabel),
     actionsColumn<ProjectInvestor>({
+      table: PROJECT_INVESTORS_TABLE,
       onView: (r) => navigate(RECORDS.projectInvestors.detail(r.id)),
       onEdit: (r) => navigate(RECORDS.projectInvestors.edit(r.id)),
       onDelete: setToDelete,
@@ -119,9 +121,11 @@ export default function ProjectInvestorsPage() {
         title="Project investors"
         description="Who invested in which project, and how much."
         actions={
-          <ButtonLink to={RECORDS.projectInvestors.create} icon={Plus}>
-            Add investment
-          </ButtonLink>
+          <Can table={PROJECT_INVESTORS_TABLE} action="create">
+            <ButtonLink to={RECORDS.projectInvestors.create} icon={Plus}>
+              Add investment
+            </ButtonLink>
+          </Can>
         }
       />
 

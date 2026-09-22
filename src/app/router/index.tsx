@@ -1,10 +1,11 @@
 /* oxlint-disable react/only-export-components -- route config module, not an HMR boundary */
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react'
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
-import { NAVIGATION } from '@/shared/config/navigation'
+import { NAVIGATION, type NavLeaf } from '@/shared/config/navigation'
+import type { Action, Resource } from '@/shared/permissions'
 import { RECORDS, ROUTES } from '@/shared/config/routes'
 import { AdminLayout } from '@/widgets/layout/AdminLayout'
-import { GuestRoute, ProtectedRoute } from './guards'
+import { GuestRoute, ProtectedRoute, RequireAccess } from './guards'
 
 const LoginPage = lazy(() => import('@/pages/login'))
 const NotFoundPage = lazy(() => import('@/pages/not-found'))
@@ -45,6 +46,7 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.referrals.settings]: lazy(() => import('@/pages/link-settings')),
   [ROUTES.integrations.bitrixLeads]: lazy(() => import('@/pages/bitrix-leads')),
   [ROUTES.staff.employees]: lazy(() => import('@/pages/employees')),
+  [ROUTES.staff.roles]: lazy(() => import('@/pages/roles')),
 }
 
 /** Detail / create / edit pages per record type. */
@@ -210,27 +212,57 @@ const RECORD_PAGES: {
     create: lazy(() => import('@/pages/employees/CreatePage')),
     edit: lazy(() => import('@/pages/employees/EditPage')),
   },
+  {
+    routes: RECORDS.roles,
+    detail: lazy(() => import('@/pages/roles/DetailPage')),
+    create: lazy(() => import('@/pages/roles/CreatePage')),
+    edit: lazy(() => import('@/pages/roles/EditPage')),
+  },
 ]
-
-const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(
-  ({ routes, detail: Detail, create: Create, edit: Edit }) => [
-    ...(Create ? [{ path: routes.patterns.create, element: <Create /> }] : []),
-    ...(Detail ? [{ path: routes.patterns.detail, element: <Detail /> }] : []),
-    ...(Edit ? [{ path: routes.patterns.edit, element: <Edit /> }] : []),
-  ],
-)
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={null}>{node}</Suspense>
 
-function pageRoute(path: string, title: string): RouteObject {
+function pageRoute(path: string, title: string, resource: Resource): RouteObject {
   const Page = PAGES[path]
-  return { path, element: withSuspense(Page ? <Page /> : <PlaceholderPage title={title} />) }
+  return {
+    path,
+    element: withAccess(resource, 'read', Page ? <Page /> : <PlaceholderPage title={title} />),
+  }
 }
 
-const sectionRoutes: RouteObject[] = NAVIGATION.flatMap((entry) => {
-  if (entry.kind === 'link') return [pageRoute(entry.to, entry.label)]
+const withAccess = (resource: Resource, action: Action, node: ReactNode) =>
+  withSuspense(
+    <RequireAccess resource={resource} action={action}>
+      {node}
+    </RequireAccess>,
+  )
 
-  const routes = entry.items.map((item) => pageRoute(item.to, item.label))
+/** Every page's resource comes from its sidebar item (one source of truth). */
+const LEAVES: NavLeaf[] = NAVIGATION.flatMap((e) => (e.kind === 'link' ? [e] : e.items))
+const resourceFor = (listPath: string): Resource =>
+  LEAVES.find((l) => l.to === listPath)?.resource ?? {}
+
+const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(
+  ({ routes, detail: Detail, create: Create, edit: Edit }) => {
+    const resource = resourceFor(routes.list)
+    return [
+      ...(Create
+        ? [{ path: routes.patterns.create, element: withAccess(resource, 'create', <Create />) }]
+        : []),
+      ...(Detail
+        ? [{ path: routes.patterns.detail, element: withAccess(resource, 'read', <Detail />) }]
+        : []),
+      ...(Edit
+        ? [{ path: routes.patterns.edit, element: withAccess(resource, 'update', <Edit />) }]
+        : []),
+    ]
+  },
+)
+
+const sectionRoutes: RouteObject[] = NAVIGATION.flatMap((entry) => {
+  if (entry.kind === 'link') return [pageRoute(entry.to, entry.label, entry.resource)]
+
+  const routes = entry.items.map((item) => pageRoute(item.to, item.label, item.resource))
   const rootIsPage = entry.items.some((item) => item.to === entry.root)
   if (!rootIsPage) {
     routes.push({ path: entry.root, element: <Navigate to={entry.items[0].to} replace /> })

@@ -9,6 +9,7 @@ import {
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -73,9 +74,11 @@ export default function Page() {
         title="AML blacklist"
         description="People who must not be onboarded or transacted with."
         actions={
-          <ButtonLink to={RECORDS.amlBlacklist.create} icon={Plus}>
-            Add to blacklist
-          </ButtonLink>
+          <Can table={BLACKLIST_TABLE} action="create">
+            <ButtonLink to={RECORDS.amlBlacklist.create} icon={Plus}>
+              Add to blacklist
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -89,6 +92,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<BlacklistEntry>({
+            table: BLACKLIST_TABLE,
             onView: (r) => navigate(RECORDS.amlBlacklist.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.amlBlacklist.edit(r.id)),
             onDelete: setToDelete,

@@ -7,6 +7,7 @@ import { usePolicyTypeOptions } from '@/entities/policy-type'
 import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   AmountCell,
@@ -100,9 +101,11 @@ export default function Page() {
         title="STR/SAR"
         description="Suspicious transaction and activity reports."
         actions={
-          <ButtonLink to={RECORDS.strSar.create} icon={Plus}>
-            File report
-          </ButtonLink>
+          <Can table={STR_SAR_TABLE} action="create">
+            <ButtonLink to={RECORDS.strSar.create} icon={Plus}>
+              File report
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
@@ -123,6 +126,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<StrReport>({
+            table: STR_SAR_TABLE,
             onView: (r) => navigate(RECORDS.strSar.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.strSar.edit(r.id)),
             onDelete: setToDelete,

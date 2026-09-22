@@ -5,6 +5,7 @@ import { CURRENCY_PERCENT_TABLE, useCurrencyPercentQuery } from '@/entities/curr
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import {
   Button,
   ButtonLink,
@@ -36,12 +37,16 @@ export default function CurrencyPercentDetailPage() {
               title={name}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.currencyPercent.edit(c.id)} icon={Pencil}>
-                    Edit percent
-                  </ButtonLink>
+                  <Can table={CURRENCY_PERCENT_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={CURRENCY_PERCENT_TABLE} action="update">
+                    <ButtonLink to={RECORDS.currencyPercent.edit(c.id)} icon={Pencil}>
+                      Edit percent
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

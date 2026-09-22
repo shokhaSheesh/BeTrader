@@ -5,6 +5,7 @@ import { PROJECT_TYPES_TABLE, useProjectTypeQuery } from '@/entities/project-typ
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { formatDateTime, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
 
@@ -31,12 +32,16 @@ export default function ProjectTypeDetailPage() {
               description={t.nameRu}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.projectTypes.edit(t.id)} icon={Pencil}>
-                    Edit project type
-                  </ButtonLink>
+                  <Can table={PROJECT_TYPES_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={PROJECT_TYPES_TABLE} action="update">
+                    <ButtonLink to={RECORDS.projectTypes.edit(t.id)} icon={Pencil}>
+                      Edit project type
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { PROJECTS_TABLE, useProjectsQuery, type Project } from '@/entities/project'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { multiFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
@@ -164,6 +165,7 @@ export default function ProjectsPage() {
   const columns = [
     ...buildColumns(fields.fieldLabel, fields.optionLabel),
     actionsColumn<Project>({
+      table: PROJECTS_TABLE,
       onView: (p) => navigate(RECORDS.projects.detail(p.id)),
       onEdit: (p) => navigate(RECORDS.projects.edit(p.id)),
       onDelete: setToDelete,
@@ -176,9 +178,11 @@ export default function ProjectsPage() {
         title="Projects"
         description="Investment products available to investors."
         actions={
-          <ButtonLink to={RECORDS.projects.create} icon={Plus}>
-            Create project
-          </ButtonLink>
+          <Can table={PROJECTS_TABLE} action="create">
+            <ButtonLink to={RECORDS.projects.create} icon={Plus}>
+              Create project
+            </ButtonLink>
+          </Can>
         }
       />
 

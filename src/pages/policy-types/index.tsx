@@ -5,6 +5,7 @@ import { POLICY_TYPES_TABLE, usePolicyTypesQuery, type PolicyType } from '@/enti
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -71,15 +72,18 @@ export default function Page() {
         title="Policy types"
         description="The kinds of limits used by transaction policies and STR/SAR reports."
         actions={
-          <ButtonLink to={RECORDS.policyTypes.create} icon={Plus}>
-            Add policy type
-          </ButtonLink>
+          <Can table={POLICY_TYPES_TABLE} action="create">
+            <ButtonLink to={RECORDS.policyTypes.create} icon={Plus}>
+              Add policy type
+            </ButtonLink>
+          </Can>
         }
       />
       <DataTable
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<PolicyType>({
+            table: POLICY_TYPES_TABLE,
             onView: (r) => navigate(RECORDS.policyTypes.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.policyTypes.edit(r.id)),
             onDelete: setToDelete,

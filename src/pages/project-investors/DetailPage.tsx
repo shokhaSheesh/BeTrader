@@ -5,6 +5,7 @@ import { PROJECT_INVESTORS_TABLE, useProjectInvestorQuery } from '@/entities/pro
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { formatAmount, formatDateTime, formatPhone } from '@/shared/lib/format'
 import { Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
 
@@ -29,12 +30,16 @@ export default function ProjectInvestorDetailPage() {
               title={title}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.projectInvestors.edit(r.id)} icon={Pencil}>
-                    Edit investment
-                  </ButtonLink>
+                  <Can table={PROJECT_INVESTORS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={PROJECT_INVESTORS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.projectInvestors.edit(r.id)} icon={Pencil}>
+                      Edit investment
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

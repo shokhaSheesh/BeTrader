@@ -161,6 +161,7 @@ export default function ReferralLinksPage() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<ReferralLink>({
+            table: REFERRAL_LINKS_TABLE,
             onView: (r) => navigate(RECORDS.referralLinks.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.referralLinks.edit(r.id)),
             onDelete: setToDelete,

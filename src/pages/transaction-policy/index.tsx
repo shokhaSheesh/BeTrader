@@ -9,6 +9,7 @@ import {
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -71,15 +72,18 @@ export default function Page() {
         title="Transaction policy"
         description="Limits on top-ups and withdrawals: maximum amounts and how many per day or month."
         actions={
-          <ButtonLink to={RECORDS.transactionPolicy.create} icon={Plus}>
-            Add policy
-          </ButtonLink>
+          <Can table={TRANSACTION_POLICY_TABLE} action="create">
+            <ButtonLink to={RECORDS.transactionPolicy.create} icon={Plus}>
+              Add policy
+            </ButtonLink>
+          </Can>
         }
       />
       <DataTable
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<TransactionPolicy>({
+            table: TRANSACTION_POLICY_TABLE,
             onView: (r) => navigate(RECORDS.transactionPolicy.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.transactionPolicy.edit(r.id)),
             onDelete: setToDelete,

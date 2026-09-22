@@ -8,6 +8,7 @@ import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { toIsoDate } from '@/shared/lib/date'
 import { formatPhone } from '@/shared/lib/format'
@@ -119,9 +120,11 @@ export default function CardsPage() {
         title="Cards"
         description="Payment cards investors have linked in the app."
         actions={
-          <ButtonLink to={RECORDS.cards.create} icon={Plus}>
-            Add card
-          </ButtonLink>
+          <Can table={CARDS_TABLE} action="create">
+            <ButtonLink to={RECORDS.cards.create} icon={Plus}>
+              Add card
+            </ButtonLink>
+          </Can>
         }
       />
 
@@ -158,6 +161,7 @@ export default function CardsPage() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<InvestorCard>({
+            table: CARDS_TABLE,
             onView: (c) => navigate(RECORDS.cards.detail(c.id)),
             onEdit: (c) => navigate(RECORDS.cards.edit(c.id)),
             onDelete: setToDelete,

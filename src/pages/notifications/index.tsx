@@ -9,6 +9,7 @@ import {
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   Badge,
@@ -112,9 +113,11 @@ export default function Page() {
         title="Notifications"
         description="Push notifications sent to investors."
         actions={
-          <ButtonLink to={RECORDS.notifications.create} icon={Plus}>
-            Create notification
-          </ButtonLink>
+          <Can table={NOTIFICATIONS_TABLE} action="create">
+            <ButtonLink to={RECORDS.notifications.create} icon={Plus}>
+              Create notification
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -128,6 +131,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel, fields.optionLabel),
           actionsColumn<NotificationItem>({
+            table: NOTIFICATIONS_TABLE,
             onView: (r) => navigate(RECORDS.notifications.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.notifications.edit(r.id)),
             onDelete: setToDelete,

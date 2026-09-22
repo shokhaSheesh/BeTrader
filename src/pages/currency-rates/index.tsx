@@ -10,6 +10,7 @@ import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatDate } from '@/shared/lib/format'
 import {
@@ -98,9 +99,11 @@ export default function CurrencyRatesPage() {
         title="Currency rates"
         description="The daily USD rate used for conversions."
         actions={
-          <ButtonLink to={RECORDS.currencyRates.create} icon={Plus}>
-            Add currency rate
-          </ButtonLink>
+          <Can table={CURRENCY_RATES_TABLE} action="create">
+            <ButtonLink to={RECORDS.currencyRates.create} icon={Plus}>
+              Add currency rate
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
@@ -115,6 +118,7 @@ export default function CurrencyRatesPage() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<CurrencyRate>({
+            table: CURRENCY_RATES_TABLE,
             onView: (r) => navigate(RECORDS.currencyRates.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.currencyRates.edit(r.id)),
             onDelete: setToDelete,

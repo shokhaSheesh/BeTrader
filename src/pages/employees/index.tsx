@@ -5,6 +5,7 @@ import { EMPLOYEES_TABLE, useEmployeesQuery, type Employee } from '@/entities/em
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   Badge,
@@ -76,9 +77,11 @@ export default function EmployeesPage() {
         title="Employees"
         description="Staff accounts that can sign in to the admin."
         actions={
-          <ButtonLink to={RECORDS.employees.create} icon={Plus}>
-            Add employee
-          </ButtonLink>
+          <Can table={EMPLOYEES_TABLE} action="create">
+            <ButtonLink to={RECORDS.employees.create} icon={Plus}>
+              Add employee
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search} onReset={list.resetAll}>
@@ -92,6 +95,7 @@ export default function EmployeesPage() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<Employee>({
+            table: EMPLOYEES_TABLE,
             onView: (r) => navigate(RECORDS.employees.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.employees.edit(r.id)),
             onDelete: setToDelete,

@@ -9,6 +9,7 @@ import {
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -71,15 +72,18 @@ export default function CurrencyPercentPage() {
         title="Currency percent"
         description="Percentages applied to currency conversion, transactions and insurance."
         actions={
-          <ButtonLink to={RECORDS.currencyPercent.create} icon={Plus}>
-            Add percent
-          </ButtonLink>
+          <Can table={CURRENCY_PERCENT_TABLE} action="create">
+            <ButtonLink to={RECORDS.currencyPercent.create} icon={Plus}>
+              Add percent
+            </ButtonLink>
+          </Can>
         }
       />
       <DataTable
         columns={[
           ...buildColumns(fields.fieldLabel, (v) => fields.optionLabel('type', v)),
           actionsColumn<CurrencyPercent>({
+            table: CURRENCY_PERCENT_TABLE,
             onView: (c) => navigate(RECORDS.currencyPercent.detail(c.id)),
             onEdit: (c) => navigate(RECORDS.currencyPercent.edit(c.id)),
             onDelete: setToDelete,

@@ -5,6 +5,7 @@ import { DIVIDENDS_TABLE, useDividendQuery } from '@/entities/dividend'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { investorLabel } from '@/shared/lib/format'
 import {
   AmountCell,
@@ -42,12 +43,16 @@ export default function DividendDetailPage() {
               description={d.projectName ?? undefined}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.dividends.edit(d.id)} icon={Pencil}>
-                    Edit dividend
-                  </ButtonLink>
+                  <Can table={DIVIDENDS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={DIVIDENDS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.dividends.edit(d.id)} icon={Pencil}>
+                      Edit dividend
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

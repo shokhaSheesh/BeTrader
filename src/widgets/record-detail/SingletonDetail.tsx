@@ -3,6 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { Pencil } from 'lucide-react'
 import type { Paginated } from '@/shared/types/api'
 import { useTableFields } from '@/shared/api/useTableFields'
+import { usePermissions } from '@/shared/permissions'
 import {
   Button,
   ButtonLink,
@@ -40,6 +41,7 @@ export function SingletonDetail<T extends { id: string }>({
   lead,
 }: SingletonDetailProps<T>) {
   const fields = useTableFields(table)
+  const { can } = usePermissions()
   const record = query.data?.items[0]
 
   if (query.isPending || fields.isPending) return <PageLoader />
@@ -79,9 +81,11 @@ export function SingletonDetail<T extends { id: string }>({
         title={title}
         description={description}
         actions={
-          <ButtonLink to={editTo(record)} icon={Pencil}>
-            Edit
-          </ButtonLink>
+          can(table, 'update') && (
+            <ButtonLink to={editTo(record)} icon={Pencil}>
+              Edit
+            </ButtonLink>
+          )
         }
       />
       <div className="flex flex-col gap-6">

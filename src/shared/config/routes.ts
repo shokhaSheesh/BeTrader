@@ -62,6 +62,7 @@ export const ROUTES = {
   staff: {
     root: '/staff',
     employees: '/staff/employees',
+    roles: '/staff/roles',
   },
 } as const
 
@@ -107,4 +108,5 @@ export const RECORDS = {
   linkSettings: recordRoutes(ROUTES.referrals.settings),
   bitrixLeads: recordRoutes(ROUTES.integrations.bitrixLeads),
   employees: recordRoutes(ROUTES.staff.employees),
+  roles: recordRoutes(ROUTES.staff.roles),
 }

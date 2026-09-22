@@ -5,6 +5,7 @@ import { RBA_MATRIX_TABLE, useRbaRulesQuery, type RbaRule } from '@/entities/rba
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   AmountCell,
@@ -78,15 +79,18 @@ export default function Page() {
         title="RBA matrix"
         description="Risk-based approach: the risk score given to each transaction amount band."
         actions={
-          <ButtonLink to={RECORDS.rbaMatrix.create} icon={Plus}>
-            Add risk band
-          </ButtonLink>
+          <Can table={RBA_MATRIX_TABLE} action="create">
+            <ButtonLink to={RECORDS.rbaMatrix.create} icon={Plus}>
+              Add risk band
+            </ButtonLink>
+          </Can>
         }
       />
       <DataTable
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<RbaRule>({
+            table: RBA_MATRIX_TABLE,
             onView: (r) => navigate(RECORDS.rbaMatrix.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.rbaMatrix.edit(r.id)),
             onDelete: setToDelete,

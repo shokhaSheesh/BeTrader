@@ -5,6 +5,7 @@ import { CURRENCY_RATES_TABLE, useCurrencyRateQuery } from '@/entities/currency-
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { formatDate } from '@/shared/lib/format'
 import {
   AmountCell,
@@ -38,12 +39,16 @@ export default function CurrencyRateDetailPage() {
               title={<span className="num">{title}</span>}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.currencyRates.edit(r.id)} icon={Pencil}>
-                    Edit rate
-                  </ButtonLink>
+                  <Can table={CURRENCY_RATES_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={CURRENCY_RATES_TABLE} action="update">
+                    <ButtonLink to={RECORDS.currencyRates.edit(r.id)} icon={Pencil}>
+                      Edit rate
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

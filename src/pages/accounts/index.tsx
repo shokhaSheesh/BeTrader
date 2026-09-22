@@ -7,6 +7,7 @@ import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatMoney, formatPhone, investorLabel } from '@/shared/lib/format'
 import {
@@ -108,9 +109,11 @@ export default function AccountsPage() {
         title="Accounts"
         description="Each investor's balances: deposit, investment, interest income and transit."
         actions={
-          <ButtonLink to={RECORDS.accounts.create} icon={Plus}>
-            Create account
-          </ButtonLink>
+          <Can table={ACCOUNTS_TABLE} action="create">
+            <ButtonLink to={RECORDS.accounts.create} icon={Plus}>
+              Create account
+            </ButtonLink>
+          </Can>
         }
       />
 
@@ -131,6 +134,7 @@ export default function AccountsPage() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<Account>({
+            table: ACCOUNTS_TABLE,
             onView: (a) => navigate(RECORDS.accounts.detail(a.id)),
             onEdit: (a) => navigate(RECORDS.accounts.edit(a.id)),
             onDelete: setToDelete,

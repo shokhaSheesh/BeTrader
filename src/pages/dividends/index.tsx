@@ -8,6 +8,7 @@ import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatPhone } from '@/shared/lib/format'
 import {
@@ -162,9 +163,11 @@ export default function DividendsPage() {
         title="Dividends"
         description="Interest accrued to investors per project and period."
         actions={
-          <ButtonLink to={RECORDS.dividends.create} icon={Plus}>
-            Create dividend
-          </ButtonLink>
+          <Can table={DIVIDENDS_TABLE} action="create">
+            <ButtonLink to={RECORDS.dividends.create} icon={Plus}>
+              Create dividend
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
@@ -195,6 +198,7 @@ export default function DividendsPage() {
         columns={[
           ...buildColumns(fields.fieldLabel, opt),
           actionsColumn<Dividend>({
+            table: DIVIDENDS_TABLE,
             onView: (d) => navigate(RECORDS.dividends.detail(d.id)),
             onEdit: (d) => navigate(RECORDS.dividends.edit(d.id)),
             onDelete: setToDelete,

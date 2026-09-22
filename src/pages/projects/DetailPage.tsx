@@ -5,6 +5,7 @@ import { PROJECTS_TABLE, useProjectQuery } from '@/entities/project'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { toneFor } from '@/shared/lib/tones'
 import { formatDate, formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
@@ -55,12 +56,16 @@ export default function ProjectDetailPage() {
               description={p.nameRu}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.projects.edit(p.id)} icon={Pencil}>
-                    Edit project
-                  </ButtonLink>
+                  <Can table={PROJECTS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={PROJECTS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.projects.edit(p.id)} icon={Pencil}>
+                      Edit project
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

@@ -12,6 +12,7 @@ import { equalsFilter } from '@/shared/api/filters'
 import { formatPhone } from '@/shared/lib/format'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -86,9 +87,11 @@ export default function Page() {
         title="Investor score"
         description="Risk scores assigned to investors."
         actions={
-          <ButtonLink to={RECORDS.investorScore.create} icon={Plus}>
-            Add score
-          </ButtonLink>
+          <Can table={INVESTOR_SCORE_TABLE} action="create">
+            <ButtonLink to={RECORDS.investorScore.create} icon={Plus}>
+              Add score
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
@@ -101,6 +104,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<InvestorScore>({
+            table: INVESTOR_SCORE_TABLE,
             onView: (r) => navigate(RECORDS.investorScore.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.investorScore.edit(r.id)),
             onDelete: setToDelete,

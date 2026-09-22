@@ -7,6 +7,7 @@ import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { toIsoDate } from '@/shared/lib/date'
 import { formatPhone } from '@/shared/lib/format'
@@ -220,9 +221,11 @@ export default function InvestorsPage() {
         title="Investors"
         description="Everyone registered in the Niyat app."
         actions={
-          <ButtonLink to={RECORDS.investors.create} icon={Plus}>
-            Create investor
-          </ButtonLink>
+          <Can table={INVESTORS_TABLE} action="create">
+            <ButtonLink to={RECORDS.investors.create} icon={Plus}>
+              Create investor
+            </ButtonLink>
+          </Can>
         }
       />
 
@@ -268,6 +271,7 @@ export default function InvestorsPage() {
         columns={[
           ...buildColumns(fields.fieldLabel, fields.optionLabel),
           actionsColumn<Investor>({
+            table: INVESTORS_TABLE,
             onView: (i) => navigate(RECORDS.investors.detail(i.id)),
             onEdit: (i) => navigate(RECORDS.investors.edit(i.id)),
             onDelete: setToDelete,

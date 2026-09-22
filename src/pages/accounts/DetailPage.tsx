@@ -5,6 +5,7 @@ import { ACCOUNTS_TABLE, useAccountQuery } from '@/entities/account'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { formatMoney, formatPhone, investorLabel } from '@/shared/lib/format'
 import {
   Button,
@@ -45,12 +46,16 @@ export default function AccountDetailPage() {
               }
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.accounts.edit(a.id)} icon={Pencil}>
-                    Edit account
-                  </ButtonLink>
+                  <Can table={ACCOUNTS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={ACCOUNTS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.accounts.edit(a.id)} icon={Pencil}>
+                      Edit account
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

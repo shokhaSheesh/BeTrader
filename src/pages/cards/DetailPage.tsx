@@ -5,6 +5,7 @@ import { CARDS_TABLE, useInvestorCardQuery } from '@/entities/investor-card'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { investorLabel } from '@/shared/lib/format'
 import {
   Button,
@@ -38,12 +39,16 @@ export default function CardDetailPage() {
               description={[c.type, c.cardName].filter(Boolean).join(' · ') || undefined}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.cards.edit(c.id)} icon={Pencil}>
-                    Edit card
-                  </ButtonLink>
+                  <Can table={CARDS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={CARDS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.cards.edit(c.id)} icon={Pencil}>
+                      Edit card
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

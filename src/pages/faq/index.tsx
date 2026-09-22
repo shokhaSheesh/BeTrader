@@ -5,6 +5,7 @@ import { FAQ_TABLE, useFaqItemsQuery, type FaqItem } from '@/entities/faq'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -77,9 +78,11 @@ export default function Page() {
         title="FAQ"
         description="Questions and answers shown in the app."
         actions={
-          <ButtonLink to={RECORDS.faq.create} icon={Plus}>
-            Add question
-          </ButtonLink>
+          <Can table={FAQ_TABLE} action="create">
+            <ButtonLink to={RECORDS.faq.create} icon={Plus}>
+              Add question
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -93,6 +96,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<FaqItem>({
+            table: FAQ_TABLE,
             onView: (r) => navigate(RECORDS.faq.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.faq.edit(r.id)),
             onDelete: setToDelete,

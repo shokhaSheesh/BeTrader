@@ -3,6 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { Pencil, Trash2 } from 'lucide-react'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
+import { usePermissions } from '@/shared/permissions'
 import {
   Button,
   ButtonLink,
@@ -49,7 +50,11 @@ export function RecordDetail<T extends BaseRecord>({
   sections,
 }: RecordDetailProps<T>) {
   const fields = useTableFields(table)
+  const { can } = usePermissions()
   const [deleting, setDeleting] = useState(false)
+  // Edit/Delete show only when both the page offers them and the role may do them (DESIGN.md §6).
+  const showEdit = editTo && can(table, 'update') ? editTo : undefined
+  const showDelete = deleteName && can(table, 'delete') ? deleteName : undefined
 
   return (
     <RecordBoundary query={query} noun={noun} back={back} alsoPending={fields.isPending}>
@@ -60,15 +65,15 @@ export function RecordDetail<T extends BaseRecord>({
             title={title(r)}
             description={description?.(r)}
             actions={
-              (editTo || deleteName) && (
+              (showEdit || showDelete) && (
                 <>
-                  {deleteName && (
+                  {showDelete && (
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
                       Delete
                     </Button>
                   )}
-                  {editTo && (
-                    <ButtonLink to={editTo(r)} icon={Pencil}>
+                  {showEdit && (
+                    <ButtonLink to={showEdit(r)} icon={Pencil}>
                       Edit {noun}
                     </ButtonLink>
                   )}
@@ -89,10 +94,10 @@ export function RecordDetail<T extends BaseRecord>({
               ]}
             />
           </div>
-          {deleteName && (
+          {showDelete && (
             <DeleteRecordDialog
               noun={noun}
-              target={deleting ? { name: deleteName(r) } : null}
+              target={deleting ? { name: showDelete(r) } : null}
               onClose={() => setDeleting(false)}
             />
           )}

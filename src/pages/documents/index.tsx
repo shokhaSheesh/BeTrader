@@ -8,6 +8,7 @@ import { equalsFilter } from '@/shared/api/filters'
 import { formatPhone } from '@/shared/lib/format'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -93,9 +94,11 @@ export default function Page() {
         title="Documents"
         description="Agreements each investor accepted, with their PDFs."
         actions={
-          <ButtonLink to={RECORDS.documents.create} icon={Plus}>
-            Add document
-          </ButtonLink>
+          <Can table={DOCUMENTS_TABLE} action="create">
+            <ButtonLink to={RECORDS.documents.create} icon={Plus}>
+              Add document
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -113,6 +116,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<DocumentItem>({
+            table: DOCUMENTS_TABLE,
             onView: (r) => navigate(RECORDS.documents.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.documents.edit(r.id)),
             onDelete: setToDelete,

@@ -11,6 +11,7 @@ import { dateRangeFilter } from '@/shared/api/filters'
 import { formatDate } from '@/shared/lib/format'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   AmountCell,
@@ -87,9 +88,11 @@ export default function Page() {
         title="Financial modeling"
         description="Daily reference prices used for modeling returns."
         actions={
-          <ButtonLink to={RECORDS.financialModeling.create} icon={Plus}>
-            Add price
-          </ButtonLink>
+          <Can table={FINANCIAL_MODELING_TABLE} action="create">
+            <ButtonLink to={RECORDS.financialModeling.create} icon={Plus}>
+              Add price
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={list.hasFilters} onReset={list.resetAll}>
@@ -104,6 +107,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<FinancialModel>({
+            table: FINANCIAL_MODELING_TABLE,
             onView: (r) => navigate(RECORDS.financialModeling.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.financialModeling.edit(r.id)),
             onDelete: setToDelete,

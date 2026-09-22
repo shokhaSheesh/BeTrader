@@ -311,8 +311,27 @@ The app's 24 and 32 px radii are for large mobile cards and look too soft in a d
 
 ---
 
+## 6. Permissions: the backend decides what each role sees and does
+
+Every page, button and menu follows the signed-in role's permissions, loaded from the backend (`shared/permissions`). Nothing is hardcoded per role.
+
+| What | Rule | Source |
+| --- | --- | --- |
+| **Sidebar item** | Shown only if the role can **read** its table **and** its u-code menu (and every parent folder) is visible to the role | role-permission + Menu API |
+| **Empty section** | Hidden when none of its pages are visible | derived |
+| **Create button** | Only with **create** (u-code `write`) | `<Can table action="create">` |
+| **Edit** (row ⋯ menu, detail page, edit route) | Only with **update** | `actionsColumn({ table })`, `<Can>`, `RecordDetail` |
+| **Delete** | Only with **delete** | same |
+| **A URL the role can't open** (typed or bookmarked) | "You don't have access to this page", naming the role, never a blank page | `RequireAccess` on every route |
+
+- **Hide, don't disable.** A role never sees a button it can't use.
+- Every page's resource (backend table, or a u-code menu link for Dashboard and Analytics) is declared **once**, on its sidebar item in `navigation.ts`; routes and guards read it from there.
+- Permissions load once per session and are cached for 5 minutes. While they load, the sidebar shows the loader, never a flash of forbidden items.
+- **Roles & permissions** (`/staff/roles`) shows each role's sidebar and a View/Create/Edit/Delete matrix, computed with the same functions the app enforces, so what it shows is what the role gets.
+
 ## PR checklist
 
+- [ ] New page: `resource` on its sidebar item; Create/Edit/Delete gated (`Can`, `actionsColumn({ table })`) (§6)
 - [ ] Nothing the backend owns is hardcoded or guessed: labels, units, classifications, calculations (§0)
 - [ ] Every async action has a loading state; skeletons come with a labelled spinner (§1)
 - [ ] No native browser controls: select, date, number, checkbox, confirm, alert, title tooltips (§3)

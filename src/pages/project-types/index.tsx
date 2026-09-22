@@ -8,6 +8,7 @@ import {
 } from '@/entities/project-type'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatNumber } from '@/shared/lib/format'
@@ -101,6 +102,7 @@ export default function ProjectTypesPage() {
   const columns = [
     ...buildColumns(fields.fieldLabel, fields.optionLabel),
     actionsColumn<ProjectType>({
+      table: PROJECT_TYPES_TABLE,
       onView: (t) => navigate(RECORDS.projectTypes.detail(t.id)),
       onEdit: (t) => navigate(RECORDS.projectTypes.edit(t.id)),
       onDelete: setToDelete,
@@ -113,9 +115,11 @@ export default function ProjectTypesPage() {
         title="Project types"
         description="Yield ranges and dividend rules that projects are built on."
         actions={
-          <ButtonLink to={RECORDS.projectTypes.create} icon={Plus}>
-            Create project type
-          </ButtonLink>
+          <Can table={PROJECT_TYPES_TABLE} action="create">
+            <ButtonLink to={RECORDS.projectTypes.create} icon={Plus}>
+              Create project type
+            </ButtonLink>
+          </Can>
         }
       />
 

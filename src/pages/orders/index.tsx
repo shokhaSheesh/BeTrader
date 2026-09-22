@@ -9,6 +9,7 @@ import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatPhone } from '@/shared/lib/format'
 import { toneFor } from '@/shared/lib/tones'
@@ -211,9 +212,11 @@ export default function OrdersPage() {
         title="Orders"
         description="Investors' buy and sell orders on projects."
         actions={
-          <ButtonLink to={RECORDS.orders.create} icon={Plus}>
-            Create order
-          </ButtonLink>
+          <Can table={ORDERS_TABLE} action="create">
+            <ButtonLink to={RECORDS.orders.create} icon={Plus}>
+              Create order
+            </ButtonLink>
+          </Can>
         }
       />
 
@@ -276,6 +279,7 @@ export default function OrdersPage() {
         columns={[
           ...buildColumns(fields.fieldLabel, opt),
           actionsColumn<Order>({
+            table: ORDERS_TABLE,
             onView: (o) => navigate(RECORDS.orders.detail(o.id)),
             onEdit: (o) => navigate(RECORDS.orders.edit(o.id)),
             onDelete: setToDelete,

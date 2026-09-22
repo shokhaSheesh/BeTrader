@@ -5,6 +5,7 @@ import { ORDERS_TABLE, useOrderQuery } from '@/entities/order'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { investorLabel } from '@/shared/lib/format'
 import {
   AmountCell,
@@ -44,12 +45,16 @@ export default function OrderDetailPage() {
               description={o.investorName ?? undefined}
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.orders.edit(o.id)} icon={Pencil}>
-                    Edit order
-                  </ButtonLink>
+                  <Can table={ORDERS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={ORDERS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.orders.edit(o.id)} icon={Pencil}>
+                      Edit order
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

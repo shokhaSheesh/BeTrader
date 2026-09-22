@@ -1,14 +1,16 @@
-import { Eye, Pencil, Trash2 } from 'lucide-react'
-import { RowActions, type Column } from '@/shared/ui'
+import type { Column } from '@/shared/ui'
+import { PermittedRowActions } from './PermittedRowActions'
 
-interface ActionsColumnOptions<T> {
+export interface ActionsColumnOptions<T> {
+  /** Backend table: Edit and Delete appear only if the role may update / delete it */
+  table: string
   onView: (row: T) => void
   onEdit: (row: T) => void
   onDelete: (row: T) => void
 }
 
-/** The ⋯ column every list page ends with: View, Edit, Delete. */
-export function actionsColumn<T>({ onView, onEdit, onDelete }: ActionsColumnOptions<T>): Column<T> {
+/** The ⋯ column every list page ends with: View, plus Edit and Delete when the role allows them. */
+export function actionsColumn<T>(options: ActionsColumnOptions<T>): Column<T> {
   return {
     id: 'actions',
     header: 'Actions',
@@ -16,14 +18,6 @@ export function actionsColumn<T>({ onView, onEdit, onDelete }: ActionsColumnOpti
     align: 'right',
     width: 'w-14',
     skeleton: 'w-6',
-    cell: (row) => (
-      <RowActions
-        actions={[
-          { label: 'View', icon: Eye, onSelect: () => onView(row) },
-          { label: 'Edit', icon: Pencil, onSelect: () => onEdit(row) },
-          { label: 'Delete', icon: Trash2, onSelect: () => onDelete(row), danger: true },
-        ]}
-      />
-    ),
+    cell: (row) => <PermittedRowActions row={row} {...options} />,
   }
 }

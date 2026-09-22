@@ -10,6 +10,7 @@ import {
 } from '@/entities/project-investor'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { formatAmount, formatDateTime, formatNumber, formatPhone } from '@/shared/lib/format'
 import {
   Badge,
@@ -62,12 +63,16 @@ export default function InvestorDetailPage() {
               }
               actions={
                 <>
-                  <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                    Delete
-                  </Button>
-                  <ButtonLink to={RECORDS.investors.edit(i.id)} icon={Pencil}>
-                    Edit investor
-                  </ButtonLink>
+                  <Can table={INVESTORS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
+                  <Can table={INVESTORS_TABLE} action="update">
+                    <ButtonLink to={RECORDS.investors.edit(i.id)} icon={Pencil}>
+                      Edit investor
+                    </ButtonLink>
+                  </Can>
                 </>
               }
             />

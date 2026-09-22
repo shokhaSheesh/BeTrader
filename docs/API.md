@@ -78,6 +78,17 @@ Filters go into the same `data` JSON as paging (`ListParams.filters`, built with
 
 Filters combine with each other and with `search`. **There is no aggregation endpoint** (sum, average, distinct count), so KPIs that need one are shown as "Backend pending" (DESIGN.md §3).
 
+## Roles and permissions (auth API, read-only)
+
+| Call | Endpoint | Used for |
+| --- | --- | --- |
+| Roles | `GET {VITE_AUTH_URL}/v2/role?project-id=…` → `data.data.response` | Roles page |
+| Table rights | `GET /v2/role-permission/detailed/{project}/{role}` → `data.data.tables[].record_permissions` (`read`/`write`/`update`/`delete` = `"Yes"`/`"No"`) | Create/Edit/Delete, route guards |
+| Menu tree | `GET {VITE_API_URL}/v3/menus?parent_id=…&project-id=…` (walked folder by folder; the table slug is `data.table.slug`) | Menu API: which table sits in which menu |
+| Menu visibility | `GET /v2/menu-permission/detailed/{project}/{role}/{parent}` | Sidebar visibility |
+
+Quirks: a **hidden menu returns `permission: {}`** (not `read: false`), so only an explicit `read: true` counts as visible; an **empty folder returns `menus: null`**. The root menu id is a u-code constant (`shared/config/ucode.ts`). The session stores `roleId` and `projectId` from the login response (`data.response.role`). Saving (`PUT /v2/role-permission/detailed`, `POST /v2/role`) is not wired: writes are on hold.
+
 ## File uploads (found, not wired)
 
 u-code's own web app uploads through `POST {VITE_API_URL}/upload`: `multipart/form-data` with the file in a `file` field. It returns `{ filename }`, and PHOTO fields then store the CDN URL (`https://cdn.u-code.io/<bucket>/Media/<filename>`). There's also `POST /v1/files/folder_upload`, plus `GET/PUT/DELETE /v1/files` for managing stored files.

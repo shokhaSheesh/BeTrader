@@ -2,10 +2,16 @@ import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { DropdownMenu as D } from 'radix-ui'
 import { ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { NAVIGATION, type NavGroupEntry, type NavLeaf } from '@/shared/config/navigation'
+import {
+  NAVIGATION,
+  type NavEntry,
+  type NavGroupEntry,
+  type NavLeaf,
+} from '@/shared/config/navigation'
 import { cn } from '@/shared/lib/cn'
 import { useUiStore } from '@/shared/lib/ui-store'
-import { Tooltip } from '@/shared/ui'
+import { usePermissions } from '@/shared/permissions'
+import { Loader, Tooltip } from '@/shared/ui'
 import { menuItem, popoverSurface } from '@/shared/ui/styles'
 import { Logo } from './Logo'
 
@@ -22,6 +28,13 @@ function activeItemPath(items: NavLeaf[], pathname: string) {
 }
 
 export function Sidebar() {
+  const permissions = usePermissions()
+  // Only what the signed-in role may see (Menu API + table read rights); empty sections disappear.
+  const navigation = NAVIGATION.flatMap<NavEntry>((entry) => {
+    if (entry.kind === 'link') return permissions.canSee(entry.resource) ? [entry] : []
+    const items = entry.items.filter((item) => permissions.canSee(item.resource))
+    return items.length ? [{ ...entry, items }] : []
+  })
   const collapsed = useUiStore((s) => s.sidebarCollapsed)
   const toggle = useUiStore((s) => s.toggleSidebar)
   const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose
@@ -42,7 +55,12 @@ export function Sidebar() {
           collapsed ? 'items-center px-2' : 'px-3',
         )}
       >
-        {NAVIGATION.map((entry) =>
+        {permissions.isPending && (
+          <div className="flex justify-center py-6">
+            <Loader size={28} label="Loading menu" />
+          </div>
+        )}
+        {navigation.map((entry) =>
           entry.kind === 'link' ? (
             collapsed ? (
               <Tooltip key={entry.to} content={entry.label}>

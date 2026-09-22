@@ -5,6 +5,7 @@ import { NEWS_TABLE, useNewsQuery, type NewsItem } from '@/entities/news'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -68,15 +69,18 @@ export default function Page() {
         title="News"
         description="Articles shown in the Niyat app."
         actions={
-          <ButtonLink to={RECORDS.news.create} icon={Plus}>
-            Create news
-          </ButtonLink>
+          <Can table={NEWS_TABLE} action="create">
+            <ButtonLink to={RECORDS.news.create} icon={Plus}>
+              Create news
+            </ButtonLink>
+          </Can>
         }
       />
       <DataTable
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<NewsItem>({
+            table: NEWS_TABLE,
             onView: (r) => navigate(RECORDS.news.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.news.edit(r.id)),
             onDelete: setToDelete,

@@ -9,6 +9,7 @@ import {
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import {
   ButtonLink,
@@ -72,9 +73,11 @@ export default function Page() {
         title="SMS templates"
         description="Texts of the SMS messages the platform sends."
         actions={
-          <ButtonLink to={RECORDS.smsTemplates.create} icon={Plus}>
-            Add template
-          </ButtonLink>
+          <Can table={SMS_TEMPLATES_TABLE} action="create">
+            <ButtonLink to={RECORDS.smsTemplates.create} icon={Plus}>
+              Add template
+            </ButtonLink>
+          </Can>
         }
       />
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -88,6 +91,7 @@ export default function Page() {
         columns={[
           ...buildColumns(fields.fieldLabel),
           actionsColumn<SmsTemplate>({
+            table: SMS_TEMPLATES_TABLE,
             onView: (r) => navigate(RECORDS.smsTemplates.detail(r.id)),
             onEdit: (r) => navigate(RECORDS.smsTemplates.edit(r.id)),
             onDelete: setToDelete,
