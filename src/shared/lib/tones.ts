@@ -27,8 +27,15 @@ const OPTION_TONES: Record<string, Record<string, Tone>> = {
     dividend: 'accent',
     transfer: 'neutral',
   },
-  // orders (buy/sell), dividends (profit/debit)
-  type: { buy: 'info', sell: 'danger', profit: 'success', debit: 'danger' },
+  // orders (buy/sell), dividends (profit/debit), notifications (info/warning)
+  type: {
+    buy: 'info',
+    sell: 'danger',
+    profit: 'success',
+    debit: 'danger',
+    info: 'info',
+    warning: 'warning',
+  },
 }
 
 /** Tone for a backend option value; unknown values are neutral. */

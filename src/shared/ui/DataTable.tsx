@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useMinimumLoading } from '@/shared/hooks/useMinimumLoading'
 import { cn } from '@/shared/lib/cn'
 import { Loader } from './Loader'
@@ -35,9 +35,17 @@ interface DataTableProps<T> {
   loadingLabel?: string
 }
 
-// Wide tables scroll sideways; the first column (what the row is) and the actions column stay pinned.
+// Wide tables scroll sideways; then the first column (what the row is) and the actions column stay pinned.
+// Tables that fit have no pinning and no divider: there's nothing to keep in view.
 // Pinned cells need their own background, and an inset shadow instead of a border (borders scroll away).
-function pinClass(index: number, count: number, col: { id: string }, row: 'head' | 'body') {
+function pinClass(
+  index: number,
+  count: number,
+  col: { id: string },
+  row: 'head' | 'body',
+  pinned: boolean,
+) {
+  if (!pinned) return undefined
   const bg =
     row === 'head'
       ? 'bg-surface-muted'
@@ -46,6 +54,21 @@ function pinClass(index: number, count: number, col: { id: string }, row: 'head'
   if (index === count - 1 && col.id === 'actions')
     return cn('sticky right-0 z-[1] shadow-[inset_1px_0_0_var(--color-line)]', bg)
   return undefined
+}
+
+/** True when the table is wider than its box, i.e. it scrolls sideways. Re-checked on resize. */
+function useHorizontalOverflow() {
+  const [el, setEl] = useState<HTMLDivElement | null>(null)
+  const [overflows, setOverflows] = useState(false)
+  useEffect(() => {
+    if (!el) return
+    const check = () => setOverflows(el.scrollWidth > el.clientWidth + 1)
+    const observer = new ResizeObserver(check)
+    observer.observe(el)
+    if (el.firstElementChild) observer.observe(el.firstElementChild)
+    return () => observer.disconnect()
+  }, [el])
+  return [setEl, overflows] as const
 }
 
 export function DataTable<T>({
@@ -61,6 +84,7 @@ export function DataTable<T>({
   loadingLabel,
 }: DataTableProps<T>) {
   const showSkeleton = useMinimumLoading(loading)
+  const [scrollRef, overflows] = useHorizontalOverflow()
   const showFetching = useMinimumLoading(fetching && !loading)
   const isEmpty = !showSkeleton && (!rows || rows.length === 0)
 
@@ -88,7 +112,7 @@ export function DataTable<T>({
       {isEmpty ? (
         emptyState
       ) : (
-        <div className="overflow-x-auto">
+        <div ref={scrollRef} className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-surface-muted">
@@ -100,7 +124,7 @@ export function DataTable<T>({
                       'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted',
                       col.align === 'right' ? 'text-right' : 'text-left',
                       col.width,
-                      pinClass(index, columns.length, col, 'head'),
+                      pinClass(index, columns.length, col, 'head', overflows),
                     )}
                   >
                     {col.hideHeader ? (
@@ -124,7 +148,10 @@ export function DataTable<T>({
                       {columns.map((col, index) => (
                         <td
                           key={col.id}
-                          className={cn('h-14 px-4', pinClass(index, columns.length, col, 'body'))}
+                          className={cn(
+                            'h-14 px-4',
+                            pinClass(index, columns.length, col, 'body', overflows),
+                          )}
                         >
                           <Skeleton
                             className={cn(
@@ -152,7 +179,7 @@ export function DataTable<T>({
                           className={cn(
                             'h-14 px-4 whitespace-nowrap',
                             col.align === 'right' && 'num text-right',
-                            pinClass(index, columns.length, col, 'body'),
+                            pinClass(index, columns.length, col, 'body', overflows),
                           )}
                         >
                           {col.cell(row)}

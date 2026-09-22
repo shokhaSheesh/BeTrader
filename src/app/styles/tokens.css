@@ -80,16 +80,18 @@
   --color-money-in: var(--color-success-text);
   --color-money-out: var(--color-danger-text);
 
-  /* Tariffs: the same colors everywhere (badges, donuts, legends) */
-  --color-tariff-high-yield: var(--niyat-lime);
-  --color-tariff-halal: var(--niyat-green);
-  --color-tariff-conservative: var(--niyat-forest);
-
-  /* Charts */
-  --color-chart-1: var(--niyat-forest); /* single-series default */
-  --color-chart-2: var(--niyat-green);
-  --color-chart-muted: #9a9aa0; /* comparison / benchmark series */
+  /*
+   * Charts. Validated with the dataviz palette checker (lightness band, chroma floor,
+   * colorblind separation). The brand lime and forest fail as data marks (lime is 1.3:1 on white,
+   * forest reads as gray), so charts use passing steps of the same families. DESIGN.md §5 "Charts".
+   */
+  --color-chart-1: #2e7d32; /* single series (bars, the emphasized line) */
+  --color-chart-muted: #9a9aa0; /* comparison / benchmark series (emphasis form) */
   --color-chart-grid: rgb(33 33 37 / 0.08);
+  /* Tariffs: the same colors everywhere (legends, stacked bars, dots) */
+  --color-tariff-high-yield: #94c22f; /* lime family */
+  --color-tariff-halal: #14a08c; /* teal */
+  --color-tariff-conservative: #4b5fc0; /* indigo */
 
   --color-scrim: rgb(33 33 37 / 0.6);
 

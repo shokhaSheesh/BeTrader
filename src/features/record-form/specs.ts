@@ -107,4 +107,166 @@ export const FORM_SPECS = {
       },
     ],
   },
+  news: {
+    table: 'news',
+    sections: [
+      {
+        title: 'English',
+        fields: [
+          { name: 'title_en', kind: 'text' },
+          { name: 'description_en', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Russian',
+        fields: [
+          { name: 'title_ru', kind: 'text' },
+          { name: 'description_ru', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Uzbek',
+        fields: [
+          { name: 'title_uz', kind: 'text' },
+          { name: 'description_uz', kind: 'longText' },
+        ],
+      },
+      { title: 'Photo', description: "Uploading images isn't connected yet.", fields: [] },
+    ],
+  },
+  faq: {
+    table: 'faq',
+    // The backend labels all three languages just "Question" / "Answer", so each language is its own section.
+    sections: [
+      {
+        title: 'English',
+        fields: [
+          { name: 'question_en', kind: 'text' },
+          { name: 'answer_en', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Russian',
+        fields: [
+          { name: 'question_ru', kind: 'text' },
+          { name: 'answer_ru', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Uzbek',
+        fields: [
+          { name: 'question_uz', kind: 'text' },
+          { name: 'answer_uz', kind: 'longText' },
+        ],
+      },
+    ],
+  },
+  documents: {
+    table: 'documents',
+    sections: [
+      { title: 'Owner', fields: [{ name: 'investors_id', kind: 'investor' }] },
+      {
+        title: 'Titles',
+        fields: [
+          { name: 'title_en', kind: 'text' },
+          { name: 'title_ru', kind: 'text' },
+          { name: 'title_uz', kind: 'text' },
+        ],
+      },
+      {
+        title: 'Files',
+        description: "Uploading files isn't connected yet; the current files stay as they are.",
+        fields: [],
+      },
+    ],
+  },
+  aboutUs: {
+    table: 'about_us',
+    sections: [
+      {
+        title: 'Text',
+        fields: [
+          { name: 'text_en', kind: 'longText' },
+          { name: 'text_ru', kind: 'longText' },
+          { name: 'text_uz', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Files',
+        description: "Uploading files isn't connected yet; the current files stay as they are.",
+        fields: [],
+      },
+    ],
+  },
+  contactInfo: {
+    table: 'contact_info',
+    sections: [
+      {
+        title: 'Contacts',
+        fields: [
+          { name: 'phone', kind: 'code' },
+          { name: 'telegram', kind: 'text', hint: 'Full link, e.g. https://t.me/…' },
+        ],
+      },
+    ],
+  },
+  notifications: {
+    table: 'notification',
+    sections: [
+      {
+        title: 'Delivery',
+        fields: [
+          { name: 'type', kind: 'options' },
+          { name: 'send_at', kind: 'date' },
+          { name: 'link', kind: 'text' },
+          { name: 'is_sent', kind: 'switch' },
+        ],
+      },
+      {
+        title: 'English',
+        fields: [
+          { name: 'title_en', kind: 'text' },
+          { name: 'content_en', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Russian',
+        fields: [
+          { name: 'title_ru', kind: 'text' },
+          { name: 'content_ru', kind: 'longText' },
+        ],
+      },
+      {
+        title: 'Uzbek',
+        fields: [
+          { name: 'title_uz', kind: 'text' },
+          { name: 'content_uz', kind: 'longText' },
+        ],
+      },
+    ],
+  },
+  smsTemplates: {
+    table: 'sms_template',
+    sections: [
+      {
+        title: 'Texts',
+        fields: [
+          { name: 'en', kind: 'longText' },
+          { name: 'ru', kind: 'longText' },
+          { name: 'uz', kind: 'longText' },
+          { name: 'text', kind: 'longText' },
+        ],
+      },
+    ],
+  },
+  maintenance: {
+    table: 'maintenance_works',
+    sections: [
+      {
+        title: 'App status',
+        description: 'While this is on, the Niyat app shows a maintenance screen to investors.',
+        fields: [{ name: 'maintenance_works', kind: 'switch' }],
+      },
+    ],
+  },
 } satisfies Record<string, FormSpec>

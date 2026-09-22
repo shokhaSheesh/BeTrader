@@ -18,7 +18,9 @@ function groupDigits(value: number, fractionDigits: { min: number; max: number }
 export function formatMoney(amount: number, currency: Currency = 'UZS') {
   const abs = Math.abs(amount)
   if (currency === 'USD') return `$${groupDigits(abs, { min: 2, max: 2 })}`
-  return `${groupDigits(abs, { min: 0, max: 2 })}${NBSP}UZS`
+  // Whole sums have no decimals (59 330 000 UZS); any fraction shows both digits (14 977 041.70 UZS).
+  const decimals = Number.isInteger(Math.round(abs * 100) / 100) ? 0 : 2
+  return `${groupDigits(abs, { min: decimals, max: 2 })}${NBSP}UZS`
 }
 
 /** Inflow → "+ 390 000 UZS", outflow → "− 390 000 UZS" (real minus sign, U+2212). */

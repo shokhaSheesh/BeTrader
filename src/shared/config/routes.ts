@@ -95,4 +95,12 @@ export const RECORDS = {
   rbaMatrix: recordRoutes(ROUTES.compliance.rbaMatrix),
   strSar: recordRoutes(ROUTES.compliance.strSar),
   policyTypes: recordRoutes(ROUTES.compliance.policyTypes),
+  news: recordRoutes(ROUTES.content.news),
+  faq: recordRoutes(ROUTES.content.faq),
+  documents: recordRoutes(ROUTES.content.documents),
+  aboutUs: recordRoutes(ROUTES.content.aboutUs),
+  contactInfo: recordRoutes(ROUTES.content.contactInfo),
+  notifications: recordRoutes(ROUTES.communication.notifications),
+  smsTemplates: recordRoutes(ROUTES.communication.smsTemplates),
+  maintenance: recordRoutes(ROUTES.communication.maintenance),
 }

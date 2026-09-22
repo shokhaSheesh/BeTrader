@@ -108,20 +108,20 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | RBA matrix | `/compliance/rba-matrix` | `rba_matrix` | 4 ✅ wired |
 | STR/SAR | `/compliance/str-sar` | `str_sar` | 1 ✅ wired |
 | Policy types | `/compliance/policy-types` | `policy_Type` (capital T) | 6 ✅ wired |
-| News | `/content/news` | `news` | 0 |
-| FAQ | `/content/faq` | `faq` | 6 |
-| Documents | `/content/documents` | `documents` | 21 590 |
-| About us | `/content/about-us` | `about_us` | 1 |
-| Contact info | `/content/contact-info` | `contact_info` | 1 |
-| Notifications | `/communication/notifications` | `notification` | 1 |
-| SMS templates | `/communication/sms-templates` | `sms_template` | 7 |
-| Maintenance works | `/communication/maintenance` | `maintenance_works` | 1 |
+| News | `/content/news` | `news` | 0 ✅ wired (empty table) |
+| FAQ | `/content/faq` | `faq` | 6 ✅ wired |
+| Documents | `/content/documents` | `documents` | 21 616 ✅ wired (per-investor agreements) |
+| About us | `/content/about-us` | `about_us` | 1 ✅ wired (settings page) |
+| Contact info | `/content/contact-info` | `contact_info` | 1 ✅ wired (settings page) |
+| Notifications | `/communication/notifications` | `notification` | 1 ✅ wired |
+| SMS templates | `/communication/sms-templates` | `sms_template` | 7 ✅ wired |
+| Maintenance works | `/communication/maintenance` | `maintenance_works` | 1 ✅ wired (settings page) |
 | Referral links | `/referrals/links` | `referral_links` | 795 |
 | Link settings | `/referrals/settings` | `link_settings` | 1 |
 | Bitrix leads | `/integrations/bitrix-leads` | `bitrix_leads` | 12 299 |
 | Employees | `/staff/employees` | `employee` | 5 |
 
-Dashboard and Analytics don't map to one table. They need aggregated data (see `DASHBOARDS.md`).
+Dashboard and Analytics don't map to one table. They need aggregated data (see `DASHBOARDS.md`). **They're built with mock data** (`shared/mocks/analytics.ts`, labelled "Mock data" in the UI) until aggregation endpoints exist.
 
 ## Open questions for the backend
 
@@ -153,6 +153,10 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `str_sar` | The only report has no investor linked (`investors_id` and `investors_id_2` are empty). |
 | `rba_matrix` | Scores 1/3/5/7 per amount band: what do they mean (risk level?), and in which currency are the bands? The admin shows them uncolored until that's defined. |
 | `financial_modeling` | `search` returns 0 for every term; only one series (SP500) so far. |
+| More label typos | `news.description_*` "Descibtion" · `documents.file_en/file_uz` show raw slugs · `faq` question/answer labels are identical for all three languages · `notification.image` has an empty label · `about_us.files` "files" |
+| `sms_template` | Templates have no name or key, just texts; `text` is filled on 1 of 7. How does the backend pick a template? |
+| File URLs | Uploaded files are stored with **two** ID prefixes (e.g. `<uuid>_<uuid>_PRIVACYPOLICY.pdf`). The admin strips them for display. |
+| `maintenance_works` | A single on/off switch; the admin shows it as a status banner. Toggling it is a write, so it isn't wired. |
 | `dividend`, `currency_rates`, `currency_percent` | `search` is ignored; the pages rely on filters. |
 | `investors.full_name` (Russian) | Same `<nil>` bug in Russian too: `"<nil> Пользователь <nil>"`. |
 | KPIs | Sum endpoints for `project_investors.investment` and `dividend`, plus a distinct count of `investors_id`, so the "Backend pending" cards can show real numbers. |

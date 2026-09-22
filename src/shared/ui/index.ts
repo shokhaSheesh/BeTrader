@@ -40,7 +40,10 @@ export {
   DateCell,
   DateTimeCell,
   DirectionCell,
+  FileLink,
+  FileList,
   ImageCell,
+  LongTextCell,
   MoneyCell,
   NumberCell,
   OptionsCell,
@@ -49,3 +52,5 @@ export {
   TextCell,
   YesNoCell,
 } from './cells'
+export { TextArea } from './TextArea'
+export { TabPanel, Tabs } from './Tabs'

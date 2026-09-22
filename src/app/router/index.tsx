@@ -31,12 +31,22 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.compliance.rbaMatrix]: lazy(() => import('@/pages/rba-matrix')),
   [ROUTES.compliance.strSar]: lazy(() => import('@/pages/str-sar')),
   [ROUTES.compliance.policyTypes]: lazy(() => import('@/pages/policy-types')),
+  [ROUTES.content.news]: lazy(() => import('@/pages/news')),
+  [ROUTES.content.faq]: lazy(() => import('@/pages/faq')),
+  [ROUTES.content.documents]: lazy(() => import('@/pages/documents')),
+  [ROUTES.content.aboutUs]: lazy(() => import('@/pages/about-us')),
+  [ROUTES.content.contactInfo]: lazy(() => import('@/pages/contact-info')),
+  [ROUTES.communication.notifications]: lazy(() => import('@/pages/notifications')),
+  [ROUTES.communication.smsTemplates]: lazy(() => import('@/pages/sms-templates')),
+  [ROUTES.communication.maintenance]: lazy(() => import('@/pages/maintenance')),
+  [ROUTES.analytics.dividends]: lazy(() => import('@/pages/analytics-dividends')),
+  [ROUTES.analytics.tariffs]: lazy(() => import('@/pages/analytics-tariffs')),
 }
 
 /** Detail / create / edit pages per record type. */
 const RECORD_PAGES: {
   routes: (typeof RECORDS)[keyof typeof RECORDS]
-  detail: LazyExoticComponent<ComponentType>
+  detail?: LazyExoticComponent<ComponentType>
   create?: LazyExoticComponent<ComponentType>
   edit?: LazyExoticComponent<ComponentType>
 }[] = [
@@ -146,12 +156,48 @@ const RECORD_PAGES: {
     create: lazy(() => import('@/pages/policy-types/CreatePage')),
     edit: lazy(() => import('@/pages/policy-types/EditPage')),
   },
+  {
+    routes: RECORDS.news,
+    detail: lazy(() => import('@/pages/news/DetailPage')),
+    create: lazy(() => import('@/pages/news/CreatePage')),
+    edit: lazy(() => import('@/pages/news/EditPage')),
+  },
+  {
+    routes: RECORDS.faq,
+    detail: lazy(() => import('@/pages/faq/DetailPage')),
+    create: lazy(() => import('@/pages/faq/CreatePage')),
+    edit: lazy(() => import('@/pages/faq/EditPage')),
+  },
+  {
+    routes: RECORDS.documents,
+    detail: lazy(() => import('@/pages/documents/DetailPage')),
+    create: lazy(() => import('@/pages/documents/CreatePage')),
+    edit: lazy(() => import('@/pages/documents/EditPage')),
+  },
+  {
+    routes: RECORDS.notifications,
+    detail: lazy(() => import('@/pages/notifications/DetailPage')),
+    create: lazy(() => import('@/pages/notifications/CreatePage')),
+    edit: lazy(() => import('@/pages/notifications/EditPage')),
+  },
+  {
+    routes: RECORDS.smsTemplates,
+    detail: lazy(() => import('@/pages/sms-templates/DetailPage')),
+    create: lazy(() => import('@/pages/sms-templates/CreatePage')),
+    edit: lazy(() => import('@/pages/sms-templates/EditPage')),
+  },
+  // Settings page (one record): the list route shows it, so only edit is needed.
+  { routes: RECORDS.aboutUs, edit: lazy(() => import('@/pages/about-us/EditPage')) },
+  // Settings page (one record): the list route shows it, so only edit is needed.
+  { routes: RECORDS.contactInfo, edit: lazy(() => import('@/pages/contact-info/EditPage')) },
+  // Settings page (one record): the list route shows it, so only edit is needed.
+  { routes: RECORDS.maintenance, edit: lazy(() => import('@/pages/maintenance/EditPage')) },
 ]
 
 const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(
   ({ routes, detail: Detail, create: Create, edit: Edit }) => [
     ...(Create ? [{ path: routes.patterns.create, element: <Create /> }] : []),
-    { path: routes.patterns.detail, element: <Detail /> },
+    ...(Detail ? [{ path: routes.patterns.detail, element: <Detail /> }] : []),
     ...(Edit ? [{ path: routes.patterns.edit, element: <Edit /> }] : []),
   ],
 )

@@ -119,13 +119,15 @@ Every list page has the same anatomy, built from the same shared components. No 
 | Filtering and search | **Always on the backend.** Never filter, search or sort rows on the front end: it would only cover the current page and give wrong totals. Only add a filter or search box the backend actually honours (check first, docs/API.md). If it doesn't, leave the control out. |
 | KPI cards | Only where they help a decision; currently **Investors** (identification funnel), **Cards** (expiring or expired), **Orders** (buy, sell, pending) and **Transactions** (count per operation). Status or operation values in KPIs are the backend's options, with labels from the schema. The grid sizes itself to the number of cards. Layout (`KpiCard`): **title** (what is counted, muted) on top, **count** below (`text-2xl font-semibold`), and the **icon on the right in a 56 px tinted circle** whose tone matches what's counted (§5 "Color in data"), vertically centered. No hint line under the count. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet is `pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
 | `DataTable` | Same row height, header style, hover, borders and padding on every page. Status is always a `<Badge>`. Row actions are always an icon menu in the last column. |
-| Columns | **Show every field the backend sends**; never trim columns to fit. Wide tables scroll sideways, and the first column (what the row is) and the ⋯ column stay pinned. Headers are the backend's labels. Cells use the shared renderers in `shared/ui/cells.tsx` (`TextCell`, `CodeCell`, `NumberCell`, `YesNoCell`, `OptionsCell`, `DateCell`, `DateTimeCell`, `ImageCell`), so "—", badges and dates are identical everywhere. **The only exception is secrets:** `pin_code`, push tokens and auth IDs are never shown. |
+| Columns | **Show every field the backend sends**; never trim columns to fit. Wide tables scroll sideways, and **only then** the first column (what the row is) and the ⋯ column are pinned. `DataTable` measures itself, and tables that fit have no pinning and no divider. Headers are the backend's labels. Cells use the shared renderers in `shared/ui/cells.tsx` (`TextCell`, `CodeCell`, `NumberCell`, `YesNoCell`, `OptionsCell`, `DateCell`, `DateTimeCell`, `ImageCell`), so "—", badges and dates are identical everywhere. **The only exception is secrets:** `pin_code`, push tokens and auth IDs are never shown. |
 | Sidebar | Collapsible (the button at the bottom), remembered per browser. Collapsed shows icons only: a tooltip names each item, and a section's pages open in a flyout. The active section stays lime. |
 | `Pagination` | Always at the bottom, always the same component, with the same page sizes (20 / 50 / 100). |
 | Rows | Clicking a row opens its **detail page**. The last column is always the ⋯ menu: View, Edit, Delete (`actionsColumn`). |
 | Detail page | `PageHeader` with a back link; actions on the right are Delete (`danger-ghost`) and **Edit** (primary). Then `DetailSection` panels of label/value pairs, with a "Record" panel (created, updated, ID) last. |
 | Create / edit | A **full page** (`/…/new`, `/…/:id/edit`), not a drawer: our records have too many fields for one. `FormSection` panels, then the sticky `FormFooter` (Cancel, Save). Field labels come from the backend (§0). |
 | Forms | Label above the control, error or hint below (`Field`). |
+| Settings pages | Tables that hold **one record** (About us, Contact info, Maintenance) are not lists: `SingletonDetail` shows the values with an **Edit** button, with no create, delete or table. |
+| Multi-language content | Fields in en/ru/uz are grouped into **English / Russian / Uzbek** sections in forms and detail pages; table headers add the language to the backend label ("Question (En)"). |
 | Delete | Always `ConfirmDialog` (danger), naming the record and saying it can't be undone. It can't be closed while the request runs. |
 | Loading and missing records | `RecordBoundary` covers every detail and edit page with the same loader, error and "doesn't exist" states. |
 | Dates | One format across the app via `formatDateTime()`. |
@@ -253,6 +255,20 @@ The rest of the UI is neutral, and color is saved for **what someone should noti
 **Stays neutral:** currency, account types, payment type, calculation types, anything that's just a category. If every column is colored, nothing stands out. Add a value to `tones.ts` only when it genuinely needs attention.
 
 Tones: `neutral`, `success`, `warning`, `danger`, `info`, `accent` (lime tint with forest text). Each is a pale tint plus a readable text color, all ≥ 5.4:1. The values and labels still come from the backend (§0). Only the color is a front-end presentation choice.
+
+### Charts
+
+Built from our own SVG components (`shared/charts`) following the dataviz method; no chart library.
+
+- **Form first:** trend over time → `ColumnChart` (one series) or `LineChart`; part-to-whole → `StackedBars` (horizontal 100% bars, not donuts); a single number → `KpiCard`.
+- **One axis, always.** Never a dual y-axis. The Niyat vs Central Bank USD rate (both UZS per USD) shares one axis; the comparison series is grey (`chart-muted`) and the one that matters is `chart-1`.
+- **Colors are validated,** not eyeballed (the dataviz palette checker: lightness band, chroma floor, colorblind separation). The brand lime and forest fail as data marks, so charts use passing steps of the same families: `chart-1` `#2E7D32`; tariffs `#94C22F` High-yield · `#14A08C` Halal · `#4B5FC0` Conservative. Color follows the tariff everywhere, never its rank.
+- **Marks:** columns ≤ 24 px with 4 px rounded tops, square at the baseline; lines 2 px; end dots r4 with a 2 px surface ring; 2 px surface gaps between stacked segments; hairline solid grid. Labels inside a fill pick ink or white by the fill's luminance.
+- **Every chart has a hover readout and a table view** (`ChartCard`'s Chart/Table toggle). Tooltips list every series, value first, and never gate a value.
+- **Legends** are shown for 2+ series (line keys for lines, squares for bars); text never takes the series color.
+- **Filters:** one row above everything they scope (date range first, with presets).
+- **KPI values:** proportional figures; long money is shortened ("15.2M UZS") with the exact amount on hover.
+- **Mock data** is allowed only when explicitly requested, lives in `shared/mocks/`, and every card that uses it shows a **Mock data** badge.
 
 ### Components
 

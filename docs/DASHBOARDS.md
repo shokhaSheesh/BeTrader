@@ -1,5 +1,7 @@
 # Dashboards & Analytics: data spec
 
+> **Status (2026-09-22):** all widgets below are built in the admin with **mock data** (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**. Wiring means replacing each mock with an aggregation endpoint.
+
 We draw every chart ourselves (see DESIGN.md), but the **data must match** the dashboards the u-code admin currently embeds. This file lists every widget on those dashboards and what it shows, captured on 2026-09-22.
 
 Tariff (project type) names used across all widgets: **High-yield** (Высокодоходный), **Conservative** (Консервативный), **Halal** (Халяльный).

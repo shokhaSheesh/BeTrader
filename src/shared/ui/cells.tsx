@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { ImageOff, TrendingDown, TrendingUp, User } from 'lucide-react'
+import { FileText, ImageOff, TrendingDown, TrendingUp, User } from 'lucide-react'
 import {
   formatAmount,
   formatDate,
@@ -164,4 +164,41 @@ export function DirectionCell({ value }: { value: string | null | undefined }) {
       </span>
     </Tooltip>
   )
+}
+
+/** A backend file URL (FILE / MULTI_FILE) opening in a new tab. The name is the file part of the URL. */
+export function FileLink({ url }: { url: string | null | undefined }) {
+  if (!url) return <Dash />
+  const name = decodeURIComponent(url.split('/').pop() ?? url).replace(
+    /^([0-9a-f]{8}([-_][0-9a-f]{4}){3}[-_][0-9a-f]{12}_)+/i, // storage may prefix one or more IDs
+    '',
+  )
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex max-w-64 items-center gap-1.5 font-medium underline-offset-4 hover:underline"
+    >
+      <FileText size={16} strokeWidth={1.75} className="shrink-0 text-fg-muted" />
+      <span className="truncate">{name}</span>
+    </a>
+  )
+}
+
+export function FileList({ urls }: { urls: string[] }) {
+  if (!urls.length) return <Dash />
+  return (
+    <span className="flex flex-col gap-1.5">
+      {urls.map((u) => (
+        <FileLink key={u} url={u} />
+      ))}
+    </span>
+  )
+}
+
+/** Long text (MULTI_LINE) kept readable in a table cell: one line, cut with an ellipsis. */
+export function LongTextCell({ value }: { value: string | null | undefined }) {
+  return value ? <span className="block max-w-96 truncate">{value}</span> : <Dash />
 }

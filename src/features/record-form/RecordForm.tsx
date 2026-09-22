@@ -10,8 +10,11 @@ import {
   Field,
   FormFooter,
   FormSection,
+  MultiSelect,
   PageLoader,
   Select,
+  SwitchField,
+  TextArea,
   TextField,
 } from '@/shared/ui'
 
@@ -20,7 +23,16 @@ import {
  * Labels come from the backend schema (DESIGN.md §0); values keep the backend's slugs,
  * so the future POST/PUT body maps 1:1. Richer tables (projects, orders…) have their own forms.
  */
-export type FieldKind = 'text' | 'code' | 'number' | 'date' | 'policyType' | 'investor'
+export type FieldKind =
+  | 'text'
+  | 'code'
+  | 'number'
+  | 'date'
+  | 'policyType'
+  | 'investor'
+  | 'longText'
+  | 'switch'
+  | 'options'
 
 export interface FieldSpec {
   name: string
@@ -30,10 +42,11 @@ export interface FieldSpec {
 
 export interface FormSpec {
   table: string
-  sections: { title: string; fields: FieldSpec[] }[]
+  sections: { title: string; description?: string; fields: FieldSpec[] }[]
 }
 
-export type RecordFormValues = Record<string, string | null>
+/** Text, numbers-as-text and dates are strings; switches are booleans; options are string arrays. */
+export type RecordFormValues = Record<string, string | boolean | string[] | null>
 
 interface RecordFormProps {
   spec: FormSpec
@@ -47,14 +60,19 @@ interface RecordFormProps {
 }
 
 function schemaFor(spec: FormSpec) {
-  const shape: Record<string, z.ZodType<string | null, string | null>> = {}
+  type Value = RecordFormValues[string]
+  const shape: Record<string, z.ZodType<Value, Value>> = {}
   for (const f of spec.sections.flatMap((s) => s.fields)) {
     shape[f.name] =
       f.kind === 'number'
         ? numericText
         : f.kind === 'date'
           ? z.string().nullable()
-          : z.string().trim()
+          : f.kind === 'switch'
+            ? z.boolean()
+            : f.kind === 'options'
+              ? z.array(z.string())
+              : z.string().trim()
   }
   return z.object(shape)
 }
@@ -117,7 +135,11 @@ export function RecordForm({
               control={control}
               name={f.name}
               render={({ field }) => (
-                <DatePicker id={f.name} value={field.value} onChange={field.onChange} />
+                <DatePicker
+                  id={f.name}
+                  value={typeof field.value === 'string' ? field.value : null}
+                  onChange={field.onChange}
+                />
               )}
             />
           </Field>
@@ -131,10 +153,44 @@ export function RecordForm({
               render={({ field }) => (
                 <Select
                   id={f.name}
-                  value={field.value || undefined}
+                  value={typeof field.value === 'string' && field.value ? field.value : undefined}
                   onChange={field.onChange}
                   options={policyTypes.options}
                   placeholder={policyTypes.isPending ? 'Loading…' : 'Select'}
+                />
+              )}
+            />
+          </Field>
+        )
+      case 'longText':
+        return <TextArea key={f.name} label={L(f.name)} hint={f.hint} {...register(f.name)} />
+      case 'switch':
+        return (
+          <Controller
+            key={f.name}
+            control={control}
+            name={f.name}
+            render={({ field }) => (
+              <SwitchField
+                label={L(f.name)}
+                checked={field.value === true}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        )
+      case 'options':
+        return (
+          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+            <Controller
+              control={control}
+              name={f.name}
+              render={({ field }) => (
+                <MultiSelect
+                  id={f.name}
+                  value={(field.value as string[]) ?? []}
+                  onChange={field.onChange}
+                  options={fields.fieldOptions(f.name)}
                 />
               )}
             />
@@ -149,7 +205,7 @@ export function RecordForm({
             render={({ field }) => (
               <InvestorPickerField
                 label={L(f.name)}
-                value={field.value ?? ''}
+                value={typeof field.value === 'string' ? field.value : ''}
                 onChange={field.onChange}
                 initialLabel={initialLabels?.[f.name]}
               />
@@ -162,7 +218,7 @@ export function RecordForm({
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       {spec.sections.map((s) => (
-        <FormSection key={s.title} title={s.title}>
+        <FormSection key={s.title} title={s.title} description={s.description}>
           {s.fields.map(render)}
         </FormSection>
       ))}
