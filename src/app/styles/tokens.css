@@ -1,0 +1,19 @@
+/*
+ * Design tokens. Single source of truth for colors, fonts, radii.
+ *
+ * Layer 1 — brand primitives (raw palette). Never use these directly in components.
+ * Layer 2 — semantic tokens (bg, surface, text, accent, ...). Components use ONLY these.
+ *           Mapping is pending the Figma analysis → see docs/DESIGN.md.
+ */
+@theme {
+  /* Layer 1: brand primitives */
+  --color-brand-lime: #c7ef61;
+  --color-brand-ink: #212125;
+  --color-brand-mist: #f1f1f1;
+  --color-brand-forest: #163300;
+
+  /* Layer 2: semantic tokens — TODO: finalize after Figma review */
+
+  /* One family for the whole product — see docs/DESIGN.md §2 */
+  --font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;
+}
