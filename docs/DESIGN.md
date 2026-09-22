@@ -87,7 +87,7 @@ Numbers are the product. They must look like a bank statement, not a crypto land
   | Count | `formatNumber(10697)` | `10 697` |
   | Date | `formatDate` / `formatDateTime` | `08.09.2026` / `08.09.2026 05:00` |
 
-- **Inflow vs outflow:** inflows are `+` in `text-money-in` (green). Outflows are `−` in `text-money-out`, which is the normal ink color, **never red**. This follows the app: taking money out is a normal operation, not an error. Unlike the app, we always show the `−` sign, because admins compare and export ledgers and need the direction without relying on color. Red is only for errors and failed statuses.
+- **Inflow vs outflow:** inflows are `+` and green; outflows are `−` and **red** (a product decision on 2026-09-22 that overrides the app's neutral outflows: admins scanning a ledger should see money leaving at a glance). Always show the sign as well, so the direction never depends on color alone.
 - In tables, amounts are **right-aligned**. The currency code may be smaller or muted, but it uses the same font.
 - KPI figures: `text-2xl font-semibold tracking-tight num`, a solid color, no gradients, no count-up animations.
 - Never switch to a monospace font to make numbers "look technical".
@@ -244,9 +244,9 @@ The rest of the UI is neutral, and color is saved for **what someone should noti
 | --- | --- |
 | **Statuses** | Pending → warning · Confirmed → success · Canceled → danger. Projects: Investment → success, Testing → warning, Closed → neutral |
 | **Transaction operation** | Top up → success · Withdraw → warning · Buy → info · Dividend → accent (lime) · Transfer → neutral |
-| **Key types** | Order Buy → info (Sell neutral) · Dividend Profit → success (Debit neutral) |
+| **Key types** | Order Buy → info · Order **Sell → danger** (money out) · Dividend Profit → success (Debit neutral) |
 | **Identification** | Identified → success · Not identified → warning |
-| **Money direction** (`transactions.type` +/−) | `DirectionCell`: arrow up in a green circle for **in**, arrow down in a grey circle for **out**. Never red (§2) |
+| **Money direction** (`transactions.type` +/−) | `DirectionCell`: arrow up in a green circle for **in**, arrow down in a **red** circle for **out** (§2) |
 | **KPI icons** | The icon circle takes the tone of what it counts (Withdraw KPI = warning, Total = accent). Neutral when nothing stands out |
 
 **Stays neutral:** currency, account types, payment type, calculation types, anything that's just a category. If every column is colored, nothing stands out. Add a value to `tones.ts` only when it genuinely needs attention.

@@ -3,7 +3,7 @@
  *
  * Only values someone should *notice* get a color: statuses, money operations and a few key types.
  * Everything else (currency, account, payment type…) stays neutral. Colors carry meaning:
- *   success = done / money in · warning = needs attention / money out · danger = failed
+ *   success = done / money in · danger = money out (sell, outgoing) or failed · warning = needs attention
  *   info = purchase · accent (lime) = Niyat income (dividends, totals) · neutral = everything else
  *
  * Presentation only: the values and their labels still come from the backend (DESIGN.md §0).
@@ -28,7 +28,7 @@ const OPTION_TONES: Record<string, Record<string, Tone>> = {
     transfer: 'neutral',
   },
   // orders (buy/sell), dividends (profit/debit)
-  type: { buy: 'info', profit: 'success' },
+  type: { buy: 'info', sell: 'danger', profit: 'success' },
 }
 
 /** Tone for a backend option value; unknown values are neutral. */

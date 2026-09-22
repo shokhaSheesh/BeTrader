@@ -144,7 +144,7 @@ export function RecordLink({
   )
 }
 
-/** Money direction ("+" in / "-" out, sent as text by the backend) as an arrow. Out is never red (DESIGN.md §2). */
+/** Money direction ("+" in / "-" out, sent as text by the backend): green arrow up, red arrow down (DESIGN.md §5). */
 export function DirectionCell({ value }: { value: string | null | undefined }) {
   if (value !== '+' && value !== '-') return value ? <CodeCell value={value} /> : <Dash />
   const incoming = value === '+'
@@ -157,7 +157,7 @@ export function DirectionCell({ value }: { value: string | null | undefined }) {
         aria-label={label}
         className={cn(
           'inline-grid size-7 place-items-center rounded-full',
-          incoming ? 'bg-success-tint text-success-text' : 'bg-surface-muted text-fg',
+          incoming ? 'bg-success-tint text-success-text' : 'bg-danger-tint text-danger-text',
         )}
       >
         <Icon size={16} strokeWidth={2} />

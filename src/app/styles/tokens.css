@@ -76,9 +76,9 @@
   --color-info-text: #1a5fb4;
   --color-info-tint: #e6f0fd;
 
-  /* Money direction: inflow green with "+", outflow ink with "−" (never red) */
+  /* Money direction: inflow green "+", outflow red "−" (DESIGN.md §2) */
   --color-money-in: var(--color-success-text);
-  --color-money-out: var(--niyat-ink);
+  --color-money-out: var(--color-danger-text);
 
   /* Tariffs: the same colors everywhere (badges, donuts, legends) */
   --color-tariff-high-yield: var(--niyat-lime);
