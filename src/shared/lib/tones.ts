@@ -18,6 +18,10 @@ const OPTION_TONES: Record<string, Record<string, Tone>> = {
     canceled: 'danger',
     invest: 'success',
     test: 'warning',
+    // bitrix_leads (integration log)
+    error: 'danger',
+    created: 'success',
+    deposit_updated: 'info',
   },
   // transactions
   operation: {

@@ -103,4 +103,8 @@ export const RECORDS = {
   notifications: recordRoutes(ROUTES.communication.notifications),
   smsTemplates: recordRoutes(ROUTES.communication.smsTemplates),
   maintenance: recordRoutes(ROUTES.communication.maintenance),
+  referralLinks: recordRoutes(ROUTES.referrals.links),
+  linkSettings: recordRoutes(ROUTES.referrals.settings),
+  bitrixLeads: recordRoutes(ROUTES.integrations.bitrixLeads),
+  employees: recordRoutes(ROUTES.staff.employees),
 }

@@ -116,10 +116,10 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Notifications | `/communication/notifications` | `notification` | 1 ✅ wired |
 | SMS templates | `/communication/sms-templates` | `sms_template` | 7 ✅ wired |
 | Maintenance works | `/communication/maintenance` | `maintenance_works` | 1 ✅ wired (settings page) |
-| Referral links | `/referrals/links` | `referral_links` | 795 |
-| Link settings | `/referrals/settings` | `link_settings` | 1 |
-| Bitrix leads | `/integrations/bitrix-leads` | `bitrix_leads` | 12 299 |
-| Employees | `/staff/employees` | `employee` | 5 |
+| Referral links | `/referrals/links` | `referral_links` | 798 ✅ wired (no search: broken; no create, since the app creates them) |
+| Link settings | `/referrals/settings` | `link_settings` | 1 ✅ wired (settings page) |
+| Bitrix leads | `/integrations/bitrix-leads` | `bitrix_leads` | 12 306 ✅ wired, read-only log |
+| Employees | `/staff/employees` | `employee` | 5 ✅ wired |
 
 Dashboard and Analytics don't map to one table. They need aggregated data (see `DASHBOARDS.md`). **They're built with mock data** (`shared/mocks/analytics.ts`, labelled "Mock data" in the UI) until aggregation endpoints exist.
 
@@ -156,6 +156,10 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | More label typos | `news.description_*` "Descibtion" · `documents.file_en/file_uz` show raw slugs · `faq` question/answer labels are identical for all three languages · `notification.image` has an empty label · `about_us.files` "files" |
 | `sms_template` | Templates have no name or key, just texts; `text` is filled on 1 of 7. How does the backend pick a template? |
 | File URLs | Uploaded files are stored with **two** ID prefixes (e.g. `<uuid>_<uuid>_PRIVACYPOLICY.pdf`). The admin strips them for display. |
+| `employee` | **Security:** every row sends the employee's `password` (hashed) and `user_id_auth` to the admin client. Never shown, but they shouldn't leave the backend. Role name typo: "Sale Maneger". |
+| `referral_links` | `search` returns 0 for any term. The reward links (`transactions_id` "Bonus transaction", `transactions_id_2` "1-st investment transaction") are empty on every row checked. |
+| `link_settings.base_url` | Points to `https://demo.betrader.uz/invite`, a demo domain. Is that the production value? |
+| `bitrix_leads.status` | Free text (`created`, `error`, `deposit_updated`); the admin's status filter and KPIs use these observed values. Make it a select with options so they come from the schema. Label typo: `bitrix_method` "Mitrix method". |
 | `maintenance_works` | A single on/off switch; the admin shows it as a status banner. Toggling it is a write, so it isn't wired. |
 | `dividend`, `currency_rates`, `currency_percent` | `search` is ignored; the pages rely on filters. |
 | `investors.full_name` (Russian) | Same `<nil>` bug in Russian too: `"<nil> Пользователь <nil>"`. |

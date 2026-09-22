@@ -41,6 +41,10 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.communication.maintenance]: lazy(() => import('@/pages/maintenance')),
   [ROUTES.analytics.dividends]: lazy(() => import('@/pages/analytics-dividends')),
   [ROUTES.analytics.tariffs]: lazy(() => import('@/pages/analytics-tariffs')),
+  [ROUTES.referrals.links]: lazy(() => import('@/pages/referral-links')),
+  [ROUTES.referrals.settings]: lazy(() => import('@/pages/link-settings')),
+  [ROUTES.integrations.bitrixLeads]: lazy(() => import('@/pages/bitrix-leads')),
+  [ROUTES.staff.employees]: lazy(() => import('@/pages/employees')),
 }
 
 /** Detail / create / edit pages per record type. */
@@ -192,6 +196,20 @@ const RECORD_PAGES: {
   { routes: RECORDS.contactInfo, edit: lazy(() => import('@/pages/contact-info/EditPage')) },
   // Settings page (one record): the list route shows it, so only edit is needed.
   { routes: RECORDS.maintenance, edit: lazy(() => import('@/pages/maintenance/EditPage')) },
+  // App-created and read-only records: no create page (referral links, Bitrix log)
+  {
+    routes: RECORDS.referralLinks,
+    detail: lazy(() => import('@/pages/referral-links/DetailPage')),
+    edit: lazy(() => import('@/pages/referral-links/EditPage')),
+  },
+  { routes: RECORDS.linkSettings, edit: lazy(() => import('@/pages/link-settings/EditPage')) },
+  { routes: RECORDS.bitrixLeads, detail: lazy(() => import('@/pages/bitrix-leads/DetailPage')) },
+  {
+    routes: RECORDS.employees,
+    detail: lazy(() => import('@/pages/employees/DetailPage')),
+    create: lazy(() => import('@/pages/employees/CreatePage')),
+    edit: lazy(() => import('@/pages/employees/EditPage')),
+  },
 ]
 
 const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(

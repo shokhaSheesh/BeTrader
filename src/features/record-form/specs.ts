@@ -269,4 +269,51 @@ export const FORM_SPECS = {
       },
     ],
   },
+  referralLinks: {
+    table: 'referral_links',
+    sections: [
+      {
+        title: 'Status',
+        description:
+          'Referral links are created by the app when an investor shares an invite; the admin can switch one off.',
+        fields: [{ name: 'is_active', kind: 'switch' }],
+      },
+    ],
+  },
+  linkSettings: {
+    table: 'link_settings',
+    sections: [
+      {
+        title: 'Referral program',
+        fields: [
+          { name: 'sender_percentage', kind: 'number' },
+          { name: 'base_url', kind: 'text' },
+        ],
+      },
+    ],
+  },
+  employees: {
+    table: 'employee',
+    sections: [
+      {
+        title: 'Account',
+        fields: [
+          { name: 'login', kind: 'code' },
+          {
+            name: 'password',
+            kind: 'password',
+            hint: 'On edit, leave empty to keep the current password',
+          },
+        ],
+      },
+      {
+        title: 'Access',
+        fields: [
+          { name: 'role_id', kind: 'lookup', table: 'role', labelField: 'name' },
+          { name: 'client_type_id', kind: 'lookup', table: 'client_type', labelField: 'name' },
+        ],
+      },
+      { title: 'Photo', description: "Uploading images isn't connected yet.", fields: [] },
+    ],
+  },
 } satisfies Record<string, FormSpec>

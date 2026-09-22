@@ -10,3 +10,4 @@ export type ProjectJoin = { name_en: string | null } | null
 export type AccountJoin = { deposit: number | null; invest: number | null } | null
 export type CardJoin = { masked_pan: string | null; type: string | null } | null
 export type OrderJoin = { external_order_id: string | null } | null
+export type NameJoin = { name: string | null } | null

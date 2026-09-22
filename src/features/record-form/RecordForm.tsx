@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { InvestorPickerField } from '@/entities/investor'
 import { usePolicyTypeOptions } from '@/entities/policy-type'
+import { useLookupOptions } from '@/shared/api/useLookupOptions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { numericText } from '@/shared/lib/form'
 import {
@@ -33,11 +34,16 @@ export type FieldKind =
   | 'longText'
   | 'switch'
   | 'options'
+  | 'password'
+  | 'lookup'
 
 export interface FieldSpec {
   name: string
   kind: FieldKind
   hint?: string
+  /** `lookup` only: the backend table to pick from and the field to show */
+  table?: string
+  labelField?: string
 }
 
 export interface FormSpec {
@@ -162,6 +168,36 @@ export function RecordForm({
             />
           </Field>
         )
+      case 'password':
+        // Never prefilled; empty on edit means "keep the current password".
+        return (
+          <TextField
+            key={f.name}
+            type="password"
+            autoComplete="new-password"
+            label={L(f.name)}
+            hint={f.hint}
+            {...register(f.name)}
+          />
+        )
+      case 'lookup':
+        return (
+          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+            <Controller
+              control={control}
+              name={f.name}
+              render={({ field }) => (
+                <LookupSelect
+                  id={f.name}
+                  table={f.table!}
+                  labelField={f.labelField ?? 'name'}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </Field>
+        )
       case 'longText':
         return <TextArea key={f.name} label={L(f.name)} hint={f.hint} {...register(f.name)} />
       case 'switch':
@@ -224,5 +260,31 @@ export function RecordForm({
       ))}
       <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
     </form>
+  )
+}
+
+/** Dropdown of records from another (small) backend table, e.g. roles by name. */
+function LookupSelect({
+  id,
+  table,
+  labelField,
+  value,
+  onChange,
+}: {
+  id: string
+  table: string
+  labelField: string
+  value: string
+  onChange: (v: string) => void
+}) {
+  const lookup = useLookupOptions(table, labelField)
+  return (
+    <Select
+      id={id}
+      value={value || undefined}
+      onChange={onChange}
+      options={lookup.options}
+      placeholder={lookup.isPending ? 'Loading…' : 'Select'}
+    />
   )
 }
