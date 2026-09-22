@@ -1,6 +1,6 @@
 import { ButtonLink, Button } from './Button'
 
-/** Sticky Cancel / Save bar at the bottom of every create and edit page. */
+/** Cancel / Save panel at the end of every create and edit page; it floats at the bottom while the form scrolls. */
 export function FormFooter({
   cancelTo,
   submitLabel,
@@ -11,7 +11,7 @@ export function FormFooter({
   submitting?: boolean
 }) {
   return (
-    <div className="sticky -bottom-6 z-10 -mx-6 mt-6 -mb-6 flex justify-end gap-2 border-t border-line bg-surface px-6 py-4">
+    <div className="sticky bottom-0 z-10 mt-6 flex justify-end gap-2 rounded-md border border-line bg-surface px-6 py-4 shadow-popover">
       <ButtonLink to={cancelTo} variant="secondary">
         Cancel
       </ButtonLink>

@@ -37,10 +37,15 @@ interface PermissionMatrixProps {
   tables: Tables
   /** Edit mode: checkboxes instead of marks */
   onToggle?: (slug: string, action: Action) => void
+  /** Edit mode: set one action for every table at once (column header checkbox) */
+  onToggleColumn?: (action: Action, value: boolean) => void
 }
 
 /** A role's record rights per table: View / Create / Edit / Delete. */
-export function PermissionMatrix({ tables, onToggle }: PermissionMatrixProps) {
+export function PermissionMatrix({ tables, onToggle, onToggleColumn }: PermissionMatrixProps) {
+  const all = [...tables.values()]
+  const columnState = (a: Action) =>
+    all.every((t) => t[a]) ? true : all.some((t) => t[a]) ? 'mixed' : false
   const th = 'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted'
   return (
     <div className="overflow-x-auto rounded-md border border-line bg-surface">
@@ -50,7 +55,21 @@ export function PermissionMatrix({ tables, onToggle }: PermissionMatrixProps) {
             <th className={`${th} text-left`}>Page</th>
             {ACTIONS.map((a) => (
               <th key={a.key} className={`${th} w-28 text-center`}>
-                {a.label}
+                {onToggleColumn ? (
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={columnState(a.key)}
+                    aria-label={`${a.label}: all pages`}
+                    onClick={() => onToggleColumn(a.key, columnState(a.key) !== true)}
+                    className="inline-flex items-center gap-2 rounded-sm px-2 py-1 hover:bg-line"
+                  >
+                    <CheckboxBox checked={columnState(a.key) === true} />
+                    {a.label}
+                  </button>
+                ) : (
+                  a.label
+                )}
               </th>
             ))}
           </tr>

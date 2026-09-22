@@ -1,13 +1,10 @@
-import { useState } from 'react'
 import { useParams } from 'react-router'
 import { useRolesQuery } from '@/entities/role'
 import { notWired } from '@/features/record-actions'
-import { PermissionMatrix } from '@/features/role-permissions'
+import { PermissionMatrix, usePermissionDraft } from '@/features/role-permissions'
 import { RECORDS } from '@/shared/config/routes'
-import { useRoleAccess, type Action, type TablePermission } from '@/shared/permissions'
+import { useRoleAccess } from '@/shared/permissions'
 import { FormFooter, PageHeader, PageLoader } from '@/shared/ui'
-
-type Tables = Map<string, TablePermission & { label: string }>
 
 /** Edits a role's table rights. Saving is PUT /v2/role-permission/detailed: not wired yet (writes are on hold). */
 export default function RoleEditPage() {
@@ -15,17 +12,10 @@ export default function RoleEditPage() {
   const roles = useRolesQuery()
   const access = useRoleAccess(id)
   const role = roles.data?.find((r) => r.id === id)
-  const [draft, setDraft] = useState<Tables | null>(null)
-  const tables = draft ?? access.tables
+  const draft = usePermissionDraft(access.tables)
 
-  if (roles.isPending || access.isPending || !tables) return <PageLoader label="Loading role" />
-
-  const toggle = (slug: string, action: Action) => {
-    const next: Tables = new Map(tables)
-    const t = next.get(slug)!
-    next.set(slug, { ...t, [action]: !t[action] })
-    setDraft(next)
-  }
+  if (roles.isPending || access.isPending || !draft.tables)
+    return <PageLoader label="Loading role" />
 
   return (
     <form
@@ -38,7 +28,11 @@ export default function RoleEditPage() {
         back={{ to: RECORDS.roles.detail(id!), label: role?.name ?? 'Role' }}
         title={`Edit permissions${role ? `: ${role.name}` : ''}`}
       />
-      <PermissionMatrix tables={tables} onToggle={toggle} />
+      <PermissionMatrix
+        tables={draft.tables}
+        onToggle={draft.toggle}
+        onToggleColumn={draft.setColumn}
+      />
       <FormFooter cancelTo={RECORDS.roles.detail(id!)} submitLabel="Save permissions" />
     </form>
   )

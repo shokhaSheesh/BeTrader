@@ -17,6 +17,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Browser autofill paints inputs blue/yellow: keep our own surface and text instead (DESIGN.md §3). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-fg);
+  box-shadow: 0 0 0 1000px var(--color-surface-muted) inset;
+  caret-color: var(--color-fg);
+  transition: background-color 9999s ease-out 0s;
+}
+
 /* In the base layer so a component's own focus style (e.g. inputs) can override it. */
 @layer base {
   :focus-visible {

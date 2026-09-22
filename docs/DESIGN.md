@@ -160,7 +160,7 @@ Every control uses our design. Browser-native UI looks different on every OS and
 | `window.alert` for results | `toast.success / error / info` (top right) |
 | A `title="…"` tooltip | Our `Tooltip` (to build when first needed) |
 | `<input type="file">` | Our upload field (to build when uploads are wired) |
-| The native search clear "×" and autofill yellow | Hidden or overridden; `SearchInput` has its own clear button |
+| The native search clear "×" and the autofill blue/yellow fill | Hidden or overridden globally (`index.css`); `SearchInput` has its own clear button |
 
 Behavior (keyboard, focus trapping, screen readers) comes from **Radix** headless primitives, which carry no styles of their own. Every pixel is ours, so behavior comes from Radix and looks from us. Popovers all share `popoverSurface`, menu rows share `menuItem`, and inputs share `controlBase` (`shared/ui/styles.ts`), so they can't drift apart.
 
@@ -327,7 +327,7 @@ Every page, button and menu follows the signed-in role's permissions, loaded fro
 - **Hide, don't disable.** A role never sees a button it can't use.
 - Every page's resource (backend table, or a u-code menu link for Dashboard and Analytics) is declared **once**, on its sidebar item in `navigation.ts`; routes and guards read it from there.
 - Permissions load once per session and are cached for 5 minutes. While they load, the sidebar shows the loader, never a flash of forbidden items.
-- **Roles & permissions** (`/staff/roles`) shows each role's sidebar and a View/Create/Edit/Delete matrix, computed with the same functions the app enforces, so what it shows is what the role gets.
+- **Roles & permissions** (`/staff/roles`) shows each role's sidebar and a View/Create/Edit/Delete matrix, computed with the same functions the app enforces, so what it shows is what the role gets. Creating a role sets its permissions on the same page (all off to start); column headers switch a right on or off for every page.
 
 ## PR checklist
 
