@@ -202,3 +202,87 @@ export function DateRangeFilter({ label, from, to, onChange }: DateRangeFilterPr
     </Popover.Root>
   )
 }
+
+interface FilterSearchSelectProps {
+  label: string
+  value: string | null
+  /** Label of the selected value (fetched by id, since search results change) */
+  valueLabel?: string
+  onChange: (value: string | null) => void
+  options: SelectOption[]
+  search: string
+  onSearchChange: (term: string) => void
+  loading?: boolean
+  placeholder?: string
+}
+
+/** Filter by a record from a large table (e.g. one investor out of 10k), searched on the backend. */
+export function FilterSearchSelect({
+  label,
+  value,
+  valueLabel,
+  onChange,
+  options,
+  search,
+  onSearchChange,
+  loading,
+  placeholder = 'Search',
+}: FilterSearchSelectProps) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Trigger className={filterTrigger} data-active={!!value} aria-label={label}>
+        <TriggerText label={label} value={value ? (valueLabel ?? '…') : undefined} />
+        <ChevronDown size={16} className="shrink-0 text-fg-muted" />
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content sideOffset={4} align="start" className={cn(popoverSurface, 'w-80 p-0')}>
+          <input
+            autoFocus
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={placeholder}
+            className="h-10 w-full border-b border-line bg-transparent px-3 outline-none placeholder:text-fg-subtle"
+          />
+          <div className="max-h-64 overflow-y-auto p-1">
+            {value && (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(null)
+                  setOpen(false)
+                }}
+                className={cn(menuItem, 'w-full text-left text-fg-muted hover:bg-surface-muted')}
+              >
+                All
+              </button>
+            )}
+            {options.length === 0 ? (
+              <p className="px-3 py-6 text-center text-fg-muted">
+                {loading ? 'Searching…' : 'Nothing found'}
+              </p>
+            ) : (
+              options.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(o.value)
+                    setOpen(false)
+                  }}
+                  className={cn(
+                    menuItem,
+                    'w-full justify-between text-left hover:bg-surface-muted',
+                  )}
+                >
+                  <span className="truncate">{o.label}</span>
+                  {o.value === value && <Check size={16} className="shrink-0" />}
+                </button>
+              ))
+            )}
+          </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}

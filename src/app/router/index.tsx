@@ -17,6 +17,8 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.projects.types]: lazy(() => import('@/pages/project-types')),
   [ROUTES.projects.investors]: lazy(() => import('@/pages/project-investors')),
   [ROUTES.investors.list]: lazy(() => import('@/pages/investors')),
+  [ROUTES.investors.accounts]: lazy(() => import('@/pages/accounts')),
+  [ROUTES.investors.cards]: lazy(() => import('@/pages/cards')),
 }
 
 /** Detail / create / edit pages per record type. */
@@ -49,6 +51,18 @@ const RECORD_PAGES: {
     detail: lazy(() => import('@/pages/investors/DetailPage')),
     create: lazy(() => import('@/pages/investors/CreatePage')),
     edit: lazy(() => import('@/pages/investors/EditPage')),
+  },
+  {
+    routes: RECORDS.accounts,
+    detail: lazy(() => import('@/pages/accounts/DetailPage')),
+    create: lazy(() => import('@/pages/accounts/CreatePage')),
+    edit: lazy(() => import('@/pages/accounts/EditPage')),
+  },
+  {
+    routes: RECORDS.cards,
+    detail: lazy(() => import('@/pages/cards/DetailPage')),
+    create: lazy(() => import('@/pages/cards/CreatePage')),
+    edit: lazy(() => import('@/pages/cards/EditPage')),
   },
 ]
 

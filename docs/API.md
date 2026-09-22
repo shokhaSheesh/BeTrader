@@ -74,9 +74,15 @@ Filters go into the same `data` JSON as paging (`ListParams.filters`, built with
 | Multiselect | `{ "field": ["a", "b"] }`, **always an array**; a plain string gets HTTP 500 | `{ "gender": ["male"] }` gives 3 552 |
 | Lookup (link) | `{ "field": "<guid>" }` | `{ "projects_id": "…" }` gives 82 |
 | Date / number range | `{ "field": { "$gte": …, "$lt": … } }` | `{ "created_time": { "$gte": "2026-09-01T00:00:00Z" } }` |
-| Sort | `"order": { "field": -1 }` | `{ "created_time": -1 }` gives newest first |
+| Sort | `"order": { "field": -1 }` | `{ "created_time": -1 }` gives newest first. **Only schema fields can be sorted:** ordering by `created_at` (a system column) is HTTP 500, although *filtering* on it works. Tables without a schema date field (`account`) are already newest first by default. |
 
 Filters combine with each other and with `search`. **There is no aggregation endpoint** (sum, average, distinct count), so KPIs that need one are shown as "Backend pending" (DESIGN.md §3).
+
+## File uploads (found, not wired)
+
+u-code's own web app uploads through `POST {VITE_API_URL}/upload`: `multipart/form-data` with the file in a `file` field. It returns `{ filename }`, and PHOTO fields then store the CDN URL (`https://cdn.u-code.io/<bucket>/Media/<filename>`). There's also `POST /v1/files/folder_upload`, plus `GET/PUT/DELETE /v1/files` for managing stored files.
+
+**Not wired**, because an upload is a write: it creates a real file on Niyat's CDN, even from a test, and writes are on hold until they're approved (see the top of this file). Once approved, the plan is an `ImageUpload` field (our design, no native `<input type="file">`) for `projects.image` and `investors.image`, confirming the exact response and URL shape with one test upload.
 
 ## Page → table map
 
@@ -88,8 +94,8 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Project types | `/projects/types` | `project_types` | 3 ✅ wired |
 | Project investors | `/projects/investors` | `project_investors` | 109 ✅ wired (no search, see below) |
 | Investors | `/investors` | `investors` | 10 705 ✅ wired (list, detail; create/edit/delete pages built, not wired) |
-| Accounts | `/investors/accounts` | `account` | 10 737 |
-| Cards | `/investors/cards` | `investor_cards` | 1 084 |
+| Accounts | `/investors/accounts` | `account` | 10 742 ✅ wired (no search: broken on this table) |
+| Cards | `/investors/cards` | `investor_cards` | 1 084 ✅ wired |
 | Orders | `/finance/orders` | `orders` | 209 |
 | Transactions | `/finance/transactions` | `transactions` | 3 158 |
 | Dividends | `/finance/dividends` | `dividend` | 2 047 |
@@ -133,6 +139,11 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `investors` | **Security:** every list row returns `pin_code` and `fmc_token` (push token) to the admin client. We never display them, but they shouldn't leave the backend at all. |
 | `investors.full_name` | Unidentified investors have the name `"<nil> Foydalanuvchi <nil>"`, which is Go's `nil` written into a string. Shown as sent (DESIGN.md §0); should be empty or null. |
 | `investors.birth_date` / `issued_date` | Stored as free text (`SINGLE_LINE`), not dates, so they can't be formatted or filtered by range. |
+| `investor_cards.card_token` | **Security:** every list row sends the card's payment token to the admin client. We never show it, but it shouldn't leave the backend. |
+| `investor_cards.type` | Free text ("Humo", "Uzcard"), not a select with options, so we can't offer a type filter without hardcoding values. Make it a select field? |
+| `account` | `search` returns 0 rows for any term (even "a"), so the page has no search box. `full_name` and `tranzit` are empty on every row we checked. Are they still used? |
+| `account` | Sorting by `created_at` returns 500; only schema fields can be sorted. Add a `created_time` field like the other tables? |
+| `investors.full_name` (Russian) | Same `<nil>` bug in Russian too: `"<nil> Пользователь <nil>"`. |
 | KPIs | Sum endpoints for `project_investors.investment` and `dividend`, plus a distinct count of `investors_id`, so the "Backend pending" cards can show real numbers. |
 
 ## Adding a new section

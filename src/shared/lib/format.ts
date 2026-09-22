@@ -62,3 +62,8 @@ export function formatDateTime(value: string | number | Date) {
   const d = new Date(value)
   return `${formatDate(d)} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
+
+/** "ALIYEV VALI · +998 90 123 45 67": how a linked investor is named everywhere */
+export function investorLabel(name: string | null | undefined, phone: string | null | undefined) {
+  return [name || '—', phone && formatPhone(phone)].filter(Boolean).join(' · ')
+}
