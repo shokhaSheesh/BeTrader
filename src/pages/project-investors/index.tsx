@@ -1,26 +1,38 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Plus } from 'lucide-react'
+import { useProjectOptions } from '@/entities/project'
+import { ClipboardList, HandCoins, Plus, UsersRound, Wallet } from 'lucide-react'
 import {
   PROJECT_INVESTORS_TABLE,
   useProjectInvestorsQuery,
   type ProjectInvestor,
 } from '@/entities/project-investor'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
+import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
+import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
 import { useListParams } from '@/shared/hooks/useListParams'
-import { formatAmount, formatDateTime, formatPhone } from '@/shared/lib/format'
+import { formatAmount, formatPhone } from '@/shared/lib/format'
 import {
   ButtonLink,
+  CodeCell,
+  Dash,
   DataTable,
+  DateTimeCell,
+  TextCell,
+  DateRangeFilter,
+  FilterBar,
+  FilterSelect,
+  KpiCard,
+  KpiGrid,
   ListEmptyState,
   PageHeader,
   Pagination,
   type Column,
 } from '@/shared/ui'
 
-const dash = <span className="text-fg-subtle">—</span>
+const FILTER_KEYS = ['project', 'from', 'to'] as const
 
 // Investment and interest income carry no currency in the backend, so none is shown (DESIGN.md §0).
 function buildColumns(label: (field: string) => string): Column<ProjectInvestor>[] {
@@ -30,44 +42,68 @@ function buildColumns(label: (field: string) => string): Column<ProjectInvestor>
       header: label('investors_id'),
       skeleton: 'w-40',
       cell: (r) => (
-        <div>
-          <div className="font-medium">{r.investorName ?? dash}</div>
-          {r.investorPhone && (
-            <div className="num text-xs text-fg-muted">{formatPhone(r.investorPhone)}</div>
-          )}
-        </div>
+        <span className="font-medium">
+          <TextCell value={r.investorName} />
+        </span>
       ),
     },
-    { id: 'project', header: label('projects_id'), cell: (r) => r.projectName ?? dash },
+    {
+      id: 'phone',
+      header: 'Phone',
+      skeleton: 'w-32',
+      cell: (r) => <CodeCell value={r.investorPhone && formatPhone(r.investorPhone)} />,
+    },
+    { id: 'passport', header: 'Passport', cell: (r) => <CodeCell value={r.investorPassport} /> },
+    {
+      id: 'project',
+      header: label('projects_id'),
+      cell: (r) => <TextCell value={r.projectName} />,
+    },
     {
       id: 'investment',
       header: label('investment'),
       align: 'right',
-      cell: (r) => (r.investment != null ? formatAmount(r.investment) : dash),
+      cell: (r) => (r.investment != null ? formatAmount(r.investment) : <Dash />),
     },
     {
       id: 'dividend',
       header: label('dividend'),
       align: 'right',
-      cell: (r) => (r.interestIncome != null ? formatAmount(r.interestIncome) : dash),
+      cell: (r) => (r.interestIncome != null ? formatAmount(r.interestIncome) : <Dash />),
     },
     {
-      id: 'created',
+      id: 'created_time',
       header: label('created_time'),
       align: 'right',
       skeleton: 'w-32',
-      cell: (r) => formatDateTime(r.createdTime),
+      cell: (r) => <DateTimeCell value={r.createdTime} />,
+    },
+    {
+      id: 'updated_time',
+      header: label('updated_time'),
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (r) => <DateTimeCell value={r.updatedTime} />,
     },
   ]
 }
 
 export default function ProjectInvestorsPage() {
-  const list = useListParams()
+  const list = useListParams(FILTER_KEYS)
+  // No search box: the backend ignores `search` on this table (docs/API.md, open questions).
+  // Filters work and run on the backend.
+  const projects = useProjectOptions()
+  const filters = {
+    ...equalsFilter('projects_id', list.filter('project')),
+    ...dateRangeFilter('created_time', list.filter('from'), list.filter('to')),
+  }
   const query = useProjectInvestorsQuery({
     page: list.page,
     pageSize: list.pageSize,
-    search: list.search,
+    filters,
+    order: { created_time: -1 },
   })
+  const investmentsCount = useTableCount(PROJECT_INVESTORS_TABLE)
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   const navigate = useNavigate()
   const [toDelete, setToDelete] = useState<ProjectInvestor | null>(null)
@@ -93,6 +129,43 @@ export default function ProjectInvestorsPage() {
         }
       />
 
+      <KpiGrid>
+        <KpiCard
+          label="Investments"
+          icon={ClipboardList}
+          value={investmentsCount.data}
+          hint="All time, every project"
+        />
+        <KpiCard label="Total invested" icon={Wallet} pending hint="Needs a sum endpoint" />
+        <KpiCard
+          label="Total interest income"
+          icon={HandCoins}
+          pending
+          hint="Needs a sum endpoint"
+        />
+        <KpiCard
+          label="Investors with investments"
+          icon={UsersRound}
+          pending
+          hint="Needs a distinct-count endpoint"
+        />
+      </KpiGrid>
+
+      <FilterBar active={list.hasFilters} onReset={list.resetAll}>
+        <FilterSelect
+          label={fields.fieldLabel('projects_id')}
+          value={list.filter('project')}
+          onChange={(v) => list.setFilters({ project: v })}
+          options={projects.options}
+        />
+        <DateRangeFilter
+          label={fields.fieldLabel('created_time')}
+          from={list.filter('from')}
+          to={list.filter('to')}
+          onChange={({ from, to }) => list.setFilters({ from, to })}
+        />
+      </FilterBar>
+
       <DataTable
         columns={columns}
         rows={query.data?.items}
@@ -100,7 +173,7 @@ export default function ProjectInvestorsPage() {
         onRowClick={(r) => navigate(RECORDS.projectInvestors.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading project investors…"
+        loadingLabel="Loading project investors"
         emptyState={
           <ListEmptyState
             noun="project investors"
@@ -108,7 +181,8 @@ export default function ProjectInvestorsPage() {
             retrying={query.isFetching}
             onRetry={() => query.refetch()}
             search=""
-            onResetSearch={list.resetSearch}
+            filtered={list.hasFilters}
+            onResetSearch={list.resetAll}
           />
         }
         footer={

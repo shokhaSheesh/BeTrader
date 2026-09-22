@@ -28,6 +28,10 @@ export interface ProjectDto {
   status: string[] | null
   /** "End time" */
   end_time: string | null
+  /** "BOARD ORDER" */
+  board_order: number | null
+  /** "Created time" */
+  created_time: string | null
   created_at: string
   updated_at: string
   project_types_id: string | null
@@ -55,6 +59,8 @@ export interface Project {
   endTime: string | null
   typeId: string | null
   typeName: string | null
+  boardOrder: number | null
+  createdTime: string | null
   createdAt: string
   updatedAt: string
 }
@@ -80,6 +86,8 @@ export function toProject(dto: ProjectDto): Project {
     endTime: dto.end_time,
     typeId: dto.project_types_id,
     typeName: dto.project_types_id_data?.name_en ?? null,
+    boardOrder: dto.board_order,
+    createdTime: dto.created_time,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   }

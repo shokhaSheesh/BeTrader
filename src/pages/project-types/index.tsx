@@ -10,10 +10,13 @@ import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
-import { formatDate, formatNumber } from '@/shared/lib/format'
+import { formatNumber } from '@/shared/lib/format'
 import {
-  Badge,
   ButtonLink,
+  Dash,
+  DateTimeCell,
+  OptionsCell,
+  TextCell,
   DataTable,
   FilterBar,
   ListEmptyState,
@@ -23,54 +26,64 @@ import {
   type Column,
 } from '@/shared/ui'
 
-const dash = <span className="text-fg-subtle">—</span>
-const percent = (value: number | null) => (value != null ? `${formatNumber(value)}%` : dash)
-
+// Every field of the `project_types` table; headers are the backend's labels.
 function buildColumns(
+  label: (f: string) => string,
   optionLabel: (field: string, value: string) => string,
 ): Column<ProjectType>[] {
+  const percent = (value: number | null) => (value != null ? `${formatNumber(value)}%` : <Dash />)
   return [
     {
-      id: 'name',
-      header: 'Name',
+      id: 'name_en',
+      header: label('name_en'),
       skeleton: 'w-32',
       cell: (t) => (
-        <div>
-          <div className="font-medium">{t.name}</div>
-          <div className="text-xs text-fg-muted">{t.nameRu}</div>
-        </div>
+        <span className="font-medium">
+          <TextCell value={t.name} />
+        </span>
       ),
     },
+    { id: 'name_ru', header: label('name_ru'), cell: (t) => <TextCell value={t.nameRu} /> },
+    { id: 'name_uz', header: label('name_uz'), cell: (t) => <TextCell value={t.nameUz} /> },
     {
-      id: 'from',
-      header: 'From %',
+      id: 'from_percent',
+      header: label('from_percent'),
       align: 'right',
       skeleton: 'w-10',
       cell: (t) => percent(t.fromPercent),
     },
     {
-      id: 'to',
-      header: 'To %',
+      id: 'to_percent',
+      header: label('to_percent'),
       align: 'right',
       skeleton: 'w-10',
       cell: (t) => percent(t.toPercent),
     },
     {
-      id: 'calculate-dividend',
-      header: 'Calculate dividend',
+      id: 'calculate_dividend',
+      header: label('calculate_dividend'),
       skeleton: 'w-20',
-      cell: (t) =>
-        t.dividendCalculation.length ? (
-          <div className="flex gap-1.5">
-            {t.dividendCalculation.map((v) => (
-              <Badge key={v}>{optionLabel('calculate_dividend', v)}</Badge>
-            ))}
-          </div>
-        ) : (
-          dash
-        ),
+      cell: (t) => (
+        <OptionsCell
+          values={t.dividendCalculation}
+          label={(v) => optionLabel('calculate_dividend', v)}
+        />
+      ),
     },
-    { id: 'updated', header: 'Last updated', align: 'right', cell: (t) => formatDate(t.updatedAt) },
+    {
+      id: 'created_at',
+      header: 'Created',
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (t) => <DateTimeCell value={t.createdAt} />,
+    },
+    {
+      id: 'updated_at',
+      header: 'Last updated',
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (t) => <DateTimeCell value={t.updatedAt} />,
+    },
   ]
 }
 
@@ -86,7 +99,7 @@ export default function ProjectTypesPage() {
   const [toDelete, setToDelete] = useState<ProjectType | null>(null)
 
   const columns = [
-    ...buildColumns(fields.optionLabel),
+    ...buildColumns(fields.fieldLabel, fields.optionLabel),
     actionsColumn<ProjectType>({
       onView: (t) => navigate(RECORDS.projectTypes.detail(t.id)),
       onEdit: (t) => navigate(RECORDS.projectTypes.edit(t.id)),
@@ -106,7 +119,7 @@ export default function ProjectTypesPage() {
         }
       />
 
-      <FilterBar>
+      <FilterBar active={!!list.search} onReset={list.resetAll}>
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
@@ -119,7 +132,7 @@ export default function ProjectTypesPage() {
         rows={query.data?.items}
         getRowId={(t) => t.id}
         onRowClick={(t) => navigate(RECORDS.projectTypes.detail(t.id))}
-        loadingLabel="Loading project types…"
+        loadingLabel="Loading project types"
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}

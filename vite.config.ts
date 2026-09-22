@@ -9,4 +9,9 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: { port: 3000 },
+  build: {
+    // Main chunk is ~505 kB (~155 kB gzipped): React, router, query, Radix. Pages are already lazy chunks.
+    // Revisit (split vendors) if it passes this limit.
+    chunkSizeWarningLimit: 600,
+  },
 })

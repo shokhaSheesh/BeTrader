@@ -23,7 +23,7 @@ export function RecordBoundary<T>({
   alsoPending,
   children,
 }: RecordBoundaryProps<T>) {
-  if (query.isPending || alsoPending) return <PageLoader label={`Loading ${noun}…`} />
+  if (query.isPending || alsoPending) return <PageLoader label={`Loading ${noun}`} />
   if (query.error instanceof RecordNotFoundError) {
     return (
       <div className="rounded-md border border-line bg-surface">

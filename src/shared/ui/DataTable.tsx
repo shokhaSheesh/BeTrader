@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { useMinimumLoading } from '@/shared/hooks/useMinimumLoading'
 import { cn } from '@/shared/lib/cn'
-import { LoadingPill } from './PageLoader'
+import { Loader } from './Loader'
 import { Skeleton } from './Skeleton'
 
 export interface Column<T> {
@@ -31,8 +31,21 @@ interface DataTableProps<T> {
   skeletonRows?: number
   /** Makes rows clickable (e.g. open the detail page) */
   onRowClick?: (row: T) => void
-  /** Text in the first-load spinner, e.g. "Loading projects…" */
+  /** Screen-reader label for the first-load loader, e.g. "Loading projects" */
   loadingLabel?: string
+}
+
+// Wide tables scroll sideways; the first column (what the row is) and the actions column stay pinned.
+// Pinned cells need their own background, and an inset shadow instead of a border (borders scroll away).
+function pinClass(index: number, count: number, col: { id: string }, row: 'head' | 'body') {
+  const bg =
+    row === 'head'
+      ? 'bg-surface-muted'
+      : 'bg-surface transition-colors group-hover:bg-surface-hover'
+  if (index === 0) return cn('sticky left-0 z-[1] shadow-[inset_-1px_0_0_var(--color-line)]', bg)
+  if (index === count - 1 && col.id === 'actions')
+    return cn('sticky right-0 z-[1] shadow-[inset_1px_0_0_var(--color-line)]', bg)
+  return undefined
 }
 
 export function DataTable<T>({
@@ -68,7 +81,7 @@ export function DataTable<T>({
           className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pt-10"
           role="status"
         >
-          <LoadingPill label={loadingLabel} />
+          <Loader label={loadingLabel} />
         </div>
       )}
 
@@ -79,7 +92,7 @@ export function DataTable<T>({
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-surface-muted">
-                {columns.map((col) => (
+                {columns.map((col, index) => (
                   <th
                     key={col.id}
                     scope="col"
@@ -87,9 +100,16 @@ export function DataTable<T>({
                       'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted',
                       col.align === 'right' ? 'text-right' : 'text-left',
                       col.width,
+                      pinClass(index, columns.length, col, 'head'),
                     )}
                   >
-                    {col.hideHeader ? <span className="sr-only">{col.header}</span> : col.header}
+                    {col.hideHeader ? (
+                      <span className="sr-only">{col.header}</span>
+                    ) : (
+                      col.header || (
+                        <Skeleton className={cn('h-3 w-12', col.align === 'right' && 'ml-auto')} />
+                      )
+                    )}
                   </th>
                 ))}
               </tr>
@@ -100,9 +120,12 @@ export function DataTable<T>({
             >
               {showSkeleton
                 ? Array.from({ length: skeletonRows }, (_, i) => (
-                    <tr key={i} className="border-t border-line">
-                      {columns.map((col) => (
-                        <td key={col.id} className="h-14 px-4">
+                    <tr key={i} className="group border-t border-line">
+                      {columns.map((col, index) => (
+                        <td
+                          key={col.id}
+                          className={cn('h-14 px-4', pinClass(index, columns.length, col, 'body'))}
+                        >
                           <Skeleton
                             className={cn(
                               'h-4',
@@ -119,16 +142,17 @@ export function DataTable<T>({
                       key={getRowId(row)}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
                       className={cn(
-                        'border-t border-line transition-colors hover:bg-surface-hover',
+                        'group border-t border-line transition-colors hover:bg-surface-hover',
                         onRowClick && 'cursor-pointer',
                       )}
                     >
-                      {columns.map((col) => (
+                      {columns.map((col, index) => (
                         <td
                           key={col.id}
                           className={cn(
                             'h-14 px-4 whitespace-nowrap',
                             col.align === 'right' && 'num text-right',
+                            pinClass(index, columns.length, col, 'body'),
                           )}
                         >
                           {col.cell(row)}

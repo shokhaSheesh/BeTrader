@@ -8,6 +8,8 @@ interface ListEmptyStateProps {
   retrying: boolean
   onRetry: () => void
   search: string
+  /** Any filter besides search is active */
+  filtered?: boolean
   onResetSearch: () => void
 }
 
@@ -18,6 +20,7 @@ export function ListEmptyState({
   retrying,
   onRetry,
   search,
+  filtered,
   onResetSearch,
 }: ListEmptyStateProps) {
   if (isError) {
@@ -34,15 +37,17 @@ export function ListEmptyState({
       />
     )
   }
-  if (search) {
+  if (search || filtered) {
     return (
       <EmptyState
         variant="no-results"
-        title="Nothing matches this search"
-        description={`No ${noun} found for “${search}”.`}
+        title={filtered ? 'Nothing matches these filters' : 'Nothing matches this search'}
+        description={
+          filtered ? 'Try changing or resetting the filters.' : `No ${noun} found for “${search}”.`
+        }
         action={
           <Button variant="secondary" onClick={onResetSearch}>
-            Reset search
+            {filtered ? 'Reset filters' : 'Reset search'}
           </Button>
         }
       />

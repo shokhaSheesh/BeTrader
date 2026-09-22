@@ -4,14 +4,24 @@ import { Plus } from 'lucide-react'
 import { PROJECTS_TABLE, useProjectsQuery, type Project } from '@/entities/project'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
+import { multiFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
-import { formatDate, formatMoney, formatNumber } from '@/shared/lib/format'
+import { formatMoney } from '@/shared/lib/format'
 import {
-  Badge,
   ButtonLink,
+  CodeCell,
+  Dash,
+  DateCell,
+  DateTimeCell,
+  ImageCell,
+  NumberCell,
+  OptionsCell,
+  TextCell,
+  YesNoCell,
   DataTable,
   FilterBar,
+  FilterMultiSelect,
   ListEmptyState,
   PageHeader,
   Pagination,
@@ -19,88 +29,140 @@ import {
   type Column,
 } from '@/shared/ui'
 
-const dash = <span className="text-fg-subtle">—</span>
-
 // Headers follow the backend's field labels; values are shown as the backend sends them.
-function buildColumns(optionLabel: (field: string, value: string) => string): Column<Project>[] {
+// Every field of the `projects` table; headers are the backend's labels.
+function buildColumns(
+  label: (f: string) => string,
+  optionLabel: (field: string, value: string) => string,
+): Column<Project>[] {
+  const opt = (field: string) => (v: string) => optionLabel(field, v)
   return [
     {
-      id: 'name',
-      header: 'Project',
+      id: 'name_en',
+      header: label('name_en'),
       skeleton: 'w-40',
       cell: (p) => (
-        <div className="flex items-center gap-3">
-          {p.imageUrl ? (
-            <img
-              src={p.imageUrl}
-              alt=""
-              className="size-9 shrink-0 rounded-sm bg-surface-muted object-cover"
-            />
-          ) : (
-            <span className="size-9 shrink-0 rounded-sm bg-surface-muted" />
-          )}
-          <div className="min-w-0">
-            <div className="font-medium">{p.name}</div>
-            <div className="text-xs text-fg-muted">{p.nameRu}</div>
-          </div>
-        </div>
+        <span className="flex items-center gap-3">
+          <ImageCell src={p.imageUrl} />
+          <span className="font-medium">
+            <TextCell value={p.name} />
+          </span>
+        </span>
       ),
     },
-    { id: 'ticker', header: 'Ticker', skeleton: 'w-10', cell: (p) => p.ticker || dash },
-    { id: 'type', header: 'Project type', cell: (p) => p.typeName ?? dash },
+    { id: 'name_ru', header: label('name_ru'), cell: (p) => <TextCell value={p.nameRu} /> },
+    { id: 'name_uz', header: label('name_uz'), cell: (p) => <TextCell value={p.nameUz} /> },
     {
-      id: 'min',
-      header: 'Minimal amount',
-      align: 'right',
-      cell: (p) => (p.minimalAmount != null ? formatMoney(p.minimalAmount, p.currency) : dash),
+      id: 'ticker',
+      header: label('ticker'),
+      skeleton: 'w-10',
+      cell: (p) => <CodeCell value={p.ticker} />,
     },
     {
-      id: 'maturity',
-      header: 'Maturity, months',
-      align: 'right',
-      skeleton: 'w-8',
-      cell: (p) => (p.maturityMonths != null ? formatNumber(p.maturityMonths) : dash),
+      id: 'project_types_id',
+      header: label('project_types_id'),
+      cell: (p) => <TextCell value={p.typeName} />,
     },
     {
-      id: 'dividend-period',
-      header: 'Dividend accrual period',
+      id: 'currency',
+      header: label('currency'),
+      skeleton: 'w-12',
+      cell: (p) => <OptionsCell values={p.currencies} label={opt('currency')} />,
+    },
+    {
+      id: 'minimal_amount',
+      header: label('minimal_amount'),
+      align: 'right',
+      cell: (p) => (p.minimalAmount != null ? formatMoney(p.minimalAmount, p.currency) : <Dash />),
+    },
+    {
+      id: 'deposit_maturity_month',
+      header: label('deposit_maturity_month'),
       align: 'right',
       skeleton: 'w-8',
-      cell: (p) => (p.dividendAccrualPeriod != null ? formatNumber(p.dividendAccrualPeriod) : dash),
+      cell: (p) => <NumberCell value={p.maturityMonths} />,
+    },
+    {
+      id: 'dividend_period',
+      header: label('dividend_period'),
+      align: 'right',
+      skeleton: 'w-8',
+      cell: (p) => <NumberCell value={p.dividendAccrualPeriod} />,
     },
     {
       id: 'status',
-      header: 'Status',
+      header: label('status'),
       skeleton: 'w-20',
-      cell: (p) =>
-        p.statuses.length ? (
-          <div className="flex gap-1.5">
-            {p.statuses.map((s) => (
-              <Badge key={s}>{optionLabel('status', s)}</Badge>
-            ))}
-          </div>
-        ) : (
-          dash
-        ),
+      cell: (p) => <OptionsCell values={p.statuses} label={opt('status')} />,
     },
     {
-      id: 'end',
-      header: 'End time',
+      id: 'sale',
+      header: label('sale'),
+      skeleton: 'w-8',
+      cell: (p) => <YesNoCell value={p.holdWhileSelling} />,
+    },
+    {
+      id: 'investment',
+      header: label('investment'),
+      skeleton: 'w-8',
+      cell: (p) => <YesNoCell value={p.holdOnInvestment} />,
+    },
+    {
+      id: 'insurance',
+      header: label('insurance'),
+      skeleton: 'w-8',
+      cell: (p) => <YesNoCell value={p.insurance} />,
+    },
+    {
+      id: 'insurance_amount',
+      header: label('insurance_amount'),
       align: 'right',
-      cell: (p) => (p.endTime ? formatDate(p.endTime) : dash),
+      cell: (p) => (p.insuranceAmount != null ? formatMoney(p.insuranceAmount, 'USD') : <Dash />),
+    },
+    {
+      id: 'end_time',
+      header: label('end_time'),
+      align: 'right',
+      cell: (p) => <DateCell value={p.endTime} />,
+    },
+    {
+      id: 'board_order',
+      header: label('board_order'),
+      align: 'right',
+      skeleton: 'w-8',
+      cell: (p) => <NumberCell value={p.boardOrder} />,
+    },
+    {
+      id: 'created_time',
+      header: label('created_time'),
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (p) => <DateTimeCell value={p.createdTime} />,
+    },
+    {
+      id: 'updated_at',
+      header: 'Last updated',
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (p) => <DateTimeCell value={p.updatedAt} />,
     },
   ]
 }
 
 export default function ProjectsPage() {
-  const list = useListParams()
-  const query = useProjectsQuery({ page: list.page, pageSize: list.pageSize, search: list.search })
+  const list = useListParams(['status'])
+  const query = useProjectsQuery({
+    page: list.page,
+    pageSize: list.pageSize,
+    search: list.search,
+    filters: multiFilter('status', list.filterList('status')),
+  })
   const fields = useTableFields(PROJECTS_TABLE)
   const navigate = useNavigate()
   const [toDelete, setToDelete] = useState<Project | null>(null)
 
   const columns = [
-    ...buildColumns(fields.optionLabel),
+    ...buildColumns(fields.fieldLabel, fields.optionLabel),
     actionsColumn<Project>({
       onView: (p) => navigate(RECORDS.projects.detail(p.id)),
       onEdit: (p) => navigate(RECORDS.projects.edit(p.id)),
@@ -120,11 +182,17 @@ export default function ProjectsPage() {
         }
       />
 
-      <FilterBar>
+      <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
           placeholder="Search projects"
+        />
+        <FilterMultiSelect
+          label={fields.fieldLabel('status')}
+          value={list.filterList('status')}
+          onChange={(v) => list.setFilters({ status: v })}
+          options={fields.fieldOptions('status')}
         />
       </FilterBar>
 
@@ -133,7 +201,7 @@ export default function ProjectsPage() {
         rows={query.data?.items}
         getRowId={(p) => p.id}
         onRowClick={(p) => navigate(RECORDS.projects.detail(p.id))}
-        loadingLabel="Loading projects…"
+        loadingLabel="Loading projects"
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}
@@ -144,7 +212,8 @@ export default function ProjectsPage() {
             retrying={query.isFetching}
             onRetry={() => query.refetch()}
             search={list.search}
-            onResetSearch={list.resetSearch}
+            filtered={list.hasFilters}
+            onResetSearch={list.resetAll}
           />
         }
         footer={

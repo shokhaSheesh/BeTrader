@@ -3,8 +3,11 @@ import { useSearchParams } from 'react-router'
 import { PAGE_SIZES } from '@/shared/config/list'
 import { useDebouncedValue } from './useDebouncedValue'
 
-/** Page, page size and search stored in the URL (?page=2&size=50&q=halal), so views can be shared. */
-export function useListParams() {
+/**
+ * Page, page size, search and filters stored in the URL (?page=2&q=ali&gender=male,female&from=2026-08-01),
+ * so every filtered view can be shared as a link. `filterKeys` lists this page's filter params.
+ */
+export function useListParams(filterKeys: readonly string[] = []) {
   const [params, setParams] = useSearchParams()
   const page = Math.max(1, Number(params.get('page')) || 1)
   const sizeParam = Number(params.get('size'))
@@ -34,6 +37,10 @@ export function useListParams() {
     if (debouncedSearch !== search) update({ q: debouncedSearch, page: 1 })
   }, [debouncedSearch, search, update])
 
+  const filter = (key: string) => params.get(key)
+  const filterList = (key: string) => params.get(key)?.split(',').filter(Boolean) ?? []
+  const hasFilters = filterKeys.some((key) => params.has(key))
+
   return {
     page,
     pageSize,
@@ -45,6 +52,22 @@ export function useListParams() {
     resetSearch: () => {
       setSearchInput('')
       update({ q: null, page: 1 })
+    },
+    filter,
+    filterList,
+    /** Set one or more filter params; any change goes back to page 1. */
+    setFilters: (patch: Record<string, string | string[] | null>) =>
+      update({
+        ...Object.fromEntries(
+          Object.entries(patch).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') || null : v]),
+        ),
+        page: 1,
+      }),
+    hasFilters,
+    /** Clears search and every filter of this page. */
+    resetAll: () => {
+      setSearchInput('')
+      update({ q: null, page: 1, ...Object.fromEntries(filterKeys.map((k) => [k, null])) })
     },
   }
 }

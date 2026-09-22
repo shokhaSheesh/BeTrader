@@ -80,4 +80,5 @@ export const RECORDS = {
   projects: recordRoutes(ROUTES.projects.list),
   projectTypes: recordRoutes(ROUTES.projects.types),
   projectInvestors: recordRoutes(ROUTES.projects.investors),
+  investors: recordRoutes(ROUTES.investors.list),
 }

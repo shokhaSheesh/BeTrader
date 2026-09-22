@@ -34,16 +34,19 @@ A user must never wonder whether a click worked. Anything that takes time shows 
 | Row action (block user, approve) | Loader on **that row's** action only, not the whole table | `<RowAction loading>` |
 | Request finished | Toast for success or error. Errors say what failed and what to do. | `toast.success / toast.error` |
 
-Every screen has **two layers** of loading feedback, so a reload or click is never silent:
+The loader is **one brand mark: a lime arc spinning on an ink disc** (`Loader`), the app icon's colors. It never has visible text; its label is for screen readers only.
 
-| Layer | Component | When |
-| --- | --- | --- |
-| Global | `GlobalProgress`: a thin lime bar across the top of the window | Any request in flight, anywhere in the app |
-| Local | `LoadingPill`: a spinner with text ("Loading projects…") over the skeleton rows | A table's first load |
-| Local | `PageLoader`: the same pill, centered in the content area | A page's code is loading, a detail or edit record is loading, or a form's schema is loading |
+| Where | What |
+| --- | --- |
+| Before any JavaScript runs (hard refresh) | Boot loader in `index.html`, the same mark in plain HTML/CSS, so the screen is never blank white |
+| Any request in flight | `GlobalProgress`: a thin lime bar across the top of the window |
+| A table's first load | `Loader` centered over skeleton rows |
+| A table refetch (search, filter, page) | Old rows dimmed plus a thin **forest-green bar sliding across the top of the table**, so you can tell *this table* is refreshing without losing what's on screen |
+| A page's code, a record, or a form schema loading | `PageLoader` (`Loader`, centered) |
+| A KPI loading | A small `Loader` in the card |
 
 Rules:
-- A skeleton alone is not enough. It always comes with a spinner and a label that says *what* is loading.
+- A skeleton alone is not enough: it always comes with the `Loader`.
 - Disable the trigger while the request is running, so no double submits (critical for money operations).
 - No full-screen spinners except the initial app boot.
 - Skeletons must match the real layout. A generic grey box is not a skeleton.
@@ -112,8 +115,12 @@ Every list page has the same anatomy, built from the same shared components. No 
 | --- | --- |
 | `PageHeader` | Title on the left, **one** primary action on the right ("Create user", "Add admin"). Secondary actions go in a "More" menu. |
 | Create button | Always the primary `<Button>` with a `+` icon, in the page header. Label is "Create {thing}" or "Add {thing}". Never a floating button, never inside the table. |
-| `FilterBar` | Search is always first and on the left. Filters are dropdowns of the same height. "Reset" appears only when a filter is active. Filters are stored in the URL (`?status=active&page=2`) so views can be shared. |
+| `FilterBar` | Search first and on the left, then `FilterSelect` (one of), `FilterMultiSelect` (any of), `DateRangeFilter` (range calendar with presets). All are 40 px white controls; an active filter gets an ink border and shows its value ("Gender: Male"). "Reset" appears only while something is active. Search and filters live in the URL (`?identified=no&gender=male&from=2026-09-01`) via `useListParams`, so any view can be shared as a link. |
+| Filtering and search | **Always on the backend.** Never filter, search or sort rows on the front end: it would only cover the current page and give wrong totals. Only add a filter or search box the backend actually honours (check first, docs/API.md). If it doesn't, leave the control out. |
+| KPI cards | Only where they help a decision (Investors, Project investors), not on every page. Every card has an icon in a **neutral tile** (`bg-surface-muted`, ink icon), never a colored circle. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet (sums, distinct counts) is a `KpiCard pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
 | `DataTable` | Same row height, header style, hover, borders and padding on every page. Status is always a `<Badge>`. Row actions are always an icon menu in the last column. |
+| Columns | **Show every field the backend sends**; never trim columns to fit. Wide tables scroll sideways, and the first column (what the row is) and the ⋯ column stay pinned. Headers are the backend's labels. Cells use the shared renderers in `shared/ui/cells.tsx` (`TextCell`, `CodeCell`, `NumberCell`, `YesNoCell`, `OptionsCell`, `DateCell`, `DateTimeCell`, `ImageCell`), so "—", badges and dates are identical everywhere. **The only exception is secrets:** `pin_code`, push tokens and auth IDs are never shown. |
+| Sidebar | Collapsible (the button at the bottom), remembered per browser. Collapsed shows icons only: a tooltip names each item, and a section's pages open in a flyout. The active section stays lime. |
 | `Pagination` | Always at the bottom, always the same component, with the same page sizes (20 / 50 / 100). |
 | Rows | Clicking a row opens its **detail page**. The last column is always the ⋯ menu: View, Edit, Delete (`actionsColumn`). |
 | Detail page | `PageHeader` with a back link; actions on the right are Delete (`danger-ghost`) and **Edit** (primary). Then `DetailSection` panels of label/value pairs, with a "Record" panel (created, updated, ID) last. |
@@ -180,7 +187,7 @@ The sure signs of a vibe-coded dashboard, all banned:
 **Shapes and layout**
 - A radius that isn't on the scale (see §5 "Shape")
 - Everything in a rounded card with 32 px padding, which is too airy for an admin tool; tables should be dense and easy to scan
-- Decorative icons next to every heading, or icons in colored circles
+- Decorative icons next to every heading, or icons in colored circles (KPI icons sit in a neutral tile, §3)
 - Emoji anywhere in the UI
 
 **Copy**

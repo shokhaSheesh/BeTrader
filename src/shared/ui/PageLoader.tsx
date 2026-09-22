@@ -1,19 +1,10 @@
-import { Spinner } from './Spinner'
+import { Loader } from './Loader'
 
-/** Shown while a page's code or first data loads, inside the content area (never full-screen). */
-export function PageLoader({ label = 'Loading…' }: { label?: string }) {
+/** Centered brand loader for the content area: page code, a record, or a form schema loading. Never full-screen. */
+export function PageLoader({ label = 'Loading' }: { label?: string }) {
   return (
-    <div className="flex h-full min-h-60 items-center justify-center" role="status">
-      <LoadingPill label={label} />
+    <div className="flex h-full min-h-60 items-center justify-center">
+      <Loader label={label} />
     </div>
-  )
-}
-
-export function LoadingPill({ label = 'Loading…' }: { label?: string }) {
-  return (
-    <span className="inline-flex h-9 items-center gap-2 rounded-full border border-line bg-surface px-4 font-medium shadow-popover">
-      <Spinner size={16} />
-      {label}
-    </span>
   )
 }

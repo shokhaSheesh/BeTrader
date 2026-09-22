@@ -131,8 +131,19 @@ export default function ProjectDetailPage() {
                 title="Record"
                 items={[
                   {
-                    label: 'Created',
-                    value: <span className="num">{formatDateTime(p.createdAt)}</span>,
+                    label: L('created_time'),
+                    value: (
+                      <span className="num">{formatDateTime(p.createdTime ?? p.createdAt)}</span>
+                    ),
+                  },
+                  {
+                    label: L('board_order'),
+                    value:
+                      p.boardOrder != null ? (
+                        <span className="num">{formatNumber(p.boardOrder)}</span>
+                      ) : (
+                        dash
+                      ),
                   },
                   {
                     label: 'Last updated',

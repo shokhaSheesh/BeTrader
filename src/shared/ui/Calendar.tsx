@@ -22,15 +22,18 @@ const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] // Monday first, as 
 type View = 'days' | 'months' | 'years'
 
 interface CalendarProps {
-  value: string | null
+  /** Single-date mode */
+  value?: string | null
+  /** Range mode: both ends are highlighted and the days between are tinted */
+  range?: { from: string | null; to: string | null }
   onChange: (value: string) => void
 }
 
 /** Three-step calendar: days → click the title → months → click again → years. */
-export function Calendar({ value, onChange }: CalendarProps) {
+export function Calendar({ value = null, range, onChange }: CalendarProps) {
   const now = new Date()
   const today = { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() }
-  const selected = parseIsoDate(value)
+  const selected = parseIsoDate(range ? range.from : value)
   const [view, setView] = useState<View>('days')
   const [cursor, setCursor] = useState({ y: selected?.y ?? today.y, m: selected?.m ?? today.m })
   const decadeStart = Math.floor(cursor.y / 12) * 12
@@ -87,7 +90,8 @@ export function Calendar({ value, onChange }: CalendarProps) {
         <DaysGrid
           cursor={cursor}
           today={today}
-          selected={selected}
+          selected={range ? null : selected}
+          range={range}
           onPick={onChange}
           cell={cell}
           selectedCell={selectedCell}
@@ -146,6 +150,7 @@ function DaysGrid({
   cursor,
   today,
   selected,
+  range,
   onPick,
   cell,
   selectedCell,
@@ -153,6 +158,7 @@ function DaysGrid({
   cursor: { y: number; m: number }
   today: { y: number; m: number; d: number }
   selected: { y: number; m: number; d: number } | null
+  range?: { from: string | null; to: string | null }
   onPick: (v: string) => void
   cell: string
   selectedCell: string
@@ -161,6 +167,11 @@ function DaysGrid({
   const days = new Date(cursor.y, cursor.m + 1, 0).getDate()
   const same = (a: { y: number; m: number; d: number } | null, d: number) =>
     !!a && a.y === cursor.y && a.m === cursor.m && a.d === d
+  // ISO strings compare correctly as text, so range checks need no date math.
+  const iso = (d: number) => toIsoDate(cursor.y, cursor.m, d)
+  const isEnd = (d: number) => !!range && (iso(d) === range.from || iso(d) === range.to)
+  const inRange = (d: number) =>
+    !!range?.from && !!range.to && iso(d) > range.from && iso(d) < range.to
 
   return (
     <div className="grid grid-cols-7 gap-y-1 text-center">
@@ -177,12 +188,16 @@ function DaysGrid({
           key={d}
           type="button"
           onClick={() => onPick(toIsoDate(cursor.y, cursor.m, d))}
-          aria-pressed={same(selected, d)}
+          aria-pressed={same(selected, d) || isEnd(d)}
           className={cn(
             cell,
             'mx-auto size-9',
-            same(selected, d) && selectedCell,
-            !same(selected, d) && same(today, d) && 'ring-1 ring-line-strong ring-inset',
+            (same(selected, d) || isEnd(d)) && selectedCell,
+            inRange(d) && 'rounded-xs bg-surface-muted',
+            !same(selected, d) &&
+              !isEnd(d) &&
+              same(today, d) &&
+              'ring-1 ring-line-strong ring-inset',
           )}
         >
           {d}

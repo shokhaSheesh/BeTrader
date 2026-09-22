@@ -60,8 +60,23 @@ Notes:
 - The list response is `data.data.response` (rows) plus `data.data.count` (total, for pagination).
 - Linked records come back already joined as `<field>_data` (e.g. `project_types_id_data`). The list does this by default; **the single-record endpoint only does it with `?with_relations=true`** (a plain query parameter, not inside `data`).
 - An **unknown ID returns 200 with an empty `{}`**, not a 404. `getTableItem` turns that into `RecordNotFoundError`, and the page shows "This … doesn't exist".
-- `search` only matches fields the backend marks `is_search`. Some tables have none, and then `search` is silently ignored. Check `GET /v2/fields/{slug}` before adding a search box.
+- `search` behaviour differs per table and the schema's `is_search` flag is unreliable (investors search works with no field flagged). **Test it before adding a search box:** `search` on `project_investors` is silently ignored; on `investors` it matches name, phone and PINFL, but not passport.
+- An empty result comes back as `response: null` (not `[]`). `getTableItems` normalises it.
 - Fields are snake_case. Each entity maps them to a camelCase model in `entities/<name>/model/types.ts` (see `toProject`).
+
+## Filtering and sorting (server-side)
+
+Filters go into the same `data` JSON as paging (`ListParams.filters`, built with `shared/api/filters.ts`). Verified on 2026-09-22:
+
+| Field type | Syntax | Example |
+| --- | --- | --- |
+| Switch | `{ "field": true }` | `{ "is_identified": false }` gives 4 105 investors |
+| Multiselect | `{ "field": ["a", "b"] }`, **always an array**; a plain string gets HTTP 500 | `{ "gender": ["male"] }` gives 3 552 |
+| Lookup (link) | `{ "field": "<guid>" }` | `{ "projects_id": "…" }` gives 82 |
+| Date / number range | `{ "field": { "$gte": …, "$lt": … } }` | `{ "created_time": { "$gte": "2026-09-01T00:00:00Z" } }` |
+| Sort | `"order": { "field": -1 }` | `{ "created_time": -1 }` gives newest first |
+
+Filters combine with each other and with `search`. **There is no aggregation endpoint** (sum, average, distinct count), so KPIs that need one are shown as "Backend pending" (DESIGN.md §3).
 
 ## Page → table map
 
@@ -72,7 +87,7 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | Projects | `/projects` | `projects` | 3 ✅ wired |
 | Project types | `/projects/types` | `project_types` | 3 ✅ wired |
 | Project investors | `/projects/investors` | `project_investors` | 109 ✅ wired (no search, see below) |
-| Investors | `/investors` | `investors` | 10 701 |
+| Investors | `/investors` | `investors` | 10 705 ✅ wired (list + detail; no create/edit, since investors sign up in the app) |
 | Accounts | `/investors/accounts` | `account` | 10 737 |
 | Cards | `/investors/cards` | `investor_cards` | 1 084 |
 | Orders | `/finance/orders` | `orders` | 209 |
@@ -111,10 +126,14 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `projects` | No tariff key, so we can't color by tariff (High-yield, Halal, Conservative) without guessing from names. |
 | `project_types` | English names look like test data ("Super Bistro", "1st Type", "2nd Type"), while the Russian names are the real tariffs. |
 | `project_types.created_at` | No time zone in the timestamp (other tables send `Z`). |
-| `project_investors` | **Security:** the list joins the *entire* investor record into every row: passport, PINFL, `pin_code`, push token and more. The admin shows only name and phone. Please limit the joined fields. |
-| `project_investors` | No field is marked searchable, so `search` is ignored and the page has no search box. Mark the investor name/phone (or project) searchable? |
+| `project_investors` | **Security:** the list joins the *entire* investor record into every row: passport, PINFL, `pin_code`, push token and more. The admin shows only name, phone and passport. Please limit the joined fields. |
+| `project_investors` | `search` is ignored, so the page has no search box (filters by project and date work). Could search cover the investor's name, phone and passport? |
 | `project_investors.investment` / `dividend` | Labelled "Investment" and "Interest income", with no currency. Amounts are shown without one until it's defined. |
 | `projects` (form) | No field is `required` in the schema, so the forms require nothing. Should the names be required? |
+| `investors` | **Security:** every list row returns `pin_code` and `fmc_token` (push token) to the admin client. We never display them, but they shouldn't leave the backend at all. |
+| `investors.full_name` | Unidentified investors have the name `"<nil> Foydalanuvchi <nil>"`, which is Go's `nil` written into a string. Shown as sent (DESIGN.md §0); should be empty or null. |
+| `investors.birth_date` / `issued_date` | Stored as free text (`SINGLE_LINE`), not dates, so they can't be formatted or filtered by range. |
+| KPIs | Sum endpoints for `project_investors.investment` and `dividend`, plus a distinct count of `investors_id`, so the "Backend pending" cards can show real numbers. |
 
 ## Adding a new section
 

@@ -68,7 +68,7 @@ export function ProjectInvestorForm({
     },
   })
 
-  if (fields.isPending) return <PageLoader label="Loading form…" />
+  if (fields.isPending) return <PageLoader label="Loading form" />
   const label = fields.fieldLabel
 
   return (

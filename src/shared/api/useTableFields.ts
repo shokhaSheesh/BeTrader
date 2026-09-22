@@ -21,9 +21,13 @@ export function useTableFields(slug: string) {
     [fields],
   )
 
-  /** Backend label of a field (`attributes.label_en`), falling back to the slug. */
+  /**
+   * Backend label of a field (`attributes.label_en`), falling back to the slug.
+   * Empty while the schema loads, so raw slugs never flash; components show a placeholder bar for ''.
+   */
   const fieldLabel = useCallback(
-    (fieldSlug: string) => fields?.find((f) => f.slug === fieldSlug)?.label ?? fieldSlug,
+    (fieldSlug: string) =>
+      fields ? (fields.find((f) => f.slug === fieldSlug)?.label ?? fieldSlug) : '',
     [fields],
   )
 

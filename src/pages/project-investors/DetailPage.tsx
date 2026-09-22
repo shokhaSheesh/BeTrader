@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { PROJECT_INVESTORS_TABLE, useProjectInvestorQuery } from '@/entities/project-investor'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -42,7 +42,27 @@ export default function ProjectInvestorDetailPage() {
               <DetailSection
                 title="Investment"
                 items={[
-                  { label: L('investors_id'), value: r.investorName ?? dash },
+                  {
+                    label: L('investors_id'),
+                    value: r.investorId ? (
+                      <Link
+                        to={RECORDS.investors.detail(r.investorId)}
+                        className="font-medium underline-offset-4 hover:underline"
+                      >
+                        {r.investorName ?? 'Open investor'}
+                      </Link>
+                    ) : (
+                      dash
+                    ),
+                  },
+                  {
+                    label: 'Passport',
+                    value: r.investorPassport ? (
+                      <span className="num">{r.investorPassport}</span>
+                    ) : (
+                      dash
+                    ),
+                  },
                   {
                     label: 'Phone',
                     value: r.investorPhone ? (

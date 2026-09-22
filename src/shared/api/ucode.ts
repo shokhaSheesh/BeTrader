@@ -11,18 +11,30 @@ interface ItemEnvelope<T> {
   data: { data: { response: T } }
 }
 
+/** Server-side filters, merged into the `data` JSON as-is (see docs/API.md "Filtering"). */
+export type TableFilters = Record<string, unknown>
+
 export interface ListParams {
   page: number
   pageSize: number
   search?: string
+  filters?: TableFilters
+  /** e.g. `{ created_time: -1 }` for newest first */
+  order?: Record<string, 1 | -1>
 }
 
-/** GET /v2/items/{slug}. Paging and search go inside the JSON `data` query param. */
+/** GET /v2/items/{slug}. Paging, search, filters and order all go inside the JSON `data` query param. */
 export async function getTableItems<T>(
   slug: string,
-  { page, pageSize, search }: ListParams,
+  { page, pageSize, search, filters, order }: ListParams,
 ): Promise<Paginated<T>> {
-  const query = { offset: (page - 1) * pageSize, limit: pageSize, ...(search ? { search } : {}) }
+  const query = {
+    ...filters,
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+    ...(search ? { search } : {}),
+    ...(order ? { order } : {}),
+  }
   const { data } = await http.get<ListEnvelope<T>>(`/v2/items/${slug}`, {
     params: { data: JSON.stringify(query) },
   })

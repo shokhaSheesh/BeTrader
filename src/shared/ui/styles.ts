@@ -10,3 +10,7 @@ export const popoverSurface =
 
 export const menuItem =
   'flex h-9 cursor-pointer items-center gap-2 rounded-xs px-2.5 outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-surface-muted'
+
+/** Filter triggers sit on the canvas, so they're white. An active filter gets an ink border and bold value. */
+export const filterTrigger =
+  'inline-flex h-10 items-center gap-2 rounded-sm border border-transparent bg-surface px-3 whitespace-nowrap outline-none transition-colors hover:border-line-strong focus-visible:border-focus data-[state=open]:border-focus data-[active=true]:border-focus'

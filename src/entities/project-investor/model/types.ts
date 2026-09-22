@@ -8,9 +8,13 @@ export interface ProjectInvestorDto {
   investors_id: string | null
   /**
    * The backend joins the WHOLE investor record here (passport, PINFL, pin_code, push token…).
-   * We read only what the admin needs; see the open question in docs/API.md.
+   * We read only what the admin needs (name, phone, passport); see the open question in docs/API.md.
    */
-  investors_id_data: { full_name: string | null; phone: string | null } | null
+  investors_id_data: {
+    full_name: string | null
+    phone: string | null
+    passport: string | null
+  } | null
   projects_id: string | null
   projects_id_data: { name_en: string | null } | null
   created_time: string
@@ -22,6 +26,7 @@ export interface ProjectInvestor {
   investorId: string | null
   investorName: string | null
   investorPhone: string | null
+  investorPassport: string | null
   projectId: string | null
   projectName: string | null
   investment: number | null
@@ -36,6 +41,7 @@ export function toProjectInvestor(dto: ProjectInvestorDto): ProjectInvestor {
     investorId: dto.investors_id,
     investorName: dto.investors_id_data?.full_name ?? null,
     investorPhone: dto.investors_id_data?.phone ?? null,
+    investorPassport: dto.investors_id_data?.passport || null,
     projectId: dto.projects_id,
     projectName: dto.projects_id_data?.name_en ?? null,
     investment: dto.investment,

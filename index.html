@@ -5,9 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Niyat Admin</title>
+    <!--
+      Boot loader: visible before any JavaScript runs, replaced when React mounts.
+      Tokens aren't loaded yet, so it's the only place with raw hex: ink #212125, lime #C7EF61,
+      mist #F1F1F1. Keep it in sync with src/shared/ui/Loader.tsx.
+    -->
+    <style>
+      body { margin: 0; background: #f1f1f1; }
+      .boot { position: fixed; inset: 0; display: grid; place-items: center; }
+      .boot-disc { width: 40px; height: 40px; border-radius: 50%; background: #212125; display: grid; place-items: center; }
+      .boot-disc svg { width: 25px; height: 25px; animation: boot-spin 1s linear infinite; }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .boot-disc svg { animation-duration: 2s; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" role="status" aria-label="Loading">
+        <div class="boot-disc">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="#f1f1f1" stroke-opacity="0.15" stroke-width="3" />
+            <path d="M12 3a9 9 0 0 1 9 9" stroke="#c7ef61" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
