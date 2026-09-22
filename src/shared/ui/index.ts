@@ -1,3 +1,13 @@
-// Design-system primitives (Button, Input, Table, Badge, Modal, ...).
-// Built after docs/DESIGN.md is finalized. Re-export every component from here.
-export {}
+export { Badge } from './Badge'
+export { Button, type ButtonProps } from './Button'
+export { DataTable, type Column } from './DataTable'
+export { EmptyState } from './EmptyState'
+export { ListEmptyState } from './ListEmptyState'
+export { FilterBar } from './FilterBar'
+export { NiyatGlyph, NiyatMark } from './logo/NiyatMark'
+export { PageHeader } from './PageHeader'
+export { Pagination } from './Pagination'
+export { SearchInput } from './SearchInput'
+export { Skeleton } from './Skeleton'
+export { Spinner } from './Spinner'
+export { TextField } from './TextField'

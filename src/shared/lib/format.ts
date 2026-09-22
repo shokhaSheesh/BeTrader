@@ -1,15 +1,52 @@
-const moneyFormatter = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 })
+// Number formatting follows the BeTrader app: space for thousands, dot for decimals,
+// "UZS" after the amount, "$" before it. See docs/DESIGN.md §2.
+const NBSP = ' '
+const MINUS = '−'
 
-/** 1250000 → "1 250 000 UZS" */
-export function formatMoney(amount: number, currency = 'UZS') {
-  return `${moneyFormatter.format(amount)} ${currency}`
+export type Currency = 'UZS' | 'USD'
+
+function groupDigits(value: number, fractionDigits: { min: number; max: number }) {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: fractionDigits.min,
+    maximumFractionDigits: fractionDigits.max,
+  })
+    .format(value)
+    .replace(/,/g, NBSP)
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat('ru-RU', {
-  dateStyle: 'short',
-  timeStyle: 'short',
-})
+/** 1250000 → "1 250 000 UZS", 210.08 → "$210.08". Always unsigned; use formatSignedMoney for direction. */
+export function formatMoney(amount: number, currency: Currency = 'UZS') {
+  const abs = Math.abs(amount)
+  if (currency === 'USD') return `$${groupDigits(abs, { min: 2, max: 2 })}`
+  return `${groupDigits(abs, { min: 0, max: 2 })}${NBSP}UZS`
+}
 
+/** Inflow → "+ 390 000 UZS", outflow → "− 390 000 UZS" (real minus sign, U+2212). */
+export function formatSignedMoney(amount: number, currency: Currency = 'UZS') {
+  if (amount === 0) return formatMoney(0, currency)
+  return `${amount > 0 ? '+' : MINUS}${NBSP}${formatMoney(amount, currency)}`
+}
+
+/** 10697 → "10 697" */
+export function formatNumber(value: number, maxFractionDigits = 2) {
+  const formatted = groupDigits(Math.abs(value), { min: 0, max: maxFractionDigits })
+  return value < 0 ? `${MINUS}${formatted}` : formatted
+}
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/** "08.09.2026". Date-only strings ("2025-06-27") are not shifted by the time zone. */
+export function formatDate(value: string | number | Date) {
+  if (typeof value === 'string') {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+    if (m) return `${m[3]}.${m[2]}.${m[1]}`
+  }
+  const d = new Date(value)
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`
+}
+
+/** "08.09.2026 05:00" */
 export function formatDateTime(value: string | number | Date) {
-  return dateTimeFormatter.format(new Date(value))
+  const d = new Date(value)
+  return `${formatDate(d)} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }

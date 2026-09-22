@@ -56,7 +56,9 @@ src/
 
 ## Rules
 
+- **The front end displays; the back end decides.** Never hardcode or guess labels, units, classifications or calculations. See `docs/DESIGN.md` §0.
 - Import via the `@/` alias, never long relative paths across layers.
 - Route paths come from `ROUTES` in `shared/config/routes.ts`, never string literals.
 - Server data lives in TanStack Query, not Zustand.
-- Components use **semantic** color tokens only, never raw hex or brand primitives. See `docs/DESIGN.md`.
+- The backend is u-code, read through `shared/api/ucode.ts`. Endpoints and the page → table map are in `docs/API.md`.
+- Components use **semantic** tokens only (`bg-surface`, `text-fg-muted`, `bg-accent`, …), never raw hex. See `docs/DESIGN.md` §5.

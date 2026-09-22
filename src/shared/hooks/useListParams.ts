@@ -1,0 +1,50 @@
+import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { PAGE_SIZES } from '@/shared/config/list'
+import { useDebouncedValue } from './useDebouncedValue'
+
+/** Page, page size and search stored in the URL (?page=2&size=50&q=halal), so views can be shared. */
+export function useListParams() {
+  const [params, setParams] = useSearchParams()
+  const page = Math.max(1, Number(params.get('page')) || 1)
+  const sizeParam = Number(params.get('size'))
+  const pageSize = (PAGE_SIZES as readonly number[]).includes(sizeParam) ? sizeParam : PAGE_SIZES[0]
+  const search = params.get('q') ?? ''
+
+  const [searchInput, setSearchInput] = useState(search)
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 350)
+
+  const update = useCallback(
+    (patch: Record<string, string | number | null>) =>
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          for (const [key, value] of Object.entries(patch)) {
+            if (value === null || value === '' || (key === 'page' && value === 1)) next.delete(key)
+            else next.set(key, String(value))
+          }
+          return next
+        },
+        { replace: true },
+      ),
+    [setParams],
+  )
+
+  useEffect(() => {
+    if (debouncedSearch !== search) update({ q: debouncedSearch, page: 1 })
+  }, [debouncedSearch, search, update])
+
+  return {
+    page,
+    pageSize,
+    search,
+    searchInput,
+    setSearchInput,
+    setPage: (p: number) => update({ page: p }),
+    setPageSize: (s: number) => update({ size: s === PAGE_SIZES[0] ? null : s, page: 1 }),
+    resetSearch: () => {
+      setSearchInput('')
+      update({ q: null, page: 1 })
+    },
+  }
+}

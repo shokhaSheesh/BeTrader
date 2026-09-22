@@ -1,19 +1,129 @@
 /*
- * Design tokens. Single source of truth for colors, fonts, radii.
+ * Design tokens: the single source of truth. Rules and rationale: docs/DESIGN.md.
  *
- * Layer 1 — brand primitives (raw palette). Never use these directly in components.
- * Layer 2 — semantic tokens (bg, surface, text, accent, ...). Components use ONLY these.
- *           Mapping is pending the Figma analysis → see docs/DESIGN.md.
+ * Layer 1 (primitives) lives in :root, so Tailwind generates NO utilities for it.
+ * Layer 2 (semantic) lives in @theme, so these are the only colors a component can use.
+ * Tailwind's default palette, sizes, weights and shadows are removed on purpose:
+ * off-system values fail at build time instead of slipping through review.
  */
-@theme {
-  /* Layer 1: brand primitives */
-  --color-brand-lime: #c7ef61;
-  --color-brand-ink: #212125;
-  --color-brand-mist: #f1f1f1;
-  --color-brand-forest: #163300;
 
-  /* Layer 2: semantic tokens — TODO: finalize after Figma review */
+:root {
+  /* Brand (from the BeTrader mobile Figma) */
+  --niyat-lime: #c7ef61;
+  --niyat-lime-hover: #b8e04c;
+  --niyat-ink: #212125;
+  --niyat-mist: #f1f1f1;
+  --niyat-forest: #163300;
+  --niyat-white: #ffffff;
 
-  /* One family for the whole product — see docs/DESIGN.md §2 */
+  /* Status bases, from the Figma color styles `halal`, `red`, `gold`, `blue` */
+  --niyat-green: #27ae60;
+  --niyat-red: #eb5757;
+  --niyat-gold: #f2c94c;
+  --niyat-blue: #2f80ed;
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Surfaces */
+  --color-canvas: var(--niyat-mist); /* app background behind panels */
+  --color-surface: var(--niyat-white); /* panels, tables, header, modals */
+  --color-surface-muted: var(--niyat-mist); /* inputs, table header, secondary buttons */
+  --color-surface-hover: #f7f7f7; /* table row hover */
+
+  /* Text */
+  --color-fg: var(--niyat-ink); /* 16:1 on white */
+  --color-fg-muted: #6b6b70; /* secondary text, 5.3:1 on white */
+  --color-fg-subtle: #9a9aa0; /* placeholders and disabled only, not for readable text */
+
+  /* Lines */
+  --color-line: rgb(33 33 37 / 0.1); /* dividers, panel and table borders */
+  --color-line-strong: rgb(33 33 37 / 0.16); /* input borders */
+  --color-focus: var(--niyat-ink);
+
+  /* Accent: lime is a fill, never text on light surfaces */
+  --color-accent: var(--niyat-lime);
+  --color-accent-hover: var(--niyat-lime-hover);
+  --color-on-accent: var(--niyat-ink); /* 12:1 */
+
+  /* Inverse (dark ink): sidebar and dark buttons */
+  --color-inverse: var(--niyat-ink);
+  --color-inverse-hover: #2e2e33;
+  --color-on-inverse: var(--niyat-mist);
+  --color-on-inverse-muted: #a6a6a8; /* 6.6:1 on ink */
+  --color-inverse-line: rgb(241 241 241 / 0.08);
+
+  /* Deep brand green */
+  --color-brand-deep: var(--niyat-forest);
+  --color-on-brand-deep: var(--niyat-lime); /* 10.6:1 */
+
+  /* Status: base = dots/icons/fills, text = readable (all AA on tint, white and mist) */
+  --color-success: var(--niyat-green);
+  --color-success-text: #17693a;
+  --color-success-tint: #e5f5ec;
+  --color-danger: var(--niyat-red);
+  --color-danger-text: #b3302f;
+  --color-danger-tint: #fdebeb;
+  --color-warning: var(--niyat-gold);
+  --color-warning-text: #855400;
+  --color-warning-tint: #fdf9ea;
+  --color-info: var(--niyat-blue);
+  --color-info-text: #1a5fb4;
+  --color-info-tint: #e6f0fd;
+
+  /* Money direction: inflow green with "+", outflow ink with "−" (never red) */
+  --color-money-in: var(--color-success-text);
+  --color-money-out: var(--niyat-ink);
+
+  /* Tariffs: the same colors everywhere (badges, donuts, legends) */
+  --color-tariff-high-yield: var(--niyat-lime);
+  --color-tariff-halal: var(--niyat-green);
+  --color-tariff-conservative: var(--niyat-forest);
+
+  /* Charts */
+  --color-chart-1: var(--niyat-forest); /* single-series default */
+  --color-chart-2: var(--niyat-green);
+  --color-chart-muted: #9a9aa0; /* comparison / benchmark series */
+  --color-chart-grid: rgb(33 33 37 / 0.08);
+
+  --color-scrim: rgb(33 33 37 / 0.6);
+
+  /* Typography: one family (docs/DESIGN.md §2) */
+  --font-*: initial;
   --font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --text-*: initial;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
+  --text-xl: 24px;
+  --text-xl--line-height: 32px;
+  --text-2xl: 32px;
+  --text-2xl--line-height: 40px;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Numbers: the app's figures use -1% tracking */
+  --tracking-tight: -0.01em;
+
+  /* Radius: subset of the Figma border scale; rounded-full = the Figma pill */
+  --radius-*: initial;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+
+  /* Elevation: flat like the app. One shadow, floating layers only */
+  --shadow-*: initial;
+  --shadow-popover: 0 8px 24px rgb(33 33 37 / 0.12);
 }

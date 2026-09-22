@@ -4,6 +4,23 @@ These rules apply to every screen and every PR. If a screen needs to break one, 
 
 ---
 
+## 0. The front end displays; the back end decides
+
+We never make up, derive or fix business data on the front end. If something is the backend's job, it stays the backend's job, even when it would be quicker to patch it in the UI.
+
+**Comes from the backend, never hardcoded or guessed:**
+- Labels for statuses, types and select options. Read them from `GET /v2/fields/{table}` through `useTableFields()`; never keep a `{ invest: 'Investment' }` map in the front end.
+- Units and meaning. If the backend doesn't say a number is months or per year, we don't add "months" or "per year". The column header uses the backend's field label.
+- Classifications, such as which tariff a project belongs to. Never infer them from names or IDs.
+- Calculations: totals, balances, dividends, tax, percentages, currency conversion.
+- Permissions and validation rules. The front end may validate for convenience, but the backend is the authority.
+
+**What the front end *does* own:** presentation. That means number, date and money formatting (§2), layout, colors, loading and empty states, and translating a raw error into a readable message.
+
+**When the data is missing or unclear:** show the raw value (or `—`), and raise it with the backend team, and note it in `docs/API.md`. Never ship a guess.
+
+---
+
 ## 1. Loading states: every action gets instant feedback
 
 A user must never wonder whether a click worked. Anything that takes time shows a visible state **immediately**.
@@ -31,12 +48,16 @@ Rules:
 **Font: [Onest](https://fonts.google.com/specimen/Onest)** (self-hosted via `@fontsource-variable/onest`).
 We chose it because it is a neo-grotesk made for product interfaces, it supports Cyrillic and the Uzbek Latin `ʻ` (oʻ, gʻ), it has tabular figures, and it is not one of the fonts every AI-generated dashboard ships with.
 
-> If the Figma specifies a different font, the Figma wins. Replace `--font-sans` in `tokens.css` and this section. There is still only ever **one** family.
+**Why not the mobile app's fonts?** The app uses SF Pro for numbers and Inter for text. We deliberately don't copy that:
+- SF Pro's license only allows it in apps for Apple platforms. It can't be served on the web, and it only renders on Macs that already have it installed.
+- Inter is the font of AI-generated dashboards (§4), and the app's split into two families breaks the one-family rule.
+- What we keep from the app is the *feel of its numbers*: bold, slightly tight, dominant. Key figures use Onest 600 with `tracking-tight` (−1%, the same tracking as the app's amounts).
 
+Rules:
 - One family for everything: headings, body, tables, buttons, numbers. **No second display font, no monospace font.**
-- Weights: **400** (body), **500** (labels, table headers, buttons), **600** (page titles, key figures). Never 300 or below, never 700 or above.
-- Type scale (px): `12 / 14 / 16 / 20 / 24 / 32`. Nothing in between. Body text in tables and forms is 14.
-- Letter-spacing stays at the default. No `tracking-wide` uppercase labels.
+- Weights: **400** (body), **500** (labels, table headers, buttons), **600** (page titles, key figures). Tailwind's other weights are removed in `tokens.css`, so anything else won't build.
+- Type scale: `text-xs` 12 · `text-sm` 14 (default body, tables, forms) · `text-base` 16 · `text-lg` 20 · `text-xl` 24 (page titles) · `text-2xl` 32 (KPI figures). Nothing in between, and the other sizes are removed.
+- Letter-spacing stays at the default, except `tracking-tight` on figures of 24 px and up. No `tracking-wide` uppercase labels.
 - Sentence case everywhere: "Create user", not "Create User" and not "CREATE USER".
 
 ### Numbers
@@ -44,10 +65,19 @@ We chose it because it is a neo-grotesk made for product interfaces, it supports
 Numbers are the product. They must look like a bank statement, not a crypto landing page.
 
 - Every amount, ID, date, time, counter, percentage and every table cell with digits uses the **`num` utility** (tabular, lining figures). Onest defaults to proportional digits, so columns won't line up without it.
-- Money is formatted only through `formatMoney()` (`shared/lib/format.ts`): `1 250 000 UZS`, with a space as the thousands separator and the currency code after the amount.
+- Money and numbers are formatted **only** through `shared/lib/format.ts`, which copies the app's format:
+
+  | Case | Function | Output |
+  | --- | --- | --- |
+  | UZS | `formatMoney(59330000)` | `59 330 000 UZS`: space for thousands, code after the amount, decimals only when they exist (`14 977 041.72 UZS`) |
+  | USD | `formatMoney(210.08, 'USD')` | `$210.08`: `$` before the amount with no space, always 2 decimals |
+  | Direction | `formatSignedMoney(±n)` | `+ 390 000 UZS` / `− 90 000 000 UZS` |
+  | Count | `formatNumber(10697)` | `10 697` |
+  | Date | `formatDate` / `formatDateTime` | `08.09.2026` / `08.09.2026 05:00` |
+
+- **Inflow vs outflow:** inflows are `+` in `text-money-in` (green). Outflows are `−` in `text-money-out`, which is the normal ink color, **never red**. This follows the app: taking money out is a normal operation, not an error. Unlike the app, we always show the `−` sign, because admins compare and export ledgers and need the direction without relying on color. Red is only for errors and failed statuses.
 - In tables, amounts are **right-aligned**. The currency code may be smaller or muted, but it uses the same font.
-- Negative amounts: a real minus sign (`−`, U+2212) plus the negative color token. Parentheses and hyphens are not allowed.
-- KPI figures: 24–32 px, weight 600, a solid color, no gradients, no count-up animations.
+- KPI figures: `text-2xl font-semibold tracking-tight num`, a solid color, no gradients, no count-up animations.
 - Never switch to a monospace font to make numbers "look technical".
 
 ---
@@ -109,12 +139,12 @@ The sure signs of a vibe-coded dashboard, all banned:
 
 **Color and surfaces**
 - Purple or indigo accents, or any color outside the Niyat palette
-- Gradients, glassmorphism, glow, blur backgrounds, neon borders
+- Gradients, glassmorphism, glow, blur backgrounds, neon borders (the app blurs behind its keypad, but that doesn't apply to an admin panel)
 - Cards with a colored left border as decoration
-- Heavy drop shadows on everything (we use borders and surface contrast, and a shadow only on floating layers: dropdowns, modals, toasts)
+- Drop shadows on cards or buttons. We're flat like the app: 1 px `border-line` plus surface contrast. The only shadow token is `shadow-popover`, for dropdowns, popovers and toasts.
 
 **Shapes and layout**
-- A different border radius on every element (we use one small radius scale: 6 / 8 / 12)
+- A radius that isn't on the scale (see §5 "Shape")
 - Everything in a rounded card with 32 px padding, which is too airy for an admin tool; tables should be dense and easy to scan
 - Decorative icons next to every heading, or icons in colored circles
 - Emoji anywhere in the UI
@@ -127,31 +157,92 @@ The sure signs of a vibe-coded dashboard, all banned:
 
 ---
 
-## 5. Color
+## 5. Color, shape, elevation
 
-**Status: pending Figma analysis.** The palette is fixed. Which color does which job gets decided from the Figma.
+Source: the BeTrader mobile Figma (spec extracted 2026-09-22). The admin panel keeps the app's identity: **white and light-grey surfaces, dark ink, lime as a sparing accent, flat surfaces.** It adapts that to a desktop tool that people use all day.
 
-| Primitive | Hex |
+### How the brand colors are used
+
+| Brand color | In the app | In the admin panel |
+| --- | --- | --- |
+| **Ink** `#212125` | All text and icons; the tab bar; dark buttons on sheets | All text (`fg`); the **sidebar** (`inverse`), which plays the role of the app's tab bar; focus rings |
+| **Mist** `#F1F1F1` | Secondary background; inputs; secondary chips | **App background** (`canvas`) behind white panels; inputs, table headers, secondary buttons (`surface-muted`); text on the sidebar |
+| **Lime** `#C7EF61` | Primary buttons; active tab; selected chip; progress; badges | Primary button (`accent`); **active sidebar item**; selected chip or tab; the High-yield tariff. Always a fill or an active state, **never text on a light surface** |
+| **Forest** `#163300` | Deep "rich" surfaces; Conservative tariff card | Login screen background (`brand-deep`); the **default chart series** (`chart-1`); the Conservative tariff |
+| White `#FFFFFF` | Screen background | Panels, tables, header, modals (`surface`) |
+
+Lime is the loudest color we have. On a normal page it appears in at most three places: the active sidebar item, the page's single primary button, and a selected filter chip or tab. If a screen has more lime than that, something is wrong.
+
+### Semantic tokens (`src/app/styles/tokens.css`)
+
+Components use **only** these. The hex values live in `:root` as `--niyat-*`, which generates no Tailwind utilities, and Tailwind's default palette is removed, so `bg-red-500` or `bg-[#C7EF61]`-style shortcuts don't exist.
+
+| Group | Tokens | Use |
+| --- | --- | --- |
+| Surfaces | `canvas` · `surface` · `surface-muted` · `surface-hover` | page background · panels · inputs, table header, secondary button · row hover |
+| Text | `fg` · `fg-muted` · `fg-subtle` | main text · secondary text (5.3:1) · **placeholders and disabled only** |
+| Lines | `line` · `line-strong` · `focus` | dividers, panel and table borders · input borders · focus ring |
+| Accent | `accent` · `accent-hover` · `on-accent` | primary button and active states · its hover · text on lime (ink, 12:1) |
+| Inverse | `inverse` · `inverse-hover` · `on-inverse` · `on-inverse-muted` · `inverse-line` | sidebar and dark buttons |
+| Brand deep | `brand-deep` · `on-brand-deep` | login background · lime on forest (10.6:1) |
+| Status | `success` · `danger` · `warning` · `info`, each with `-text` and `-tint` | base = dot or icon · `-text` = readable text (all ≥ 5.4:1) · `-tint` = badge background |
+| Money | `money-in` · `money-out` | inflow (green) · outflow (ink, never red), see §2 |
+| Tariffs | `tariff-high-yield` · `tariff-halal` · `tariff-conservative` | lime · green · forest, the same everywhere (badges, donuts, legends). **Not used yet:** the backend doesn't send a tariff key, and we don't guess one from names (§0) |
+| Charts | `chart-1` · `chart-2` · `chart-muted` · `chart-grid` | forest (default series) · green · grey benchmark (e.g. the Central Bank rate) · grid lines |
+| Overlay | `scrim` | behind modals (ink at 60%; the app's 70% black hides too much data) |
+
+Why the status text colors are darker than the app's: the app's green `#27AE60` is only 2.9:1 on white and its red `#EB5757` is 3.5:1. That works for large text on a phone, but fails AA for 14 px text in dense tables. We keep the app's colors as the base (dots, icons, chart fills) and use darker shades of the same hue for text.
+
+> The app's `blue` and `gold` hex values weren't captured from the Figma. We used `#2F80ED` and `#F2C94C`, which come from the same default palette as the app's confirmed green and red (`#27AE60`, `#EB5757`). **Confirm them in Figma.**
+
+### Components
+
+| Element | Look |
 | --- | --- |
-| `brand-lime` | `#C7EF61` |
-| `brand-ink` | `#212125` |
-| `brand-mist` | `#F1F1F1` |
-| `brand-forest` | `#163300` |
+| Primary button | `bg-accent text-on-accent`, pill (`rounded-full`), hover `bg-accent-hover`, spinner in ink |
+| Dark button | `bg-inverse text-on-inverse`, pill. Used for confirmations in modals, like the app's buttons on sheets |
+| Secondary button | `bg-surface-muted text-fg`, pill |
+| Ghost button | text only, `hover:bg-surface-muted` |
+| Danger button | `bg-danger-text text-surface`, pill, only in destructive confirmations |
+| Input / select | `bg-surface-muted`, 1 px `line-strong` on focus, `rounded-sm` |
+| Badge / chip | `rounded-full`, `-tint` background + `-text` color. A selected filter chip is `bg-accent text-on-accent` |
+| Panel (table, card) | `bg-surface`, 1 px `border-line`, `rounded-md` |
+| Sidebar | `bg-inverse`. Items are `text-on-inverse-muted`. The active item is `bg-inverse-hover text-accent font-medium`, and its section icon turns lime |
 
-Rules that already apply:
-- Components use **semantic tokens only** (`bg`, `surface`, `text`, `text-muted`, `border`, `accent`, `success`, `danger`, …). Never raw hex, never `brand-*` directly.
-- Status colors (success, warning, danger, info) are defined once as tokens and only ever shown through `<Badge>` and toasts.
-- Text must meet a WCAG AA contrast ratio (4.5:1). Lime is a fill color, not a text color on light backgrounds.
+### Shape
 
-_TODO after Figma: fill in the semantic mapping table (token → primitive → where it's used)._
+Taken from the Figma's border scale; the other values are removed.
+
+| Token | px | Use |
+| --- | --- | --- |
+| `rounded-xs` | 4 | checkboxes, tiny tags |
+| `rounded-sm` | 8 | inputs, selects, dropdown menus, sidebar items, icon tiles |
+| `rounded-md` | 16 | panels, tables, cards, modals, drawers |
+| `rounded-full` | pill | **all buttons**, badges, chips, avatars (the app's buttons are pills) |
+
+The app's 24 and 32 px radii are for large mobile cards and look too soft in a dense desktop tool, so we don't use them.
+
+### Spacing and elevation
+
+- Spacing follows the Figma scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64` (`p-1 · 2 · 3 · 4 · 6 · 8 · 12 · 16`). Page padding 24, panel padding 16–24, gap between controls 8–12.
+- Flat. Borders are 1 px `line`. The only shadow is `shadow-popover` (dropdowns, popovers, toasts). No shadows on cards or buttons.
+
+### Accessibility
+
+- Text meets WCAG AA (4.5:1). Every text token above was checked against the surfaces it sits on.
+- `fg-subtle` is below 4.5:1, so it's only for placeholders and disabled states.
+- Focus is always visible: a 2 px `focus` outline (ink), which turns lime on the dark sidebar.
 
 ---
 
 ## PR checklist
 
+- [ ] Nothing the backend owns is hardcoded or guessed: labels, units, classifications, calculations (§0)
 - [ ] Every async action has a loading state (§1)
 - [ ] Only Onest, only weights 400/500/600, only sizes from the scale (§2)
 - [ ] All digits use `num`; money goes through `formatMoney()` (§2)
 - [ ] The page uses `PageHeader` / `FilterBar` / `DataTable` / `EmptyState` / `Pagination` (§3)
 - [ ] Nothing from the banned list in §4
-- [ ] No raw hex or `brand-*` in components (§5)
+- [ ] Semantic tokens only: no raw hex or arbitrary values like `bg-[#…]` (§5)
+- [ ] Lime appears in at most 3 places on the screen and is never used as text on a light surface (§5)
+- [ ] Buttons and badges are pills; panels are `rounded-md`; nothing has a shadow except popovers (§5)

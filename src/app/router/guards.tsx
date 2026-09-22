@@ -1,9 +1,9 @@
-import { Navigate, Outlet, useLocation } from 'react-router'
-import { useAuthStore } from '@/features/auth/model/store'
+import { Navigate, Outlet, useLocation, type Location } from 'react-router'
+import { useIsAuthenticated } from '@/shared/session/store'
 import { ROUTES } from '@/shared/config/routes'
 
 export function ProtectedRoute() {
-  const isAuthenticated = useAuthStore((s) => Boolean(s.accessToken))
+  const isAuthenticated = useIsAuthenticated()
   const location = useLocation()
 
   if (!isAuthenticated) {
@@ -13,6 +13,7 @@ export function ProtectedRoute() {
 }
 
 export function GuestRoute() {
-  const isAuthenticated = useAuthStore((s) => Boolean(s.accessToken))
-  return isAuthenticated ? <Navigate to={ROUTES.dashboard} replace /> : <Outlet />
+  const isAuthenticated = useIsAuthenticated()
+  const from = (useLocation().state as { from?: Location } | null)?.from
+  return isAuthenticated ? <Navigate to={from?.pathname ?? ROUTES.dashboard} replace /> : <Outlet />
 }

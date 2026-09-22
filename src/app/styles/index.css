@@ -10,10 +10,35 @@ body,
 
 body {
   font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  background: var(--color-canvas);
+  color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
+}
+
+/* In the base layer so a component's own focus style (e.g. inputs) can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
 }
 
 /* Numbers that must align or not jump while updating: amounts, IDs, dates, counters, tables. */
 @utility num {
   font-variant-numeric: tabular-nums lining-nums;
+}
+
+@theme {
+  --animate-indeterminate: indeterminate 1.1s ease-in-out infinite;
+
+  @keyframes indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
 }
