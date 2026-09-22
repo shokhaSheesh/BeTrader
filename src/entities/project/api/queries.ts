@@ -1,21 +1,20 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getTableItems, type ListParams } from '@/shared/api/ucode'
-import { toProject, type ProjectDto } from '../model/types'
+import { useTableItemQuery, useTableListQuery } from '@/shared/api/queries'
+import type { ListParams } from '@/shared/api/ucode'
+import { toProject } from '../model/types'
 
 export const PROJECTS_TABLE = 'projects'
 
-export const projectKeys = {
-  all: ['projects'] as const,
-  list: (params: ListParams) => [...projectKeys.all, 'list', params] as const,
-}
+export const useProjectsQuery = (params: ListParams) =>
+  useTableListQuery(PROJECTS_TABLE, params, toProject)
 
-export function useProjectsQuery(params: ListParams) {
-  return useQuery({
-    queryKey: projectKeys.list(params),
-    queryFn: async () => {
-      const result = await getTableItems<ProjectDto>(PROJECTS_TABLE, params)
-      return { ...result, items: result.items.map(toProject) }
-    },
-    placeholderData: keepPreviousData,
-  })
+export const useProjectQuery = (id: string | undefined) =>
+  useTableItemQuery(PROJECTS_TABLE, id, toProject)
+
+/** Options for pickers. Projects are few, so the first 100 cover them all. */
+export function useProjectOptions() {
+  const query = useProjectsQuery({ page: 1, pageSize: 100 })
+  return {
+    ...query,
+    options: (query.data?.items ?? []).map((p) => ({ value: p.id, label: p.name })),
+  }
 }

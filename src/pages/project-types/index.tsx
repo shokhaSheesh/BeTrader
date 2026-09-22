@@ -1,13 +1,19 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { Plus } from 'lucide-react'
 import {
   PROJECT_TYPES_TABLE,
   useProjectTypesQuery,
   type ProjectType,
 } from '@/entities/project-type'
+import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
+import { RECORDS } from '@/shared/config/routes'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatDate, formatNumber } from '@/shared/lib/format'
 import {
   Badge,
+  ButtonLink,
   DataTable,
   FilterBar,
   ListEmptyState,
@@ -76,12 +82,28 @@ export default function ProjectTypesPage() {
     search: list.search,
   })
   const fields = useTableFields(PROJECT_TYPES_TABLE)
+  const navigate = useNavigate()
+  const [toDelete, setToDelete] = useState<ProjectType | null>(null)
+
+  const columns = [
+    ...buildColumns(fields.optionLabel),
+    actionsColumn<ProjectType>({
+      onView: (t) => navigate(RECORDS.projectTypes.detail(t.id)),
+      onEdit: (t) => navigate(RECORDS.projectTypes.edit(t.id)),
+      onDelete: setToDelete,
+    }),
+  ]
 
   return (
     <>
       <PageHeader
         title="Project types"
         description="Yield ranges and dividend rules that projects are built on."
+        actions={
+          <ButtonLink to={RECORDS.projectTypes.create} icon={Plus}>
+            Create project type
+          </ButtonLink>
+        }
       />
 
       <FilterBar>
@@ -93,9 +115,11 @@ export default function ProjectTypesPage() {
       </FilterBar>
 
       <DataTable
-        columns={buildColumns(fields.optionLabel)}
+        columns={columns}
         rows={query.data?.items}
         getRowId={(t) => t.id}
+        onRowClick={(t) => navigate(RECORDS.projectTypes.detail(t.id))}
+        loadingLabel="Loading project types…"
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}
@@ -121,6 +145,7 @@ export default function ProjectTypesPage() {
           )
         }
       />
+      <DeleteRecordDialog noun="project type" target={toDelete} onClose={() => setToDelete(null)} />
     </>
   )
 }

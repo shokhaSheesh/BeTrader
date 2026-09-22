@@ -1,21 +1,19 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getTableItems, type ListParams } from '@/shared/api/ucode'
-import { toProjectType, type ProjectTypeDto } from '../model/types'
+import { useTableItemQuery, useTableListQuery } from '@/shared/api/queries'
+import type { ListParams } from '@/shared/api/ucode'
+import { toProjectType } from '../model/types'
 
 export const PROJECT_TYPES_TABLE = 'project_types'
 
-export const projectTypeKeys = {
-  all: ['project-types'] as const,
-  list: (params: ListParams) => [...projectTypeKeys.all, 'list', params] as const,
-}
+export const useProjectTypesQuery = (params: ListParams) =>
+  useTableListQuery(PROJECT_TYPES_TABLE, params, toProjectType)
 
-export function useProjectTypesQuery(params: ListParams) {
-  return useQuery({
-    queryKey: projectTypeKeys.list(params),
-    queryFn: async () => {
-      const result = await getTableItems<ProjectTypeDto>(PROJECT_TYPES_TABLE, params)
-      return { ...result, items: result.items.map(toProjectType) }
-    },
-    placeholderData: keepPreviousData,
-  })
+export const useProjectTypeQuery = (id: string | undefined) =>
+  useTableItemQuery(PROJECT_TYPES_TABLE, id, toProjectType)
+
+export function useProjectTypeOptions() {
+  const query = useProjectTypesQuery({ page: 1, pageSize: 100 })
+  return {
+    ...query,
+    options: (query.data?.items ?? []).map((t) => ({ value: t.id, label: t.name })),
+  }
 }

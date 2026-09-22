@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router'
+import { Link, NavLink, useLocation } from 'react-router'
 import { ChevronDown } from 'lucide-react'
-import { NAVIGATION, type NavGroupEntry } from '@/shared/config/navigation'
+import { NAVIGATION, type NavGroupEntry, type NavLeaf } from '@/shared/config/navigation'
 import { cn } from '@/shared/lib/cn'
 import { Logo } from './Logo'
 
@@ -37,11 +37,17 @@ export function Sidebar() {
   )
 }
 
+/** The deepest nav item whose path is a prefix of the URL: /projects/abc → "Projects", /projects/types → "Project types". */
+function activeItemPath(items: NavLeaf[], pathname: string) {
+  return items
+    .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0]?.to
+}
+
 function SidebarGroup({ group }: { group: NavGroupEntry }) {
   const { pathname } = useLocation()
-  const containsActive = group.items.some(
-    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-  )
+  const activePath = activeItemPath(group.items, pathname)
+  const containsActive = activePath !== undefined
   // null = follow the active route; boolean = the user toggled it explicitly.
   const [toggled, setToggled] = useState<boolean | null>(null)
   const open = toggled ?? containsActive
@@ -64,10 +70,10 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
       {open && (
         <div className="flex flex-col gap-0.5 py-1 pl-4">
           {group.items.map((item) => (
-            <NavLink
+            <Link
               key={item.to}
               to={item.to}
-              end
+              aria-current={item.to === activePath ? 'page' : undefined}
               className={cn(
                 itemClass,
                 'h-9 aria-[current=page]:bg-inverse-hover aria-[current=page]:font-medium aria-[current=page]:text-accent',
@@ -75,7 +81,7 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
             >
               <item.icon size={16} strokeWidth={1.75} />
               {item.label}
-            </NavLink>
+            </Link>
           ))}
         </div>
       )}

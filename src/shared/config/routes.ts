@@ -64,3 +64,20 @@ export const ROUTES = {
     employees: '/staff/employees',
   },
 } as const
+
+/** Detail / create / edit routes for a list page at `base`. */
+function recordRoutes(base: string) {
+  return {
+    list: base,
+    create: `${base}/new`,
+    detail: (id: string) => `${base}/${id}`,
+    edit: (id: string) => `${base}/${id}/edit`,
+    patterns: { create: `${base}/new`, detail: `${base}/:id`, edit: `${base}/:id/edit` },
+  }
+}
+
+export const RECORDS = {
+  projects: recordRoutes(ROUTES.projects.list),
+  projectTypes: recordRoutes(ROUTES.projects.types),
+  projectInvestors: recordRoutes(ROUTES.projects.investors),
+}

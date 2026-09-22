@@ -34,7 +34,16 @@ A user must never wonder whether a click worked. Anything that takes time shows 
 | Row action (block user, approve) | Loader on **that row's** action only, not the whole table | `<RowAction loading>` |
 | Request finished | Toast for success or error. Errors say what failed and what to do. | `toast.success / toast.error` |
 
+Every screen has **two layers** of loading feedback, so a reload or click is never silent:
+
+| Layer | Component | When |
+| --- | --- | --- |
+| Global | `GlobalProgress`: a thin lime bar across the top of the window | Any request in flight, anywhere in the app |
+| Local | `LoadingPill`: a spinner with text ("Loading projects…") over the skeleton rows | A table's first load |
+| Local | `PageLoader`: the same pill, centered in the content area | A page's code is loading, a detail or edit record is loading, or a form's schema is loading |
+
 Rules:
+- A skeleton alone is not enough. It always comes with a spinner and a label that says *what* is loading.
 - Disable the trigger while the request is running, so no double submits (critical for money operations).
 - No full-screen spinners except the initial app boot.
 - Skeletons must match the real layout. A generic grey box is not a skeleton.
@@ -106,7 +115,12 @@ Every list page has the same anatomy, built from the same shared components. No 
 | `FilterBar` | Search is always first and on the left. Filters are dropdowns of the same height. "Reset" appears only when a filter is active. Filters are stored in the URL (`?status=active&page=2`) so views can be shared. |
 | `DataTable` | Same row height, header style, hover, borders and padding on every page. Status is always a `<Badge>`. Row actions are always an icon menu in the last column. |
 | `Pagination` | Always at the bottom, always the same component, with the same page sizes (20 / 50 / 100). |
-| Forms | Label above the input, helper or error text below. Create and edit use a **drawer**. Destructive confirmations use a **modal**. |
+| Rows | Clicking a row opens its **detail page**. The last column is always the ⋯ menu: View, Edit, Delete (`actionsColumn`). |
+| Detail page | `PageHeader` with a back link; actions on the right are Delete (`danger-ghost`) and **Edit** (primary). Then `DetailSection` panels of label/value pairs, with a "Record" panel (created, updated, ID) last. |
+| Create / edit | A **full page** (`/…/new`, `/…/:id/edit`), not a drawer: our records have too many fields for one. `FormSection` panels, then the sticky `FormFooter` (Cancel, Save). Field labels come from the backend (§0). |
+| Forms | Label above the control, error or hint below (`Field`). |
+| Delete | Always `ConfirmDialog` (danger), naming the record and saying it can't be undone. It can't be closed while the request runs. |
+| Loading and missing records | `RecordBoundary` covers every detail and edit page with the same loader, error and "doesn't exist" states. |
 | Dates | One format across the app via `formatDateTime()`. |
 
 ### Empty, error and "no results" states
@@ -120,6 +134,26 @@ These three always use the same component, `<EmptyState>`, rendered **inside** t
 | `error` | The request failed | Icon · "Couldn't load transactions" · a "Try again" button |
 
 Same icon size, same spacing and same copy pattern every time. No illustrations, mascots or emoji.
+
+### No browser defaults, ever
+
+Every control uses our design. Browser-native UI looks different on every OS and browser, can't be themed, and is the fastest way to make the product feel unfinished. The complete list:
+
+| Never use | Use instead |
+| --- | --- |
+| `<select>` | `Select` (single) / `MultiSelect` (multiple) |
+| `<input type="date">` and other date/time inputs | `DatePicker` with our `Calendar`: **3 views: days → months → years**. Click the title to step up a view and pick to step back down. Weeks start on Monday. |
+| A long list in a dropdown (investors, 10k+ rows) | `SearchSelect`: server-side search, keyboard navigation |
+| `<input type="number">` (browser spinner arrows) | `TextField numeric`: text input, decimal keyboard, tabular digits |
+| `<input type="checkbox">` / radio | `CheckboxBox` / our radio (not built yet) |
+| On/off checkbox | `Switch` / `SwitchField`: lime track when on, like the app |
+| `window.confirm` / `alert` | `ConfirmDialog` |
+| `window.alert` for results | `toast.success / error / info` (top right) |
+| A `title="…"` tooltip | Our `Tooltip` (to build when first needed) |
+| `<input type="file">` | Our upload field (to build when uploads are wired) |
+| The native search clear "×" and autofill yellow | Hidden or overridden; `SearchInput` has its own clear button |
+
+Behavior (keyboard, focus trapping, screen readers) comes from **Radix** headless primitives, which carry no styles of their own. Every pixel is ours, so behavior comes from Radix and looks from us. Popovers all share `popoverSurface`, menu rows share `menuItem`, and inputs share `controlBase` (`shared/ui/styles.ts`), so they can't drift apart.
 
 ### Build order
 
@@ -238,7 +272,8 @@ The app's 24 and 32 px radii are for large mobile cards and look too soft in a d
 ## PR checklist
 
 - [ ] Nothing the backend owns is hardcoded or guessed: labels, units, classifications, calculations (§0)
-- [ ] Every async action has a loading state (§1)
+- [ ] Every async action has a loading state; skeletons come with a labelled spinner (§1)
+- [ ] No native browser controls: select, date, number, checkbox, confirm, alert, title tooltips (§3)
 - [ ] Only Onest, only weights 400/500/600, only sizes from the scale (§2)
 - [ ] All digits use `num`; money goes through `formatMoney()` (§2)
 - [ ] The page uses `PageHeader` / `FilterBar` / `DataTable` / `EmptyState` / `Pagination` (§3)

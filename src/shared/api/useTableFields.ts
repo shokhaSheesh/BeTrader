@@ -21,5 +21,17 @@ export function useTableFields(slug: string) {
     [fields],
   )
 
-  return { ...query, optionLabel }
+  /** Backend label of a field (`attributes.label_en`), falling back to the slug. */
+  const fieldLabel = useCallback(
+    (fieldSlug: string) => fields?.find((f) => f.slug === fieldSlug)?.label ?? fieldSlug,
+    [fields],
+  )
+
+  /** Backend options of a select field, for dropdowns in forms. */
+  const fieldOptions = useCallback(
+    (fieldSlug: string) => fields?.find((f) => f.slug === fieldSlug)?.options ?? [],
+    [fields],
+  )
+
+  return { ...query, optionLabel, fieldLabel, fieldOptions }
 }

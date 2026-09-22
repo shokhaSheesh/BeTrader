@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Read-only for now.** Only the GET endpoints below are wired. Create, update and delete are not wired and must not be called until they're agreed.
+> **Read-only for now.** Only the GET endpoints below are wired. The create, edit and delete *pages* exist, but their Save and Delete buttons call `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed. To wire one, replace that call with the real mutation.
 
 ## Auth
 
@@ -50,7 +50,7 @@ Every admin page is backed by one u-code **table** (a slug).
 | Call | Endpoint | Helper |
 | --- | --- | --- |
 | List | `GET {VITE_API_URL}/v2/items/{slug}?data={"offset":0,"limit":20,"search":"…"}` | `getTableItems(slug, { page, pageSize, search })` |
-| One record | `GET {VITE_API_URL}/v2/items/{slug}/{guid}` | `getTableItem(slug, guid)` |
+| One record | `GET {VITE_API_URL}/v2/items/{slug}/{guid}?with_relations=true` | `getTableItem(slug, guid)` |
 | Schema | `GET {VITE_API_URL}/v2/fields/{slug}` | `getTableFields(slug)` / `useTableFields(slug)` |
 
 **Always take labels from the schema.** Each field has `attributes.label_en`, and select fields have `attributes.options: [{ value, label }]` (e.g. `invest` → "Investment"). `useTableFields(slug).optionLabel(field, value)` returns the backend's label, or the raw value if there isn't one. See DESIGN.md §0.
@@ -58,7 +58,9 @@ Every admin page is backed by one u-code **table** (a slug).
 Notes:
 - Paging and search go **inside** the JSON `data` query parameter. Plain `?offset=&limit=` query parameters are ignored.
 - The list response is `data.data.response` (rows) plus `data.data.count` (total, for pagination).
-- Linked records come back already joined as `<field>_data` (e.g. `project_types_id_data`).
+- Linked records come back already joined as `<field>_data` (e.g. `project_types_id_data`). The list does this by default; **the single-record endpoint only does it with `?with_relations=true`** (a plain query parameter, not inside `data`).
+- An **unknown ID returns 200 with an empty `{}`**, not a 404. `getTableItem` turns that into `RecordNotFoundError`, and the page shows "This … doesn't exist".
+- `search` only matches fields the backend marks `is_search`. Some tables have none, and then `search` is silently ignored. Check `GET /v2/fields/{slug}` before adding a search box.
 - Fields are snake_case. Each entity maps them to a camelCase model in `entities/<name>/model/types.ts` (see `toProject`).
 
 ## Page → table map
@@ -69,7 +71,7 @@ Row counts as of 2026-09-22. Every table answered GET with 200.
 | --- | --- | --- | --- |
 | Projects | `/projects` | `projects` | 3 ✅ wired |
 | Project types | `/projects/types` | `project_types` | 3 ✅ wired |
-| Project investors | `/projects/investors` | `project_investors` | 109 |
+| Project investors | `/projects/investors` | `project_investors` | 109 ✅ wired (no search, see below) |
 | Investors | `/investors` | `investors` | 10 701 |
 | Accounts | `/investors/accounts` | `account` | 10 737 |
 | Cards | `/investors/cards` | `investor_cards` | 1 084 |
@@ -109,9 +111,14 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `projects` | No tariff key, so we can't color by tariff (High-yield, Halal, Conservative) without guessing from names. |
 | `project_types` | English names look like test data ("Super Bistro", "1st Type", "2nd Type"), while the Russian names are the real tariffs. |
 | `project_types.created_at` | No time zone in the timestamp (other tables send `Z`). |
+| `project_investors` | **Security:** the list joins the *entire* investor record into every row: passport, PINFL, `pin_code`, push token and more. The admin shows only name and phone. Please limit the joined fields. |
+| `project_investors` | No field is marked searchable, so `search` is ignored and the page has no search box. Mark the investor name/phone (or project) searchable? |
+| `project_investors.investment` / `dividend` | Labelled "Investment" and "Interest income", with no currency. Amounts are shown without one until it's defined. |
+| `projects` (form) | No field is `required` in the schema, so the forms require nothing. Should the names be required? |
 
-## Adding a new list page
+## Adding a new section
 
-1. Create `entities/<name>/`: a `Dto` type for the raw row, a model, `to<Name>()`, and a `use<Name>Query` built on `getTableItems`.
-2. Create `pages/<name>/index.tsx`, copying the structure of `pages/projects`: `PageHeader`, `FilterBar`, `DataTable`, `ListEmptyState`, `Pagination`, `useListParams`, and `useTableFields` for labels.
-3. Register the page in the `PAGES` map in `app/router/index.tsx`. Until you do, the route shows the placeholder page.
+1. **Entity** (`entities/<name>/`): a `Dto` for the raw row, a camelCase model, `to<Name>()`, then `use<Name>sQuery` / `use<Name>Query` built on `useTableListQuery` / `useTableItemQuery` (`shared/api/queries.ts`).
+2. **List page** (`pages/<name>/index.tsx`): copy `pages/projects`, which uses `PageHeader` + Create, `FilterBar` (only if the table has searchable fields), `DataTable` with `onRowClick` and `actionsColumn`, `ListEmptyState`, `Pagination`, `useListParams`, and `useTableFields` for labels.
+3. **Form** (`features/<name>-editor/`): form values keyed by the backend's field slugs, labels from `fieldLabel()`, options from `fieldOptions()`.
+4. **Detail, create and edit pages**: copy `pages/projects/{DetailPage,CreatePage,EditPage}.tsx`, add `recordRoutes(...)` to `RECORDS`, and register them in `RECORD_PAGES` (`app/router/index.tsx`).

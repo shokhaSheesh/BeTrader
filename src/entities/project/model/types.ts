@@ -1,6 +1,6 @@
 import type { Currency } from '@/shared/lib/format'
 
-/** Raw row of the u-code `projects` table. Labels in comments are the backend's own. */
+/** Raw row of the u-code `projects` table. Comments are the backend's own field labels. */
 export interface ProjectDto {
   guid: string
   name_en: string
@@ -8,6 +8,7 @@ export interface ProjectDto {
   name_uz: string
   ticker: string
   image: string | null
+  /** MULTISELECT "Currency" */
   currency: string[] | null
   /** "Minimal amount (USD)" */
   minimal_amount: number | null
@@ -23,11 +24,12 @@ export interface ProjectDto {
   sale: boolean
   /** "Hold on investment" */
   investment: boolean
-  /** MULTISELECT: labels come from GET /v2/fields/projects */
+  /** MULTISELECT "Status" */
   status: string[] | null
   /** "End time" */
   end_time: string | null
   created_at: string
+  updated_at: string
   project_types_id: string | null
   project_types_id_data: { guid: string; name_en: string; name_ru: string } | null
 }
@@ -36,15 +38,25 @@ export interface Project {
   id: string
   name: string
   nameRu: string
+  nameUz: string
   ticker: string
   imageUrl: string | null
+  currencies: string[]
+  /** Currency used to format this project's amounts */
   currency: Currency
   minimalAmount: number | null
   dividendAccrualPeriod: number | null
   maturityMonths: number | null
+  insurance: boolean
+  insuranceAmount: number | null
+  holdWhileSelling: boolean
+  holdOnInvestment: boolean
   statuses: string[]
   endTime: string | null
+  typeId: string | null
   typeName: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export function toProject(dto: ProjectDto): Project {
@@ -52,14 +64,23 @@ export function toProject(dto: ProjectDto): Project {
     id: dto.guid,
     name: dto.name_en,
     nameRu: dto.name_ru,
+    nameUz: dto.name_uz,
     ticker: dto.ticker,
     imageUrl: dto.image || null,
+    currencies: dto.currency ?? [],
     currency: dto.currency?.[0] === 'UZS' ? 'UZS' : 'USD',
     minimalAmount: dto.minimal_amount,
     dividendAccrualPeriod: dto.dividend_period,
     maturityMonths: dto.deposit_maturity_month,
+    insurance: dto.insurance,
+    insuranceAmount: dto.insurance_amount,
+    holdWhileSelling: dto.sale,
+    holdOnInvestment: dto.investment,
     statuses: dto.status ?? [],
     endTime: dto.end_time,
+    typeId: dto.project_types_id,
     typeName: dto.project_types_id_data?.name_en ?? null,
+    createdAt: dto.created_at,
+    updatedAt: dto.updated_at,
   }
 }

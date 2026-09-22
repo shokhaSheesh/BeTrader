@@ -34,10 +34,25 @@ export async function getTableItems<T>(
   }
 }
 
-/** GET /v2/items/{slug}/{guid} */
+/** u-code answers an unknown id with 200 and an empty object, so we raise this instead. */
+export class RecordNotFoundError extends Error {
+  constructor(slug: string, guid: string) {
+    super(`${slug}/${guid} not found`)
+    this.name = 'RecordNotFoundError'
+  }
+}
+
+/** GET /v2/items/{slug}/{guid}. `with_relations` makes it join linked records (`*_data`) like the list does. */
 export async function getTableItem<T>(slug: string, guid: string): Promise<T> {
-  const { data } = await http.get<ItemEnvelope<T>>(`/v2/items/${slug}/${guid}`)
-  return data.data.data.response
+  const { data } = await http.get<ItemEnvelope<T & { guid?: string }>>(
+    `/v2/items/${slug}/${guid}`,
+    {
+      params: { with_relations: true },
+    },
+  )
+  const record = data.data.data.response
+  if (!record?.guid) throw new RecordNotFoundError(slug, guid)
+  return record
 }
 
 export interface FieldOption {

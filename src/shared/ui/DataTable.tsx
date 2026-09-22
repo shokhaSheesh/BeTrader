@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useMinimumLoading } from '@/shared/hooks/useMinimumLoading'
 import { cn } from '@/shared/lib/cn'
+import { LoadingPill } from './PageLoader'
 import { Skeleton } from './Skeleton'
 
 export interface Column<T> {
@@ -12,6 +13,8 @@ export interface Column<T> {
   width?: string
   /** Shape of this column's skeleton bar */
   skeleton?: string
+  /** Header text is for screen readers only (e.g. the actions column) */
+  hideHeader?: boolean
 }
 
 interface DataTableProps<T> {
@@ -26,6 +29,10 @@ interface DataTableProps<T> {
   emptyState?: ReactNode
   footer?: ReactNode
   skeletonRows?: number
+  /** Makes rows clickable (e.g. open the detail page) */
+  onRowClick?: (row: T) => void
+  /** Text in the first-load spinner, e.g. "Loading projects…" */
+  loadingLabel?: string
 }
 
 export function DataTable<T>({
@@ -37,6 +44,8 @@ export function DataTable<T>({
   emptyState,
   footer,
   skeletonRows = 8,
+  onRowClick,
+  loadingLabel,
 }: DataTableProps<T>) {
   const showSkeleton = useMinimumLoading(loading)
   const showFetching = useMinimumLoading(fetching && !loading)
@@ -51,6 +60,15 @@ export function DataTable<T>({
           aria-label="Loading"
         >
           <div className="h-full w-1/3 animate-indeterminate bg-brand-deep" />
+        </div>
+      )}
+
+      {showSkeleton && (
+        <div
+          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pt-10"
+          role="status"
+        >
+          <LoadingPill label={loadingLabel} />
         </div>
       )}
 
@@ -71,7 +89,7 @@ export function DataTable<T>({
                       col.width,
                     )}
                   >
-                    {col.header}
+                    {col.hideHeader ? <span className="sr-only">{col.header}</span> : col.header}
                   </th>
                 ))}
               </tr>
@@ -99,7 +117,11 @@ export function DataTable<T>({
                 : rows!.map((row) => (
                     <tr
                       key={getRowId(row)}
-                      className="border-t border-line transition-colors hover:bg-surface-hover"
+                      onClick={onRowClick ? () => onRowClick(row) : undefined}
+                      className={cn(
+                        'border-t border-line transition-colors hover:bg-surface-hover',
+                        onRowClick && 'cursor-pointer',
+                      )}
                     >
                       {columns.map((col) => (
                         <td

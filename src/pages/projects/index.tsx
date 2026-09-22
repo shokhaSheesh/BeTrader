@@ -1,9 +1,15 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { Plus } from 'lucide-react'
 import { PROJECTS_TABLE, useProjectsQuery, type Project } from '@/entities/project'
+import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
+import { RECORDS } from '@/shared/config/routes'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatDate, formatMoney, formatNumber } from '@/shared/lib/format'
 import {
   Badge,
+  ButtonLink,
   DataTable,
   FilterBar,
   ListEmptyState,
@@ -90,10 +96,29 @@ export default function ProjectsPage() {
   const list = useListParams()
   const query = useProjectsQuery({ page: list.page, pageSize: list.pageSize, search: list.search })
   const fields = useTableFields(PROJECTS_TABLE)
+  const navigate = useNavigate()
+  const [toDelete, setToDelete] = useState<Project | null>(null)
+
+  const columns = [
+    ...buildColumns(fields.optionLabel),
+    actionsColumn<Project>({
+      onView: (p) => navigate(RECORDS.projects.detail(p.id)),
+      onEdit: (p) => navigate(RECORDS.projects.edit(p.id)),
+      onDelete: setToDelete,
+    }),
+  ]
 
   return (
     <>
-      <PageHeader title="Projects" description="Investment products available to investors." />
+      <PageHeader
+        title="Projects"
+        description="Investment products available to investors."
+        actions={
+          <ButtonLink to={RECORDS.projects.create} icon={Plus}>
+            Create project
+          </ButtonLink>
+        }
+      />
 
       <FilterBar>
         <SearchInput
@@ -104,9 +129,11 @@ export default function ProjectsPage() {
       </FilterBar>
 
       <DataTable
-        columns={buildColumns(fields.optionLabel)}
+        columns={columns}
         rows={query.data?.items}
         getRowId={(p) => p.id}
+        onRowClick={(p) => navigate(RECORDS.projects.detail(p.id))}
+        loadingLabel="Loading projects…"
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}
@@ -132,6 +159,7 @@ export default function ProjectsPage() {
           )
         }
       />
+      <DeleteRecordDialog noun="project" target={toDelete} onClose={() => setToDelete(null)} />
     </>
   )
 }

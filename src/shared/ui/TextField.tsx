@@ -1,42 +1,35 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { cn } from '@/shared/lib/cn'
+import { Field } from './Field'
+import { controlBase, controlSizes } from './styles'
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   error?: string
+  hint?: string
+  /** Numeric input without the browser's spinner arrows: text + decimal keyboard + tabular digits. */
+  numeric?: boolean
 }
 
-/** Label above, error below (DESIGN.md §3). */
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, error, className, id, ...props },
+  { label, error, hint, numeric, className, id, ...props },
   ref,
 ) {
   const autoId = useId()
   const inputId = id ?? autoId
-  const errorId = `${inputId}-error`
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="font-medium">
-        {label}
-      </label>
+    <Field label={label} htmlFor={inputId} error={error} hint={hint}>
       <input
         ref={ref}
         id={inputId}
+        type={numeric ? 'text' : props.type}
+        inputMode={numeric ? 'decimal' : props.inputMode}
         aria-invalid={!!error || undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(
-          'h-11 rounded-sm border border-transparent bg-surface-muted px-3 outline-none placeholder:text-fg-subtle focus:border-focus',
-          'aria-invalid:border-danger',
-          className,
-        )}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        className={cn(controlBase, controlSizes.md, numeric && 'num', className)}
         {...props}
       />
-      {error && (
-        <p id={errorId} className="text-xs text-danger-text">
-          {error}
-        </p>
-      )}
-    </div>
+    </Field>
   )
 })

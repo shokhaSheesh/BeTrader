@@ -2,7 +2,7 @@
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react'
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 import { NAVIGATION } from '@/shared/config/navigation'
-import { ROUTES } from '@/shared/config/routes'
+import { RECORDS, ROUTES } from '@/shared/config/routes'
 import { AdminLayout } from '@/widgets/layout/AdminLayout'
 import { GuestRoute, ProtectedRoute } from './guards'
 
@@ -15,7 +15,38 @@ const PAGES: Partial<Record<string, LazyExoticComponent<ComponentType>>> = {
   [ROUTES.dashboard]: lazy(() => import('@/pages/dashboard')),
   [ROUTES.projects.list]: lazy(() => import('@/pages/projects')),
   [ROUTES.projects.types]: lazy(() => import('@/pages/project-types')),
+  [ROUTES.projects.investors]: lazy(() => import('@/pages/project-investors')),
 }
+
+/** Detail / create / edit pages per record type. */
+const RECORD_PAGES = [
+  {
+    routes: RECORDS.projects,
+    detail: lazy(() => import('@/pages/projects/DetailPage')),
+    create: lazy(() => import('@/pages/projects/CreatePage')),
+    edit: lazy(() => import('@/pages/projects/EditPage')),
+  },
+  {
+    routes: RECORDS.projectTypes,
+    detail: lazy(() => import('@/pages/project-types/DetailPage')),
+    create: lazy(() => import('@/pages/project-types/CreatePage')),
+    edit: lazy(() => import('@/pages/project-types/EditPage')),
+  },
+  {
+    routes: RECORDS.projectInvestors,
+    detail: lazy(() => import('@/pages/project-investors/DetailPage')),
+    create: lazy(() => import('@/pages/project-investors/CreatePage')),
+    edit: lazy(() => import('@/pages/project-investors/EditPage')),
+  },
+]
+
+const recordRoutes: RouteObject[] = RECORD_PAGES.flatMap(
+  ({ routes, detail: Detail, create: Create, edit: Edit }) => [
+    { path: routes.patterns.create, element: <Create /> },
+    { path: routes.patterns.detail, element: <Detail /> },
+    { path: routes.patterns.edit, element: <Edit /> },
+  ],
+)
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={null}>{node}</Suspense>
 
@@ -48,6 +79,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to={ROUTES.dashboard} replace /> },
           ...sectionRoutes,
+          ...recordRoutes,
         ],
       },
     ],

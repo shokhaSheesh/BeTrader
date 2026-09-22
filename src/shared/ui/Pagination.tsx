@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { PAGE_SIZES } from '@/shared/config/list'
 import { formatNumber } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
+import { Select } from './Select'
 
 interface PaginationProps {
   page: number
@@ -37,18 +38,14 @@ export function Pagination({
         <span className="num">
           Showing {formatNumber(from)}–{formatNumber(to)} of {formatNumber(total)}
         </span>
-        <select
-          value={pageSize}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+        <Select
+          size="sm"
+          value={String(pageSize)}
+          onChange={(v) => onPageSizeChange(Number(v))}
+          options={PAGE_SIZES.map((size) => ({ value: String(size), label: `${size} per page` }))}
           aria-label="Rows per page"
-          className="num h-8 rounded-sm bg-surface-muted px-2 text-fg outline-none"
-        >
-          {PAGE_SIZES.map((size) => (
-            <option key={size} value={size}>
-              {size} per page
-            </option>
-          ))}
-        </select>
+          className="num w-36"
+        />
       </div>
       <nav className="flex items-center gap-1" aria-label="Pagination">
         <button
