@@ -93,7 +93,7 @@ function buildColumns(
       id: 'status',
       header: label('status'),
       skeleton: 'w-20',
-      cell: (p) => <OptionsCell values={p.statuses} label={opt('status')} />,
+      cell: (p) => <OptionsCell values={p.statuses} label={opt('status')} field="status" />,
     },
     {
       id: 'sale',

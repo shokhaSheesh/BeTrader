@@ -119,7 +119,11 @@ function buildColumns(
       header: 'Identification',
       skeleton: 'w-24',
       cell: (i) =>
-        i.isIdentified ? <Badge tone="success">Identified</Badge> : <Badge>Not identified</Badge>,
+        i.isIdentified ? (
+          <Badge tone="success">Identified</Badge>
+        ) : (
+          <Badge tone="warning">Not identified</Badge>
+        ),
     },
     {
       id: 'lang',
@@ -223,10 +227,15 @@ export default function InvestorsPage() {
       />
 
       <KpiGrid>
-        <KpiCard label="Total investors" icon={Users} value={total.data} />
-        <KpiCard label="Identified" icon={BadgeCheck} value={identifiedCount.data} />
-        <KpiCard label="Not identified" icon={UserX} value={notIdentifiedCount.data} />
-        <KpiCard label="New this month" icon={UserPlus} value={newThisMonth.data} />
+        <KpiCard label="Total investors" icon={Users} tone="accent" value={total.data} />
+        <KpiCard label="Identified" icon={BadgeCheck} tone="success" value={identifiedCount.data} />
+        <KpiCard
+          label="Not identified"
+          icon={UserX}
+          tone="warning"
+          value={notIdentifiedCount.data}
+        />
+        <KpiCard label="New this month" icon={UserPlus} tone="info" value={newThisMonth.data} />
       </KpiGrid>
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>

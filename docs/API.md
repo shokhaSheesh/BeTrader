@@ -144,8 +144,8 @@ Dashboard and Analytics don't map to one table. They need aggregated data (see `
 | `account` | `search` returns 0 rows for any term (even "a"), so the page has no search box. `full_name` and `tranzit` are empty on every row we checked. Are they still used? |
 | `account` | Sorting by `created_at` returns 500; only schema fields can be sorted. Add a `created_time` field like the other tables? |
 | `orders` / `transactions` | **Security:** every row sends `otp` (a one-time password) to the admin client. Never shown, but it shouldn't leave the backend. |
-| `transactions` | `snapshot_full_name`, `snapshot_phone`, `snapshot_pinfl` and `score` are empty on every row checked. What are they for? There are also two investor links (`investors_id` "Investor" and `investors_id_2` "Investors"). What's the difference? |
-| `transactions.type` | Free text "+" / "-" rather than a select. Shown as sent. |
+| `transactions` | Checked all 3 158 rows: `snapshot_full_name`, `snapshot_phone`, `snapshot_pinfl` are **always empty**, `score` is filled on 2 rows, and `investors_id_2` ("Investors") **equals `investors_id` on every row**. The admin hides them from the table (snapshot shown on the detail page only if ever filled). Can they be removed or explained? |
+| `transactions.type` | Free text "+" / "-" (money in / out; 38 top-ups have none). Shown as arrows. A select with options would be cleaner. |
 | `orders`, `transactions`, `dividend`, `currency_rates` | No currency on `transaction_fee`, `insurance`, `order_amount` and the rate `amount`, so they're shown as plain numbers. The field labels could state the currency, as the amount fields do. |
 | `orders.transaction_id` | Label typo: "Tranasction Id". |
 | `dividend`, `currency_rates`, `currency_percent` | `search` is ignored; the pages rely on filters. |

@@ -39,6 +39,7 @@ export {
   Dash,
   DateCell,
   DateTimeCell,
+  DirectionCell,
   ImageCell,
   MoneyCell,
   NumberCell,

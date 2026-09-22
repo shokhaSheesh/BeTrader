@@ -63,7 +63,7 @@ function buildColumns(
       id: 'type',
       header: label('type'),
       skeleton: 'w-14',
-      cell: (d) => <OptionsCell values={d.type} label={opt('type')} />,
+      cell: (d) => <OptionsCell values={d.type} label={opt('type')} field="type" />,
     },
     {
       id: 'percent',

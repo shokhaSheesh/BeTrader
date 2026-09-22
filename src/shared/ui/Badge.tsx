@@ -1,15 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
-
-type Tone = 'neutral' | 'success' | 'danger' | 'warning' | 'info'
-
-const tones: Record<Tone, string> = {
-  neutral: 'bg-surface-muted text-fg-muted',
-  success: 'bg-success-tint text-success-text',
-  danger: 'bg-danger-tint text-danger-text',
-  warning: 'bg-warning-tint text-warning-text',
-  info: 'bg-info-tint text-info-text',
-}
+import { TONE_CLASSES, type Tone } from '@/shared/lib/tones'
 
 interface BadgeProps {
   tone?: Tone
@@ -19,11 +10,13 @@ interface BadgeProps {
 }
 
 export function Badge({ tone = 'neutral', dotClassName, children }: BadgeProps) {
+  const { tint, text } = TONE_CLASSES[tone]
   return (
     <span
       className={cn(
         'inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap',
-        tones[tone],
+        tint,
+        text,
       )}
     >
       {dotClassName && <span className={cn('size-2 rounded-full', dotClassName)} />}

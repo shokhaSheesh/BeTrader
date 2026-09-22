@@ -1,22 +1,25 @@
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { formatNumber } from '@/shared/lib/format'
+import { cn } from '@/shared/lib/cn'
+import { TONE_CLASSES, type Tone } from '@/shared/lib/tones'
 import { Badge } from './Badge'
 import { Loader } from './Loader'
 
 interface KpiCardProps {
   /** What is counted, e.g. "Identified" */
   label: string
-  /** Neutral circle on the right: never colored (DESIGN.md §3) */
   icon: LucideIcon
+  /** Color of the icon circle: the meaning of the number (DESIGN.md §5 "Color in data"). Defaults to neutral. */
+  tone?: Tone
   /** A number from the backend; `undefined` while loading */
   value?: number
   /** The backend can't provide this yet: a placeholder and a "Backend pending" badge, never a front-end calculation */
   pending?: boolean
 }
 
-/** Label on top, count below, icon in a neutral circle on the right. */
-export function KpiCard({ label, icon: Icon, value, pending }: KpiCardProps) {
+/** Label on top, count below, icon in a tinted circle on the right. */
+export function KpiCard({ label, icon: Icon, tone = 'neutral', value, pending }: KpiCardProps) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-md border border-line bg-surface px-5 py-4">
       <div className="flex min-w-0 flex-col gap-1">
@@ -36,7 +39,13 @@ export function KpiCard({ label, icon: Icon, value, pending }: KpiCardProps) {
           </span>
         )}
       </div>
-      <span className="grid size-14 shrink-0 place-items-center rounded-full bg-surface-muted text-fg">
+      <span
+        className={cn(
+          'grid size-14 shrink-0 place-items-center rounded-full',
+          TONE_CLASSES[tone].tint,
+          tone === 'neutral' ? 'text-fg' : TONE_CLASSES[tone].text,
+        )}
+      >
         <Icon size={24} strokeWidth={1.75} />
       </span>
     </div>

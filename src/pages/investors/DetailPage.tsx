@@ -53,7 +53,7 @@ export default function InvestorDetailPage() {
                   {i.isIdentified ? (
                     <Badge tone="success">Identified</Badge>
                   ) : (
-                    <Badge>Not identified</Badge>
+                    <Badge tone="warning">Not identified</Badge>
                   )}
                 </span>
               }

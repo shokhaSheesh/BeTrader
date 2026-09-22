@@ -58,10 +58,13 @@ export default function OrderDetailPage() {
                 title="Order"
                 items={[
                   { label: L('external_order_id'), value: <CodeCell value={o.orderId} /> },
-                  { label: L('type'), value: <OptionsCell values={o.type} label={opt('type')} /> },
+                  {
+                    label: L('type'),
+                    value: <OptionsCell values={o.type} label={opt('type')} field="type" />,
+                  },
                   {
                     label: L('status'),
-                    value: <OptionsCell values={o.status} label={opt('status')} />,
+                    value: <OptionsCell values={o.status} label={opt('status')} field="status" />,
                   },
                   {
                     label: L('currency'),

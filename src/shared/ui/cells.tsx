@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { ImageOff, User } from 'lucide-react'
+import { ImageOff, TrendingDown, TrendingUp, User } from 'lucide-react'
 import {
   formatAmount,
   formatDate,
@@ -9,7 +9,9 @@ import {
   formatNumber,
 } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
+import { toneFor } from '@/shared/lib/tones'
 import { Badge } from './Badge'
+import { Tooltip } from './Tooltip'
 
 // Cell renderers shared by every table and detail page, so "—", badges and dates look the same everywhere.
 
@@ -40,19 +42,26 @@ export function YesNoCell({ value }: { value: boolean | null | undefined }) {
   return value == null ? <Dash /> : <>{value ? 'Yes' : 'No'}</>
 }
 
-/** Multiselect values with the backend's option labels */
+/**
+ * Multiselect values with the backend's option labels.
+ * Pass `field` to color the badges by `toneFor(field, value)`: statuses, operations and key types only.
+ */
 export function OptionsCell({
   values,
   label,
+  field,
 }: {
   values: string[]
   label: (value: string) => string
+  field?: string
 }) {
   if (!values.length) return <Dash />
   return (
     <span className="inline-flex gap-1.5">
       {values.map((v) => (
-        <Badge key={v}>{label(v)}</Badge>
+        <Badge key={v} tone={field ? toneFor(field, v) : 'neutral'}>
+          {label(v)}
+        </Badge>
       ))}
     </span>
   )
@@ -132,5 +141,27 @@ export function RecordLink({
     >
       {children}
     </Link>
+  )
+}
+
+/** Money direction ("+" in / "-" out, sent as text by the backend) as an arrow. Out is never red (DESIGN.md §2). */
+export function DirectionCell({ value }: { value: string | null | undefined }) {
+  if (value !== '+' && value !== '-') return value ? <CodeCell value={value} /> : <Dash />
+  const incoming = value === '+'
+  const Icon = incoming ? TrendingUp : TrendingDown
+  const label = incoming ? 'In (+)' : 'Out (−)'
+  return (
+    <Tooltip content={label} side="top">
+      <span
+        role="img"
+        aria-label={label}
+        className={cn(
+          'inline-grid size-7 place-items-center rounded-full',
+          incoming ? 'bg-success-tint text-success-text' : 'bg-surface-muted text-fg',
+        )}
+      >
+        <Icon size={16} strokeWidth={2} />
+      </span>
+    </Tooltip>
   )
 }

@@ -126,9 +126,14 @@ export default function CardsPage() {
       />
 
       <KpiGrid>
-        <KpiCard label="Total cards" icon={CreditCard} value={total.data} />
-        <KpiCard label="Expiring in 30 days" icon={CalendarClock} value={expiringSoon.data} />
-        <KpiCard label="Expired" icon={CalendarX} value={expired.data} />
+        <KpiCard label="Total cards" icon={CreditCard} tone="accent" value={total.data} />
+        <KpiCard
+          label="Expiring in 30 days"
+          icon={CalendarClock}
+          tone="warning"
+          value={expiringSoon.data}
+        />
+        <KpiCard label="Expired" icon={CalendarX} tone="danger" value={expired.data} />
       </KpiGrid>
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>

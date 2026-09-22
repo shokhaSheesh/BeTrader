@@ -48,6 +48,8 @@
   --color-accent: var(--niyat-lime);
   --color-accent-hover: var(--niyat-lime-hover);
   --color-on-accent: var(--niyat-ink); /* 12:1 */
+  --color-accent-tint: #ebf9c8; /* lime at 35% on white: badge / icon-circle background */
+  --color-on-accent-tint: var(--niyat-forest); /* 12.6:1 */
 
   /* Inverse (dark ink): sidebar and dark buttons */
   --color-inverse: var(--niyat-ink);
@@ -69,7 +71,7 @@
   --color-danger-tint: #fdebeb;
   --color-warning: var(--niyat-gold);
   --color-warning-text: #855400;
-  --color-warning-tint: #fdf9ea;
+  --color-warning-tint: #fcf1d0; /* gold at 26%: same lightness as the other tints */
   --color-info: var(--niyat-blue);
   --color-info-text: #1a5fb4;
   --color-info-tint: #e6f0fd;

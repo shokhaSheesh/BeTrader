@@ -5,16 +5,19 @@ import { PROJECTS_TABLE, useProjectQuery } from '@/entities/project'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
+import { toneFor } from '@/shared/lib/tones'
 import { formatDate, formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
 
 const dash = <span className="text-fg-subtle">—</span>
 const yesNo = (v: boolean) => (v ? 'Yes' : 'No')
-const badges = (values: string[], label: (v: string) => string) =>
+const badges = (values: string[], label: (v: string) => string, field?: string) =>
   values.length ? (
     <div className="flex flex-wrap gap-1.5">
       {values.map((v) => (
-        <Badge key={v}>{label(v)}</Badge>
+        <Badge key={v} tone={field ? toneFor(field, v) : 'neutral'}>
+          {label(v)}
+        </Badge>
       ))}
     </div>
   ) : (
@@ -112,7 +115,7 @@ export default function ProjectDetailPage() {
               <DetailSection
                 title="Status and insurance"
                 items={[
-                  { label: L('status'), value: badges(p.statuses, status('status')) },
+                  { label: L('status'), value: badges(p.statuses, status('status'), 'status') },
                   { label: L('sale'), value: yesNo(p.holdWhileSelling) },
                   { label: L('investment'), value: yesNo(p.holdOnInvestment) },
                   { label: L('insurance'), value: yesNo(p.insurance) },

@@ -16,10 +16,12 @@ import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatPhone } from '@/shared/lib/format'
+import { toneFor } from '@/shared/lib/tones'
 import {
   AmountCell,
   CodeCell,
   DataTable,
+  DirectionCell,
   DateRangeFilter,
   DateTimeCell,
   FilterBar,
@@ -50,7 +52,10 @@ const FILTER_KEYS = [
   'to',
 ] as const
 
-// Read-only ledger: no create/edit/delete. Every field except `otp` (a one-time password, never shown).
+// Read-only ledger: no create/edit/delete. Every field except:
+// - `otp` (a one-time password, never shown)
+// - `investors_id_2` "Investors": identical to `investors_id` on all 3 158 rows (checked 2026-09-22)
+// - `snapshot_*` (empty on all rows) and `score` (filled on 2 rows): detail page only, see docs/API.md
 function buildColumns(
   label: (f: string) => string,
   opt: (f: string) => (v: string) => string,
@@ -82,19 +87,19 @@ function buildColumns(
       id: 'operation',
       header: label('operation'),
       skeleton: 'w-16',
-      cell: (t) => <OptionsCell values={t.operation} label={opt('operation')} />,
+      cell: (t) => <OptionsCell values={t.operation} label={opt('operation')} field="operation" />,
     },
     {
       id: 'status',
       header: label('status'),
       skeleton: 'w-20',
-      cell: (t) => <OptionsCell values={t.status} label={opt('status')} />,
+      cell: (t) => <OptionsCell values={t.status} label={opt('status')} field="status" />,
     },
     {
       id: 'type',
       header: label('type'),
-      skeleton: 'w-6',
-      cell: (t) => <CodeCell value={t.direction} />,
+      skeleton: 'w-7',
+      cell: (t) => <DirectionCell value={t.direction} />,
     },
     {
       id: 'payment_type',
@@ -183,33 +188,6 @@ function buildColumns(
       cell: (t) => <CodeCell value={t.cardPan} />,
     },
     {
-      id: 'investors_id_2',
-      header: label('investors_id_2'),
-      cell: (t) => <TextCell value={t.investor2Name} />,
-    },
-    {
-      id: 'score',
-      header: label('score'),
-      align: 'right',
-      skeleton: 'w-8',
-      cell: (t) => <NumberCell value={t.score} />,
-    },
-    {
-      id: 'snapshot_full_name',
-      header: label('snapshot_full_name'),
-      cell: (t) => <TextCell value={t.snapshotName} />,
-    },
-    {
-      id: 'snapshot_phone',
-      header: label('snapshot_phone'),
-      cell: (t) => <CodeCell value={t.snapshotPhone} />,
-    },
-    {
-      id: 'snapshot_pinfl',
-      header: label('snapshot_pinfl'),
-      cell: (t) => <CodeCell value={t.snapshotPinfl} />,
-    },
-    {
       id: 'created_time',
       header: label('created_time'),
       align: 'right',
@@ -236,7 +214,7 @@ const OPERATIONS: { value: string; icon: LucideIcon }[] = [
 
 function OperationKpi({ value, icon, label }: { value: string; icon: LucideIcon; label: string }) {
   const count = useTableCount(TRANSACTIONS_TABLE, { operation: [value] })
-  return <KpiCard label={label} icon={icon} value={count.data} />
+  return <KpiCard label={label} icon={icon} tone={toneFor('operation', value)} value={count.data} />
 }
 
 export default function TransactionsPage() {

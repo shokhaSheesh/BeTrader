@@ -7,6 +7,7 @@ import {
   AmountCell,
   CodeCell,
   Dash,
+  DirectionCell,
   DateTimeCell,
   DetailSection,
   MoneyCell,
@@ -46,13 +47,19 @@ export default function TransactionDetailPage() {
                   { label: L('external_id'), value: <CodeCell value={t.transactionId} /> },
                   {
                     label: L('operation'),
-                    value: <OptionsCell values={t.operation} label={opt('operation')} />,
+                    value: (
+                      <OptionsCell
+                        values={t.operation}
+                        label={opt('operation')}
+                        field="operation"
+                      />
+                    ),
                   },
                   {
                     label: L('status'),
-                    value: <OptionsCell values={t.status} label={opt('status')} />,
+                    value: <OptionsCell values={t.status} label={opt('status')} field="status" />,
                   },
-                  { label: L('type'), value: <CodeCell value={t.direction} /> },
+                  { label: L('type'), value: <DirectionCell value={t.direction} /> },
                   {
                     label: L('payment_type'),
                     value: <OptionsCell values={t.paymentType} label={opt('payment_type')} />,
@@ -115,16 +122,6 @@ export default function TransactionDetailPage() {
                     ),
                   },
                   {
-                    label: L('investors_id_2'),
-                    value: t.investor2Id ? (
-                      <RecordLink to={RECORDS.investors.detail(t.investor2Id)}>
-                        {t.investor2Name ?? 'Open investor'}
-                      </RecordLink>
-                    ) : (
-                      <Dash />
-                    ),
-                  },
-                  {
                     label: L('projects_id'),
                     value: t.projectId ? (
                       <RecordLink to={RECORDS.projects.detail(t.projectId)}>
@@ -166,14 +163,16 @@ export default function TransactionDetailPage() {
                   },
                 ]}
               />
-              <DetailSection
-                title="Client snapshot"
-                items={[
-                  { label: L('snapshot_full_name'), value: <TextCell value={t.snapshotName} /> },
-                  { label: L('snapshot_phone'), value: <CodeCell value={t.snapshotPhone} /> },
-                  { label: L('snapshot_pinfl'), value: <CodeCell value={t.snapshotPinfl} /> },
-                ]}
-              />
+              {(t.snapshotName || t.snapshotPhone || t.snapshotPinfl) && (
+                <DetailSection
+                  title="Client snapshot"
+                  items={[
+                    { label: L('snapshot_full_name'), value: <TextCell value={t.snapshotName} /> },
+                    { label: L('snapshot_phone'), value: <CodeCell value={t.snapshotPhone} /> },
+                    { label: L('snapshot_pinfl'), value: <CodeCell value={t.snapshotPinfl} /> },
+                  ]}
+                />
+              )}
               <DetailSection
                 title="Record"
                 items={[

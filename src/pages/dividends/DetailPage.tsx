@@ -58,7 +58,11 @@ export default function DividendDetailPage() {
                   {
                     label: L('type'),
                     value: (
-                      <OptionsCell values={d.type} label={(v) => fields.optionLabel('type', v)} />
+                      <OptionsCell
+                        values={d.type}
+                        label={(v) => fields.optionLabel('type', v)}
+                        field="type"
+                      />
                     ),
                   },
                   { label: L('percent'), value: <PercentCell value={d.percent} /> },

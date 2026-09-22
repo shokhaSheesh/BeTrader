@@ -11,6 +11,7 @@ import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { formatPhone } from '@/shared/lib/format'
+import { toneFor } from '@/shared/lib/tones'
 import {
   AmountCell,
   ButtonLink,
@@ -73,13 +74,13 @@ function buildColumns(
       id: 'type',
       header: label('type'),
       skeleton: 'w-12',
-      cell: (o) => <OptionsCell values={o.type} label={opt('type')} />,
+      cell: (o) => <OptionsCell values={o.type} label={opt('type')} field="type" />,
     },
     {
       id: 'status',
       header: label('status'),
       skeleton: 'w-20',
-      cell: (o) => <OptionsCell values={o.status} label={opt('status')} />,
+      cell: (o) => <OptionsCell values={o.status} label={opt('status')} field="status" />,
     },
     {
       id: 'currency',
@@ -217,16 +218,23 @@ export default function OrdersPage() {
       />
 
       <KpiGrid>
-        <KpiCard label="Total orders" icon={ClipboardList} value={total.data} />
-        <KpiCard label={fields.optionLabel('type', 'buy')} icon={ArrowDownLeft} value={buys.data} />
+        <KpiCard label="Total orders" icon={ClipboardList} tone="accent" value={total.data} />
+        <KpiCard
+          label={fields.optionLabel('type', 'buy')}
+          icon={ArrowDownLeft}
+          tone={toneFor('type', 'buy')}
+          value={buys.data}
+        />
         <KpiCard
           label={fields.optionLabel('type', 'sell')}
           icon={ArrowUpRight}
+          tone={toneFor('type', 'sell')}
           value={sells.data}
         />
         <KpiCard
           label={fields.optionLabel('status', 'pending')}
           icon={Clock}
+          tone={toneFor('status', 'pending')}
           value={pending.data}
         />
       </KpiGrid>

@@ -117,7 +117,7 @@ Every list page has the same anatomy, built from the same shared components. No 
 | Create button | Always the primary `<Button>` with a `+` icon, in the page header. Label is "Create {thing}" or "Add {thing}". Never a floating button, never inside the table. |
 | `FilterBar` | Search first and on the left, then `FilterSelect` (one of), `FilterMultiSelect` (any of), `DateRangeFilter` (range calendar with presets). All are 40 px white controls; an active filter gets an ink border and shows its value ("Gender: Male"). "Reset" appears only while something is active. Search and filters live in the URL (`?identified=no&gender=male&from=2026-09-01`) via `useListParams`, so any view can be shared as a link. |
 | Filtering and search | **Always on the backend.** Never filter, search or sort rows on the front end: it would only cover the current page and give wrong totals. Only add a filter or search box the backend actually honours (check first, docs/API.md). If it doesn't, leave the control out. |
-| KPI cards | Only where they help a decision; currently **Investors** (identification funnel), **Cards** (expiring or expired), **Orders** (buy, sell, pending) and **Transactions** (count per operation). Status or operation values in KPIs are the backend's options, with labels from the schema. The grid sizes itself to the number of cards. Layout (`KpiCard`): **title** (what is counted, muted) on top, **count** below (`text-2xl font-semibold`), and the **icon on the right in a 56 px neutral circle** (`bg-surface-muted`, ink icon, never colored), vertically centered. No hint line under the count. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet is `pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
+| KPI cards | Only where they help a decision; currently **Investors** (identification funnel), **Cards** (expiring or expired), **Orders** (buy, sell, pending) and **Transactions** (count per operation). Status or operation values in KPIs are the backend's options, with labels from the schema. The grid sizes itself to the number of cards. Layout (`KpiCard`): **title** (what is counted, muted) on top, **count** below (`text-2xl font-semibold`), and the **icon on the right in a 56 px tinted circle** whose tone matches what's counted (§5 "Color in data"), vertically centered. No hint line under the count. Every number must be computed by the backend: a filtered `count` via `useTableCount`. Anything the backend can't compute yet is `pending`: "—" plus a **Backend pending** badge. Never compute it on the front end. |
 | `DataTable` | Same row height, header style, hover, borders and padding on every page. Status is always a `<Badge>`. Row actions are always an icon menu in the last column. |
 | Columns | **Show every field the backend sends**; never trim columns to fit. Wide tables scroll sideways, and the first column (what the row is) and the ⋯ column stay pinned. Headers are the backend's labels. Cells use the shared renderers in `shared/ui/cells.tsx` (`TextCell`, `CodeCell`, `NumberCell`, `YesNoCell`, `OptionsCell`, `DateCell`, `DateTimeCell`, `ImageCell`), so "—", badges and dates are identical everywhere. **The only exception is secrets:** `pin_code`, push tokens and auth IDs are never shown. |
 | Sidebar | Collapsible (the button at the bottom), remembered per browser. Collapsed shows icons only: a tooltip names each item, and a section's pages open in a flyout. The active section stays lime. |
@@ -187,7 +187,7 @@ The sure signs of a vibe-coded dashboard, all banned:
 **Shapes and layout**
 - A radius that isn't on the scale (see §5 "Shape")
 - Everything in a rounded card with 32 px padding, which is too airy for an admin tool; tables should be dense and easy to scan
-- Decorative icons next to every heading, or icons in colored circles (KPI icons sit in a neutral grey circle, §3)
+- Decorative icons next to every heading, or icons in colored circles (KPI icons sit in a pale tinted circle that carries meaning, §5 "Color in data"; decoration-only colored icons are still banned)
 - Emoji anywhere in the UI
 
 **Copy**
@@ -236,6 +236,23 @@ Why the status text colors are darker than the app's: the app's green `#27AE60` 
 
 > The app's `blue` and `gold` hex values weren't captured from the Figma. We used `#2F80ED` and `#F2C94C`, which come from the same default palette as the app's confirmed green and red (`#27AE60`, `#EB5757`). **Confirm them in Figma.**
 
+### Color in data
+
+The rest of the UI is neutral, and color is saved for **what someone should notice**. All value-to-color mapping lives in one file, `shared/lib/tones.ts` (`toneFor(field, value)`), so it's consistent everywhere and changed in one place.
+
+| Colored | How |
+| --- | --- |
+| **Statuses** | Pending → warning · Confirmed → success · Canceled → danger. Projects: Investment → success, Testing → warning, Closed → neutral |
+| **Transaction operation** | Top up → success · Withdraw → warning · Buy → info · Dividend → accent (lime) · Transfer → neutral |
+| **Key types** | Order Buy → info (Sell neutral) · Dividend Profit → success (Debit neutral) |
+| **Identification** | Identified → success · Not identified → warning |
+| **Money direction** (`transactions.type` +/−) | `DirectionCell`: arrow up in a green circle for **in**, arrow down in a grey circle for **out**. Never red (§2) |
+| **KPI icons** | The icon circle takes the tone of what it counts (Withdraw KPI = warning, Total = accent). Neutral when nothing stands out |
+
+**Stays neutral:** currency, account types, payment type, calculation types, anything that's just a category. If every column is colored, nothing stands out. Add a value to `tones.ts` only when it genuinely needs attention.
+
+Tones: `neutral`, `success`, `warning`, `danger`, `info`, `accent` (lime tint with forest text). Each is a pale tint plus a readable text color, all ≥ 5.4:1. The values and labels still come from the backend (§0). Only the color is a front-end presentation choice.
+
 ### Components
 
 | Element | Look |
@@ -246,7 +263,7 @@ Why the status text colors are darker than the app's: the app's green `#27AE60` 
 | Ghost button | text only, `hover:bg-surface-muted` |
 | Danger button | `bg-danger-text text-surface`, pill, only in destructive confirmations |
 | Input / select | `bg-surface-muted`, 1 px `line-strong` on focus, `rounded-sm` |
-| Badge / chip | `rounded-full`, `-tint` background + `-text` color. A selected filter chip is `bg-accent text-on-accent` |
+| Badge / chip | `rounded-full`, `-tint` background + `-text` color, tone from `toneFor()` (see "Color in data"). A selected filter chip is `bg-accent text-on-accent` |
 | Panel (table, card) | `bg-surface`, 1 px `border-line`, `rounded-md` |
 | Sidebar | `bg-inverse`. Items are `text-on-inverse-muted`. The active item is `bg-inverse-hover text-accent font-medium`, and its section icon turns lime |
 
