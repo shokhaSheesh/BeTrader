@@ -6,7 +6,8 @@ export interface ActionsColumnOptions<T> {
   table: string
   onView: (row: T) => void
   onEdit: (row: T) => void
-  onDelete: (row: T) => void
+  /** Leave out on pages whose records can't be deleted from the admin */
+  onDelete?: (row: T) => void
 }
 
 /** The ⋯ column every list page ends with: View, plus Edit and Delete when the role allows them. */

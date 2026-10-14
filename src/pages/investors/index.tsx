@@ -1,19 +1,16 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { BadgeCheck, Plus, UserPlus, Users, UserX } from 'lucide-react'
+import { BadgeCheck, UserPlus, Users, UserX } from 'lucide-react'
 import { INVESTORS_TABLE, useInvestorsQuery, type Investor } from '@/entities/investor'
-import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
+import { actionsColumn } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters'
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
-import { Can } from '@/shared/permissions'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { toIsoDate } from '@/shared/lib/date'
 import { formatPhone } from '@/shared/lib/format'
 import {
   Badge,
-  ButtonLink,
   CodeCell,
   DataTable,
   DateTimeCell,
@@ -187,7 +184,6 @@ export default function InvestorsPage() {
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(INVESTORS_TABLE)
   const navigate = useNavigate()
-  const [toDelete, setToDelete] = useState<Investor | null>(null)
 
   const identified = list.filter('identified')
   const filters = {
@@ -217,17 +213,7 @@ export default function InvestorsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Investors"
-        description="Everyone registered in the Niyat app."
-        actions={
-          <Can table={INVESTORS_TABLE} action="create">
-            <ButtonLink to={RECORDS.investors.create} icon={Plus}>
-              Create investor
-            </ButtonLink>
-          </Can>
-        }
-      />
+      <PageHeader title="Investors" description="Everyone registered in the Niyat app." />
 
       <KpiGrid>
         <KpiCard label="Total investors" icon={Users} tone="accent" value={total.data} />
@@ -274,7 +260,6 @@ export default function InvestorsPage() {
             table: INVESTORS_TABLE,
             onView: (i) => navigate(RECORDS.investors.detail(i.id)),
             onEdit: (i) => navigate(RECORDS.investors.edit(i.id)),
-            onDelete: setToDelete,
           }),
         ]}
         rows={query.data?.items}
@@ -305,19 +290,6 @@ export default function InvestorsPage() {
             />
           )
         }
-      />
-      {/* Not wired on purpose: an investor is also an app login (u-code "auth table"). Until the
-          backend team confirms deleting the row doesn't remove a shared login account, deleting
-          stays off (docs/API.md "Investors"). */}
-      <DeleteRecordDialog
-        noun="investor"
-        target={
-          toDelete && {
-            id: toDelete.id,
-            name: toDelete.fullName ?? toDelete.phone ?? 'This investor',
-          }
-        }
-        onClose={() => setToDelete(null)}
       />
     </>
   )

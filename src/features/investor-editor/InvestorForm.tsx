@@ -249,15 +249,12 @@ function InvestorFormBody({
       </FormSection>
 
       <FormSection title="Contact and address">
-        {/* The phone is the app login: changing it here could move a login account, so on an
-            existing investor it stays read-only until the backend team confirms (docs/API.md). */}
+        {/* The phone is the app login: read-only, so the admin never moves a login account. */}
         {textField('phone', {
           type: 'tel',
           className: 'num',
-          ...(investor && {
-            readOnly: true,
-            hint: "It's the app login, so it can't be changed here yet.",
-          }),
+          readOnly: true,
+          hint: "It's the investor's app login, so it can't be changed here.",
         })}
         {textField('country_name')}
         {textField('city')}

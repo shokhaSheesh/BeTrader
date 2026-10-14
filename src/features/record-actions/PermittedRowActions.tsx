@@ -3,7 +3,7 @@ import { usePermissions } from '@/shared/permissions'
 import { RowActions } from '@/shared/ui'
 import type { ActionsColumnOptions } from './actionsColumn'
 
-/** View always; Edit and Delete only when the signed-in role may update / delete the table. */
+/** View always; Edit and Delete only when the signed-in role may update / delete the table (and the page offers delete). */
 export function PermittedRowActions<T>({
   row,
   table,
@@ -19,7 +19,7 @@ export function PermittedRowActions<T>({
         ...(can(table, 'update')
           ? [{ label: 'Edit', icon: Pencil, onSelect: () => onEdit(row) }]
           : []),
-        ...(can(table, 'delete')
+        ...(onDelete && can(table, 'delete')
           ? [{ label: 'Delete', icon: Trash2, onSelect: () => onDelete(row), danger: true }]
           : []),
       ]}

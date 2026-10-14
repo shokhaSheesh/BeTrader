@@ -76,8 +76,8 @@ const RECORD_PAGES: {
   },
   {
     routes: RECORDS.investors,
+    // No create page: investors sign up in the app (and u-code refuses a login row without auth details)
     detail: lazy(() => import('@/pages/investors/DetailPage')),
-    create: lazy(() => import('@/pages/investors/CreatePage')),
     edit: lazy(() => import('@/pages/investors/EditPage')),
   },
   {
