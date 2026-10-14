@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { CARDS_TABLE, useInvestorCardQuery } from '@/entities/investor-card'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -22,6 +22,7 @@ import {
 
 export default function CardDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useInvestorCardQuery(id)
   const fields = useTableFields(CARDS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -91,8 +92,10 @@ export default function CardDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="card"
-              target={deleting ? { name: c.maskedPan ?? 'This card' } : null}
+              table={CARDS_TABLE}
+              target={deleting ? { id: c.id, name: c.maskedPan ?? 'This card' } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.cards.list, { replace: true })}
             />
           </>
         )

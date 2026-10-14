@@ -198,7 +198,8 @@ export default function CardsPage() {
       />
       <DeleteRecordDialog
         noun="card"
-        target={toDelete && { name: toDelete.maskedPan ?? 'This card' }}
+        table={CARDS_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.maskedPan ?? 'This card' }}
         onClose={() => setToDelete(null)}
       />
     </>

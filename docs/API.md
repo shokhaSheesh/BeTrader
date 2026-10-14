@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**, **Cards**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -141,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **Cards, checked end to end in Test (2026-10-14):** create, edit, delete (Test 45 vs Production 1 197), on a card created for the test. `card_token` (the payment provider's token) is never sent or shown, so **a card added in the admin has no token** and can't be charged; real cards come from the app. Test's cards are copies of real ones with real tokens: if a backend function revokes a card at Paylov on delete, deleting a copy in Test would affect the real card. *Open with the backend team; until then, only delete cards you created in Test.*
 - **Accounts, checked end to end in Test (2026-10-14):** create, edit, delete (Test 251 vs Production 11 660). Same schema in both. **On create the backend sets `full_name` from the investor** and replaces whatever is sent (on edit, a sent name sticks), so the Create form leaves it out and Edit shows it. One account per investor is the app's pattern (one Test investor has 4); the backend doesn't stop duplicates.
 - **Investors (2026-10-14).** `investors` is the app's **login table** (u-code "auth table": `user_id_auth`, `role_id`, `client_type_id`, `pin_code`, `fmc_token`).
   - **The admin edits and deletes investors, never creates them** (product decision, 2026-10-14). Investors sign up in the app; u-code would refuse a create anyway without login details (500 `this table is auth table. Auth information not fully given`).
