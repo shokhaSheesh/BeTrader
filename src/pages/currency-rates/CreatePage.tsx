@@ -1,9 +1,16 @@
+import { CURRENCY_RATES_TABLE } from '@/entities/currency-rate'
 import { CurrencyRateForm } from '@/features/currency-rate-editor'
-import { notWired } from '@/features/record-actions'
+import { useCreateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
 
 export default function CreatePage() {
+  const create = useCreateRecord({
+    table: CURRENCY_RATES_TABLE,
+    noun: 'currency rate',
+    routes: RECORDS.currencyRates,
+  })
+
   return (
     <>
       <PageHeader
@@ -13,7 +20,8 @@ export default function CreatePage() {
       <CurrencyRateForm
         submitLabel="Add currency rate"
         cancelTo={RECORDS.currencyRates.list}
-        onSubmit={() => notWired('create')}
+        submitting={create.submitting}
+        onSubmit={create.submit}
       />
     </>
   )

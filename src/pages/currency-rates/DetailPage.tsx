@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { CURRENCY_RATES_TABLE, useCurrencyRateQuery } from '@/entities/currency-rate'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -22,6 +22,7 @@ import {
 
 export default function CurrencyRateDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useCurrencyRateQuery(id)
   const fields = useTableFields(CURRENCY_RATES_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -76,8 +77,10 @@ export default function CurrencyRateDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="currency rate"
-              target={deleting ? { name: title } : null}
+              table={CURRENCY_RATES_TABLE}
+              target={deleting ? { id: r.id, name: title } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.currencyRates.list, { replace: true })}
             />
           </>
         )

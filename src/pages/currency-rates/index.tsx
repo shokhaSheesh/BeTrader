@@ -155,8 +155,10 @@ export default function CurrencyRatesPage() {
       />
       <DeleteRecordDialog
         noun="currency rate"
+        table={CURRENCY_RATES_TABLE}
         target={
           toDelete && {
+            id: toDelete.id,
             name: toDelete.date ? `The rate for ${formatDate(toDelete.date)}` : 'This rate',
           }
         }
