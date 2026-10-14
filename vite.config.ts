@@ -11,7 +11,7 @@ export default defineConfig({
   server: { port: 3000 },
   build: {
     // Main chunk is ~505 kB (~155 kB gzipped): React, router, query, Radix. Pages are already lazy chunks.
-    // Revisit (split vendors) if it passes this limit.
-    chunkSizeWarningLimit: 600,
+    // ExcelJS (~900 kB) is its own chunk and only loads when someone exports to Excel.
+    chunkSizeWarningLimit: 1000,
   },
 })

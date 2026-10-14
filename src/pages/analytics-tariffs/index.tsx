@@ -1,5 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { Download } from 'lucide-react'
 import { useTariffAnalyticsQuery, type TariffTotals } from '@/entities/tariff-analytics'
+import { exportTariffReport } from '@/features/tariff-export'
+import { toast } from '@/shared/lib/toast'
 import { useListParams } from '@/shared/hooks/useListParams'
 import { parseIsoDate, toIsoDate } from '@/shared/lib/date'
 import { formatAmount, formatMoney, formatNumber } from '@/shared/lib/format'
@@ -34,8 +37,9 @@ function toPeriod(from: string, to: string) {
 
 const money = (v: number | null | undefined, currency: 'USD' | 'UZS') =>
   // The column header states the currency, so UZS cells stay plain and the table reads cleanly.
+  // Sums are shown whole, as the report does: a tiyin on a billion sums is noise.
   v != null ? (
-    <span className="num">{currency === 'USD' ? formatMoney(v, 'USD') : formatNumber(v)}</span>
+    <span className="num">{currency === 'USD' ? formatMoney(v, 'USD') : formatNumber(v, 0)}</span>
   ) : (
     <Dash />
   )
@@ -68,12 +72,45 @@ export default function AnalyticsTariffsPage() {
   const period = useMemo(() => toPeriod(from, to), [from, to])
   const query = useTariffAnalyticsQuery(period, list.search)
   const data = query.data
+  const [exporting, setExporting] = useState(false)
+
+  // The .xlsx is built in the browser from the rows already on screen (u-code's export does the same).
+  const exportXlsx = async () => {
+    if (!data) return
+    setExporting(true)
+    try {
+      await exportTariffReport({
+        deposits: data.deposits,
+        tariffs: data.tariffs,
+        tariffLabels: data.tariffLabels,
+        totals: data.totals,
+        grand: data.grand,
+        from,
+        to,
+      })
+    } catch {
+      toast.error("Couldn't build the Excel file", 'Please try again.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <>
       <PageHeader
         title="Analytics by tariff"
         description="Each investor's deposits per tariff, with the dividends accrued in the selected period."
+        actions={
+          <Button
+            variant="secondary"
+            icon={Download}
+            loading={exporting}
+            disabled={!data?.investors.length}
+            onClick={exportXlsx}
+          >
+            Excel
+          </Button>
+        }
       />
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
@@ -162,64 +199,52 @@ export default function AnalyticsTariffsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.investors.map((investor) => (
-                  <tr
-                    key={investor.fullName ?? '—'}
-                    className="group border-t border-line hover:bg-surface-hover"
-                  >
-                    <td
-                      className={`${td} ${sticky} font-medium transition-colors group-hover:bg-surface-hover`}
-                    >
-                      {investor.fullName ?? <Dash />}
-                    </td>
-                    <td className={`${td} num text-fg-muted`}>{investor.percent ?? <Dash />}</td>
-                    {data.tariffs.flatMap((t) => {
-                      const deposits = investor.byTariff.get(t) ?? []
-                      // One line per deposit, stacked inside the investor's row.
-                      const lines = (
-                        render: (d: (typeof deposits)[number]) => React.ReactNode,
-                        align: string,
-                      ) => (
-                        <div className="flex flex-col gap-1.5">
-                          {deposits.length ? (
-                            deposits.map((d, i) => (
-                              <span key={i} className={align}>
-                                {render(d)}
-                              </span>
-                            ))
-                          ) : (
-                            <Dash />
-                          )}
-                        </div>
-                      )
-                      return [
-                        <td key={`${t}-date`} className={`${td} border-l border-line`}>
-                          {lines((d) => depositDate(d.depositAt), '')}
-                        </td>,
-                        <td key={`${t}-usd`} className={`${td} text-right`}>
-                          {lines((d) => money(d.investmentUsd, 'USD'), '')}
-                        </td>,
-                        <td key={`${t}-uzs`} className={`${td} text-right`}>
-                          {lines((d) => money(d.investmentUzs, 'UZS'), '')}
-                        </td>,
-                        <td key={`${t}-rate`} className={`${td} text-right`}>
-                          {lines((d) => rate(d.rate), '')}
-                        </td>,
-                        <td key={`${t}-div`} className={`${td} text-right`}>
-                          {lines(
-                            (d) =>
-                              d.dividendUsd ? (
-                                money(d.dividendUsd, 'USD')
-                              ) : (
-                                <span className="text-fg-subtle">—</span>
-                              ),
-                            '',
-                          )}
-                        </td>,
-                      ]
-                    })}
-                  </tr>
-                ))}
+                {data.investors.map((investor) =>
+                  investor.blocks.flatMap((block, b) =>
+                    block.deposits.map((deposit, d) => (
+                      <tr
+                        key={`${investor.fullName}-${block.tariff}-${d}`}
+                        className={`group hover:bg-surface-hover ${b === 0 && d === 0 ? 'border-t border-line' : ''}`}
+                      >
+                        {b === 0 && d === 0 && (
+                          <td
+                            rowSpan={investor.lines}
+                            className={`${td} ${sticky} font-medium transition-colors group-hover:bg-surface-hover`}
+                          >
+                            {investor.fullName ?? <Dash />}
+                          </td>
+                        )}
+                        {/* The percent belongs to the tariff, so it spans that block's lines */}
+                        {d === 0 && (
+                          <td rowSpan={block.deposits.length} className={`${td} num text-fg-muted`}>
+                            {block.percent ?? <Dash />}
+                          </td>
+                        )}
+                        {data.tariffs.flatMap((t) => {
+                          const own = t === block.tariff
+                          const cell = (key: string, content: React.ReactNode, first = false) => (
+                            <td
+                              key={`${t}-${key}`}
+                              className={`${td} ${first ? 'border-l border-line' : 'text-right'}`}
+                            >
+                              {own ? content : null}
+                            </td>
+                          )
+                          return [
+                            cell('date', depositDate(deposit.depositAt), true),
+                            cell('usd', money(deposit.investmentUsd, 'USD')),
+                            cell('uzs', money(deposit.investmentUzs, 'UZS')),
+                            cell('rate', rate(deposit.rate)),
+                            cell(
+                              'div',
+                              deposit.dividendUsd ? money(deposit.dividendUsd, 'USD') : <Dash />,
+                            ),
+                          ]
+                        })}
+                      </tr>
+                    )),
+                  ),
+                )}
               </tbody>
               <tfoot>
                 <tr className="border-t border-line bg-surface-muted font-semibold">

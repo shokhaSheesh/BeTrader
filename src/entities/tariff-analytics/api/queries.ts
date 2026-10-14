@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { runAggregation } from '@/shared/api/ucode'
 import { depositsQuery, grandTotalQuery, totalsQuery, type Period } from '../model/queries'
-import { groupByInvestor, toDeposit, toTotals, type TariffTotals } from '../model/types'
+import {
+  groupByInvestor,
+  sortDeposits,
+  toDeposit,
+  toTotals,
+  type TariffTotals,
+} from '../model/types'
 
 /** The aggregation runs against `orders`: the role needs read on it. */
 export const TARIFF_ANALYTICS_TABLE = 'orders'
@@ -24,14 +30,20 @@ export function useTariffAnalyticsQuery(period: Period, search: string) {
           grandTotalQuery(period, search),
         ),
       ])
-      const rows = deposits.map(toDeposit)
+      const rows = sortDeposits(deposits.map(toDeposit))
       const perTariff = new Map<string, TariffTotals>(
         totals.map((t) => [t.project_name ?? '—', toTotals(t)]),
       )
       return {
         investors: groupByInvestor(rows),
-        // Tariff columns come from the data, in the order the backend returned them.
-        tariffs: [...new Set(rows.map((r) => r.projectName ?? '—'))].sort(),
+        /** Every deposit, as the Excel export lists them: one row each */
+        deposits: rows,
+        // Tariff columns come from the totals, in the order the backend returned them.
+        tariffs: totals.map((t) => t.project_name ?? '—'),
+        // English name → the Russian one, which the Excel export uses for its column groups
+        tariffLabels: new Map(
+          totals.map((t) => [t.project_name ?? '—', t.project_name_ru ?? t.project_name ?? '—']),
+        ),
         totals: perTariff,
         grand: grand[0] ? toTotals(grand[0]) : null,
       }

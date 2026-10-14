@@ -74,6 +74,7 @@ export const depositsQuery = (period: Period, search: string): AggregationReques
   where: searchWhere(search),
   columns: [
     'p.name_en AS project_name',
+    'p.name_ru AS project_name_ru',
     "CONCAT(i.name, ' ', i.surname) AS full_name",
     "CONCAT(pt.from_percent, '% - ', pt.to_percent, '%') AS percent",
     "TO_CHAR(dep.created_time, 'YYYY-MM-DD HH24:MI') AS deposit_at",
@@ -83,7 +84,8 @@ export const depositsQuery = (period: Period, search: string): AggregationReques
     'CAST(dep.currency_rate AS numeric(15,2)) AS rate',
     `CAST(${DIVIDENDS_ON_FIRST_DEPOSIT} AS numeric(15,2)) AS dividend_usd`,
   ],
-  order_by: ['full_name ASC', 'project_name ASC', 'deposit_index ASC'],
+  // The accepted report orders tariffs by their Russian name: keep that order here too.
+  order_by: ['full_name ASC', 'project_name_ru ASC', 'deposit_index ASC'],
 })
 
 const TOTAL_COLUMNS = [
@@ -100,9 +102,9 @@ export const totalsQuery = (period: Period, search: string): AggregationRequest 
   table: DEPOSITS,
   joins: joins(period),
   where: searchWhere(search),
-  columns: ['p.name_en AS project_name', ...TOTAL_COLUMNS],
-  group_by: ['p.name_en'],
-  order_by: ['project_name ASC'],
+  columns: ['p.name_en AS project_name', 'p.name_ru AS project_name_ru', ...TOTAL_COLUMNS],
+  group_by: ['p.name_en', 'p.name_ru'],
+  order_by: ['project_name_ru ASC'],
 })
 
 /** One grand total across all tariffs (investors counted once). */

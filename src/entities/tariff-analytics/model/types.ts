@@ -1,6 +1,8 @@
 /** One deposit (a `buy` order) of an investor into one tariff. */
 export interface TariffDeposit {
   projectName: string | null
+  /** The Russian name the Excel export uses for its column groups */
+  projectNameRu: string | null
   fullName: string | null
   percent: string | null
   depositAt: string | null
@@ -13,6 +15,7 @@ export interface TariffDeposit {
 
 export interface TariffTotals {
   projectName?: string | null
+  projectNameRu?: string | null
   investors: number | null
   investmentUsd: number | null
   investmentUzs: number | null
@@ -22,6 +25,7 @@ export interface TariffTotals {
 
 interface DepositRow {
   project_name: string | null
+  project_name_ru: string | null
   full_name: string | null
   percent: string | null
   deposit_at: string | null
@@ -34,6 +38,7 @@ interface DepositRow {
 
 interface TotalsRow {
   project_name?: string | null
+  project_name_ru?: string | null
   investors: number | null
   investment_usd: number | null
   investment_uzs: number | null
@@ -43,6 +48,7 @@ interface TotalsRow {
 
 export const toDeposit = (r: DepositRow): TariffDeposit => ({
   projectName: r.project_name,
+  projectNameRu: r.project_name_ru,
   fullName: r.full_name,
   percent: r.percent,
   depositAt: r.deposit_at,
@@ -55,6 +61,7 @@ export const toDeposit = (r: DepositRow): TariffDeposit => ({
 
 export const toTotals = (r: TotalsRow): TariffTotals => ({
   projectName: r.project_name,
+  projectNameRu: r.project_name_ru,
   investors: r.investors,
   investmentUsd: r.investment_usd,
   investmentUzs: r.investment_uzs,
@@ -62,32 +69,53 @@ export const toTotals = (r: TotalsRow): TariffTotals => ({
   dividendUsd: r.dividend_usd,
 })
 
-/** Investors as rows, each with their deposits per tariff (the report's layout). */
+/**
+ * Row order of the report: investor name, then tariff, then the deposit's own order.
+ * Sorted here, not in SQL: the report collates names with ICU rules (`O‘TKIRJON` before
+ * `OKSANA`), which the database's own collation does not.
+ */
+const collator = new Intl.Collator('en', { numeric: true })
+
+export const sortDeposits = (deposits: TariffDeposit[]): TariffDeposit[] =>
+  [...deposits].sort(
+    (a, b) =>
+      collator.compare(a.fullName ?? '', b.fullName ?? '') ||
+      collator.compare(a.projectNameRu ?? '', b.projectNameRu ?? '') ||
+      a.depositIndex - b.depositIndex,
+  )
+
+/** One tariff's deposits for an investor: the percent belongs to the tariff, not the investor. */
+export interface TariffBlock {
+  tariff: string
+  percent: string | null
+  deposits: TariffDeposit[]
+}
+
+/** An investor as the report lays them out: their name spans one line per deposit. */
 export interface InvestorRow {
   fullName: string | null
-  percent: string | null
-  /** tariff name → that investor's deposits, in order */
-  byTariff: Map<string, TariffDeposit[]>
-  /** how many lines this investor needs */
+  blocks: TariffBlock[]
+  /** total lines, i.e. how far the name cell spans */
   lines: number
 }
 
+/** Groups sorted deposits into the report's rows: investor → tariff block → one line each. */
 export function groupByInvestor(deposits: TariffDeposit[]): InvestorRow[] {
-  const rows = new Map<string, InvestorRow>()
-  for (const d of deposits) {
-    const key = d.fullName ?? '—'
-    const row = rows.get(key) ?? {
-      fullName: d.fullName,
-      percent: d.percent,
-      byTariff: new Map(),
-      lines: 0,
+  const rows: InvestorRow[] = []
+  for (const deposit of deposits) {
+    let row = rows.at(-1)
+    if (!row || row.fullName !== deposit.fullName) {
+      row = { fullName: deposit.fullName, blocks: [], lines: 0 }
+      rows.push(row)
     }
-    const tariff = d.projectName ?? '—'
-    const list = row.byTariff.get(tariff) ?? []
-    list.push(d)
-    row.byTariff.set(tariff, list)
-    row.lines = Math.max(row.lines, list.length)
-    rows.set(key, row)
+    const tariff = deposit.projectName ?? '—'
+    let block = row.blocks.at(-1)
+    if (!block || block.tariff !== tariff) {
+      block = { tariff, percent: deposit.percent, deposits: [] }
+      row.blocks.push(block)
+    }
+    block.deposits.push(deposit)
+    row.lines++
   }
-  return [...rows.values()]
+  return rows
 }
