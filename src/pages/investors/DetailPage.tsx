@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { Pencil } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
+import { DeleteRecordDialog } from '@/features/record-actions'
 import { INVESTORS_TABLE, useInvestorQuery } from '@/entities/investor'
 import {
   PROJECT_INVESTORS_TABLE,
@@ -13,6 +14,7 @@ import { Can } from '@/shared/permissions'
 import { formatAmount, formatDateTime, formatNumber, formatPhone } from '@/shared/lib/format'
 import {
   Badge,
+  Button,
   ButtonLink,
   ImageCell,
   DataTable,
@@ -30,6 +32,8 @@ const numText = (v: string | null) => (v ? <span className="num">{v}</span> : da
 
 export default function InvestorDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const [deleting, setDeleting] = useState(false)
   const query = useInvestorQuery(id)
   const fields = useTableFields(INVESTORS_TABLE)
   const back = { to: RECORDS.investors.list, label: 'Investors' }
@@ -60,6 +64,11 @@ export default function InvestorDetailPage() {
               }
               actions={
                 <>
+                  <Can table={INVESTORS_TABLE} action="delete">
+                    <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
+                      Delete
+                    </Button>
+                  </Can>
                   <Can table={INVESTORS_TABLE} action="update">
                     <ButtonLink to={RECORDS.investors.edit(i.id)} icon={Pencil}>
                       Edit investor
@@ -140,6 +149,15 @@ export default function InvestorDetailPage() {
                 ]}
               />
             </div>
+            <DeleteRecordDialog
+              noun="investor"
+              table={INVESTORS_TABLE}
+              target={
+                deleting ? { id: i.id, name: i.fullName ?? i.phone ?? 'This investor' } : null
+              }
+              onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.investors.list, { replace: true })}
+            />
           </>
         )
       }}

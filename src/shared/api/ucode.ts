@@ -1,4 +1,8 @@
-import { WRITABLE_ENVIRONMENT_IDS } from '@/shared/config/environments'
+import {
+  ENVIRONMENTS,
+  SHARED_LOGIN_TABLES,
+  WRITABLE_ENVIRONMENT_IDS,
+} from '@/shared/config/environments'
 import { useSessionStore } from '@/shared/session/store'
 import { http } from './http'
 import type { Paginated } from '@/shared/types/api'
@@ -123,8 +127,8 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
 
 /** A write was stopped before it left the browser: this session's environment isn't writable. */
 export class WriteBlockedError extends Error {
-  constructor() {
-    super('Changes are switched off in this environment, so nothing was sent.')
+  constructor(message = 'Changes are switched off in this environment, so nothing was sent.') {
+    super(message)
     this.name = 'WriteBlockedError'
   }
 }
@@ -171,6 +175,13 @@ export async function updateTableItem(
  */
 export async function deleteTableItem(slug: string, guid: string): Promise<void> {
   assertWritable()
+  // A login row shares its account with Production: only Production may delete it
+  const environmentId = useSessionStore.getState().session?.environmentId
+  if (SHARED_LOGIN_TABLES.includes(slug) && environmentId !== ENVIRONMENTS.production.id) {
+    throw new WriteBlockedError(
+      'Deleting investors is off in the Test environment: their app logins are shared with Production, so it could lock a real person out. Nothing was sent.',
+    )
+  }
   await http.delete(`/v2/items/${slug}/${guid}`, { data: { data: {} } })
 }
 

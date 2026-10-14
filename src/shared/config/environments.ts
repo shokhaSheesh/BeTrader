@@ -31,3 +31,11 @@ export const TARGET_ENVIRONMENT =
  * Production joins the list once writes are approved there.
  */
 export const WRITABLE_ENVIRONMENT_IDS: readonly string[] = [ENVIRONMENTS.test.id]
+
+/**
+ * Tables whose rows are app login accounts. Login accounts live in u-code's auth service and are
+ * **shared by every environment**: a Test investor copied from Production points to the same
+ * account (verified 2026-10-14). Deleting such a row outside Production could remove a real
+ * person's login, so it's refused there.
+ */
+export const SHARED_LOGIN_TABLES: readonly string[] = ['investors']

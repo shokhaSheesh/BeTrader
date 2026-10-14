@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { BadgeCheck, UserPlus, Users, UserX } from 'lucide-react'
 import { INVESTORS_TABLE, useInvestorsQuery, type Investor } from '@/entities/investor'
-import { actionsColumn } from '@/features/record-actions'
+import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { dateRangeFilter, equalsFilter, multiFilter } from '@/shared/api/filters'
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
@@ -183,6 +184,7 @@ const MONTH_START = toIsoDate(now.getFullYear(), now.getMonth(), 1)
 export default function InvestorsPage() {
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(INVESTORS_TABLE)
+  const [toDelete, setToDelete] = useState<Investor | null>(null)
   const navigate = useNavigate()
 
   const identified = list.filter('identified')
@@ -260,6 +262,7 @@ export default function InvestorsPage() {
             table: INVESTORS_TABLE,
             onView: (i) => navigate(RECORDS.investors.detail(i.id)),
             onEdit: (i) => navigate(RECORDS.investors.edit(i.id)),
+            onDelete: setToDelete,
           }),
         ]}
         rows={query.data?.items}
@@ -290,6 +293,17 @@ export default function InvestorsPage() {
             />
           )
         }
+      />
+      <DeleteRecordDialog
+        noun="investor"
+        table={INVESTORS_TABLE}
+        target={
+          toDelete && {
+            id: toDelete.id,
+            name: toDelete.fullName ?? toDelete.phone ?? 'This investor',
+          }
+        }
+        onClose={() => setToDelete(null)}
       />
     </>
   )
