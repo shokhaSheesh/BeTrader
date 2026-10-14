@@ -18,7 +18,13 @@ import {
 } from '@/shared/ui'
 
 // Rebuilt from u-code's "Analytics by tariff" microfrontend; same SQL, our design (docs/API.md).
-const SUB_COLUMNS = ['Deposit date', 'Investment (USD)', 'Deposit (UZS)', 'Rate', 'Dividends (USD)']
+const SUB_COLUMNS = [
+  'Deposit date',
+  'Investment (USD)',
+  'Deposit (UZS)',
+  'Rate',
+  'Dividends in period (USD)',
+]
 const th = 'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted'
 const td = 'h-12 px-4 whitespace-nowrap align-top'
 const sticky = 'sticky left-0 z-[1] bg-surface shadow-[inset_-1px_0_0_var(--color-line)]'
