@@ -35,6 +35,7 @@ export function InvestorPickerField({
         search={search}
         onSearchChange={setSearch}
         loading={investors.isFetching}
+        paging={investors.paging}
         placeholder="Search by name, phone or PINFL"
       />
     </Field>

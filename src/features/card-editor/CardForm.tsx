@@ -171,6 +171,7 @@ function CardFormBody({
                 search={search}
                 onSearchChange={setSearch}
                 loading={investors.isFetching}
+                paging={investors.paging}
                 placeholder="Search by name or phone"
               />
             )}

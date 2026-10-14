@@ -2,6 +2,7 @@ import { useState, type KeyboardEvent } from 'react'
 import { Popover } from 'radix-ui'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { LoadMoreRow, type Paging } from './LoadMoreRow'
 import type { SelectOption } from './Select'
 import { Spinner } from './Spinner'
 import { controlBase, controlSizes, popoverSurface } from './styles'
@@ -19,6 +20,8 @@ interface SearchSelectProps {
   placeholder?: string
   id?: string
   invalid?: boolean
+  /** More results than the first page: loaded as the list scrolls to the end */
+  paging?: Paging
 }
 
 /** Searchable picker for large backend tables (thousands of rows). Search is server-side. */
@@ -33,6 +36,7 @@ export function SearchSelect({
   placeholder = 'Select',
   id,
   invalid,
+  paging,
 }: SearchSelectProps) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -119,6 +123,7 @@ export function SearchSelect({
                 </button>
               ))
             )}
+            {paging && options.length > 0 && <LoadMoreRow {...paging} />}
           </div>
         </Popover.Content>
       </Popover.Portal>

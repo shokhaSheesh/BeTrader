@@ -15,6 +15,7 @@ export { DateRangeFilter, FilterMultiSelect, FilterSearchSelect, FilterSelect } 
 export { FormSection } from './FormSection'
 export { ImageField } from './ImageField'
 export { GlobalProgress } from './GlobalProgress'
+export { LoadMoreRow, type Paging } from './LoadMoreRow'
 export { ListEmptyState } from './ListEmptyState'
 export { NiyatGlyph, NiyatMark } from './logo/NiyatMark'
 export { MultiSelect } from './MultiSelect'

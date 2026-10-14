@@ -4,6 +4,7 @@ import { CalendarDays, Check, ChevronDown } from 'lucide-react'
 import { toIsoDate } from '@/shared/lib/date'
 import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
+import { LoadMoreRow, type Paging } from './LoadMoreRow'
 import { Calendar } from './Calendar'
 import { CheckboxBox } from './Checkbox'
 import { Skeleton } from './Skeleton'
@@ -214,6 +215,8 @@ interface FilterSearchSelectProps {
   onSearchChange: (term: string) => void
   loading?: boolean
   placeholder?: string
+  /** More results than the first page: loaded as the list scrolls to the end */
+  paging?: Paging
 }
 
 /** Filter by a record from a large table (e.g. one investor out of 10k), searched on the backend. */
@@ -227,6 +230,7 @@ export function FilterSearchSelect({
   onSearchChange,
   loading,
   placeholder = 'Search',
+  paging,
 }: FilterSearchSelectProps) {
   const [open, setOpen] = useState(false)
   return (
@@ -280,6 +284,7 @@ export function FilterSearchSelect({
                 </button>
               ))
             )}
+            {paging && options.length > 0 && <LoadMoreRow {...paging} />}
           </div>
         </Popover.Content>
       </Popover.Portal>

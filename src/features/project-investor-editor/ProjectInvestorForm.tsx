@@ -174,6 +174,7 @@ function ProjectInvestorFormBody({
                 search={investorSearch}
                 onSearchChange={setInvestorSearch}
                 loading={investors.isFetching}
+                paging={investors.paging}
                 placeholder="Search by name or phone"
               />
             )}

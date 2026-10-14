@@ -28,6 +28,7 @@ export function InvestorFilter({
       search={search}
       onSearchChange={setSearch}
       loading={options.isFetching}
+      paging={options.paging}
       placeholder="Name, phone or PINFL"
     />
   )
