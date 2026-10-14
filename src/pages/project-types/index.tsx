@@ -162,7 +162,12 @@ export default function ProjectTypesPage() {
           )
         }
       />
-      <DeleteRecordDialog noun="project type" target={toDelete} onClose={() => setToDelete(null)} />
+      <DeleteRecordDialog
+        noun="project type"
+        table={PROJECT_TYPES_TABLE}
+        target={toDelete}
+        onClose={() => setToDelete(null)}
+      />
     </>
   )
 }

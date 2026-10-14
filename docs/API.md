@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -118,7 +118,9 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Values go in the types the backend stores: numbers as numbers, cleared fields as `null`, dates as `YYYY-MM-DD`.
 - A failed write shows the backend's reason (`backendMessage`), without the `rpc error: code = … desc =` prefix, and the form keeps the user's input.
 - **Create** returns the new record's `guid`; the app opens it.
-- **PUT updates only the fields sent** (verified: fields left out kept their values). So an edit sends **only the fields the user changed**, plus `guid` (`changedOnly`); saving an untouched form sends nothing.
+- **PUT updates only the fields sent** (verified: fields left out kept their values), **but every required field must be in the body**, even unchanged: without it u-code answers 500 `invalid input syntax for type uuid: ""` (verified on `project_types.calculate_dividend`; any other field doesn't help). So an edit sends the fields the user changed **plus the table's required fields**, plus `guid` (`updateBody`); saving an untouched form sends nothing.
+- **Required fields** come from `/v2/fields` (`required`): the form marks them `*` and checks them before sending (`missingRequired`), so the user sees which field is missing instead of a rejected request.
+- Pages wire saving with `useCreateRecord` / `useUpdateRecord` (`features/record-actions`) and `DeleteRecordDialog` with `table`.
 - Verified for real on Projects in the **Test** environment (create, edit, delete), checking after each step that Production was unchanged. Rejected-save and upload paths were tested with the requests intercepted.
 - `created_time` on rows made by u-code's admin holds Tashkent wall time marked `Z`; ours is true UTC (equal to `created_at`).
 
@@ -139,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **Project types, checked end to end in Test (2026-10-14):** list, detail, create, edit and delete, with the required `calculate_dividend` enforced; schema and rights the same as Production.
 - **Projects, checked end to end in Test (2026-10-14):** list, detail, create (with image), edit and delete; the field schema (same 19 fields, types, options and defaults as Production; Production only adds display settings), project types picker, menus and the role's rights (`projects`: read/create/update/delete all Yes in both).
 
 ## Page → table map

@@ -37,5 +37,11 @@ export function useTableFields(slug: string) {
     [fields],
   )
 
-  return { ...query, optionLabel, fieldLabel, fieldOptions }
+  /** The backend refuses a record without this field (`required` in /v2/fields). */
+  const isRequired = useCallback(
+    (fieldSlug: string) => !!fields?.find((f) => f.slug === fieldSlug)?.required,
+    [fields],
+  )
+
+  return { ...query, optionLabel, fieldLabel, fieldOptions, isRequired }
 }

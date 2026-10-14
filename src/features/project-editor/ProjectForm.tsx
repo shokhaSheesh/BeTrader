@@ -7,11 +7,11 @@ import { backendMessage } from '@/shared/api/errors'
 import { uploadFile } from '@/shared/api/ucode'
 import { useTableFields } from '@/shared/api/useTableFields'
 import {
-  changedOnly,
   createDefaults,
   numericText,
   numberToText,
   textToNumber,
+  updateBody,
 } from '@/shared/lib/form'
 import { toast } from '@/shared/lib/toast'
 import {
@@ -96,7 +96,7 @@ interface ProjectFormProps {
   cancelTo: string
   /**
    * The record to send. New project: every field, plus the backend's defaults.
-   * Existing project: only the fields the user changed (empty when nothing changed).
+   * Existing project: the changed fields plus the required ones (empty when nothing changed).
    */
   onSubmit: (payload: Record<string, unknown>) => void
   submitting?: boolean
@@ -135,7 +135,7 @@ function ProjectFormBody({
   const submit = (values: ProjectFormValues) =>
     onSubmit(
       project
-        ? changedOnly(toPayload(values), dirtyFields)
+        ? updateBody(toPayload(values), dirtyFields, schemaFields)
         : { ...createDefaults(schemaFields), ...toPayload(values) },
     )
 

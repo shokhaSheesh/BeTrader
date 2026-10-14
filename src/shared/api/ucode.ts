@@ -83,6 +83,8 @@ export interface TableField {
   defaultValue?: unknown
   /** Storage folder for PHOTO / FILE fields */
   folder?: string
+  /** The backend refuses a record without it */
+  required: boolean
 }
 
 interface FieldsEnvelope {
@@ -91,6 +93,7 @@ interface FieldsEnvelope {
       slug: string
       type: string
       label: string
+      required?: boolean
       attributes?: {
         label_en?: string
         options?: FieldOption[]
@@ -111,6 +114,7 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
     options: f.attributes?.options ?? [],
     defaultValue: f.attributes?.defaultValue,
     folder: f.attributes?.path,
+    required: !!f.required,
   }))
 }
 

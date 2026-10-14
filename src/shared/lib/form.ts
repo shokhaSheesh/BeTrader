@@ -45,3 +45,39 @@ export function changedOnly(
         : flag === true
   return Object.fromEntries(Object.entries(payload).filter(([key]) => isDirty(dirtyFields[key])))
 }
+
+const isBlank = (value: unknown) =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && value.trim() === '') ||
+  (Array.isArray(value) && value.length === 0)
+
+/**
+ * Required fields (as the backend marks them in /v2/fields) left empty in `values`.
+ * Checked before sending, so the user sees which field instead of a rejected request.
+ */
+export function missingRequired(
+  values: Record<string, unknown>,
+  fields: { slug: string; required: boolean }[],
+): string[] {
+  return fields
+    .filter((f) => f.required && f.slug in values && isBlank(values[f.slug]))
+    .map((f) => f.slug)
+}
+
+/**
+ * The body of an edit: the fields the user changed, plus every field the backend requires.
+ * u-code rejects an update that leaves out a required field, even an unchanged one (500
+ * "invalid input syntax for type uuid"), so those ride along with their current values.
+ * Nothing changed → empty, and nothing is sent.
+ */
+export function updateBody(
+  payload: Record<string, unknown>,
+  dirtyFields: Record<string, unknown>,
+  fields: { slug: string; required: boolean }[],
+): Record<string, unknown> {
+  const changes = changedOnly(payload, dirtyFields)
+  if (Object.keys(changes).length === 0) return changes
+  const required = fields.filter((f) => f.required && f.slug in payload).map((f) => f.slug)
+  return { ...Object.fromEntries(required.map((slug) => [slug, payload[slug]])), ...changes }
+}

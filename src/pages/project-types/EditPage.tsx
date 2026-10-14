@@ -1,13 +1,17 @@
 import { useParams } from 'react-router'
-import { useProjectTypeQuery } from '@/entities/project-type'
+import { PROJECT_TYPES_TABLE, useProjectTypeQuery } from '@/entities/project-type'
 import { ProjectTypeForm } from '@/features/project-type-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function ProjectTypeEditPage() {
   const { id } = useParams()
   const query = useProjectTypeQuery(id)
+  const update = useUpdateRecord(
+    { table: PROJECT_TYPES_TABLE, noun: 'project type', routes: RECORDS.projectTypes },
+    id,
+  )
 
   return (
     <RecordBoundary
@@ -25,7 +29,8 @@ export default function ProjectTypeEditPage() {
             projectType={t}
             submitLabel="Save changes"
             cancelTo={RECORDS.projectTypes.detail(t.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

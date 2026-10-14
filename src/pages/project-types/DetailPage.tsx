@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { PROJECT_TYPES_TABLE, useProjectTypeQuery } from '@/entities/project-type'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -15,6 +15,7 @@ const percent = (v: number | null) =>
 
 export default function ProjectTypeDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useProjectTypeQuery(id)
   const fields = useTableFields(PROJECT_TYPES_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -90,8 +91,10 @@ export default function ProjectTypeDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="project type"
+              table={PROJECT_TYPES_TABLE}
               target={deleting ? t : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.projectTypes.list, { replace: true })}
             />
           </>
         )

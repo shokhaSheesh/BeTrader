@@ -12,19 +12,20 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, error, hint, numeric, className, id, ...props },
+  { label, error, hint, numeric, className, id, required, ...props },
   ref,
 ) {
   const autoId = useId()
   const inputId = id ?? autoId
 
   return (
-    <Field label={label} htmlFor={inputId} error={error} hint={hint}>
+    <Field label={label} htmlFor={inputId} error={error} hint={hint} required={required}>
       <input
         ref={ref}
         id={inputId}
         type={numeric ? 'text' : props.type}
         inputMode={numeric ? 'decimal' : props.inputMode}
+        aria-required={required || undefined}
         aria-invalid={!!error || undefined}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={cn(controlBase, controlSizes.md, numeric && 'num', className)}
