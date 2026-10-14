@@ -100,3 +100,29 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
     options: f.attributes?.options ?? [],
   }))
 }
+
+export interface AggregationRequest {
+  /** FROM clause: a table name or a sub-select with an alias */
+  table: string
+  columns: string[]
+  joins?: { type: 'LEFT' | 'INNER'; table: string; condition: string }[]
+  where?: string
+  group_by?: string[]
+  order_by?: string[]
+}
+
+interface AggregationEnvelope<T> {
+  data: { data: { data: T[] } }
+}
+
+/**
+ * POST /v2/items/{slug}/aggregation: u-code's read-only SQL endpoint (SELECT only).
+ * It's a POST, but it only reads; it's what u-code's own analytics microfrontends use (docs/API.md).
+ * The slug in the path must be a real table the role may read ("orders"), not an id.
+ */
+export async function runAggregation<T>(slug: string, request: AggregationRequest): Promise<T[]> {
+  const { data } = await http.post<AggregationEnvelope<T>>(`/v2/items/${slug}/aggregation`, {
+    data: { operation: 'SELECT', ...request },
+  })
+  return data.data.data.data ?? []
+}

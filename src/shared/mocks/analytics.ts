@@ -145,18 +145,3 @@ export const dividendsPerInvestor = NAMES.map((name, i) => {
     tax: round2(taxable * 0.05),
   }
 })
-
-/** Analytics → By tariff (Metabase pivot): investor × project, investment and dividends (USD). */
-export const tariffPivot = NAMES.slice(0, 8).map((name, i) => ({
-  id: `pv-${i}`,
-  name,
-  percent: `${[30, 40, 50, 15, 18][i % 5]}%`,
-  cells: Object.fromEntries(
-    TARIFFS.map((t) => [
-      t.key,
-      rand() < 0.45
-        ? null
-        : { investment: round2(between(300, 5_000)), dividends: round2(between(5, 250)) },
-    ]),
-  ) as Record<(typeof TARIFFS)[number]['key'], { investment: number; dividends: number } | null>,
-}))

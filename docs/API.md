@@ -78,6 +78,19 @@ Filters go into the same `data` JSON as paging (`ListParams.filters`, built with
 
 Filters combine with each other and with `search`. **There is no aggregation endpoint** (sum, average, distinct count), so KPIs that need one are shown as "Backend pending" (DESIGN.md §3).
 
+## Aggregation (SQL reports, read-only)
+
+`POST {VITE_API_URL}/v2/items/{slug}/aggregation` runs a **SELECT** and returns `data.data.data` (an array of rows). It is a POST, but it only reads; it's what u-code's own analytics microfrontends use.
+
+```json
+{ "data": { "operation": "SELECT", "table": "…", "columns": ["…"], "joins": [...], "where": "…", "group_by": ["…"], "order_by": ["…"] } }
+```
+
+- `table` can be a sub-select with an alias; `joins` take `{ type, table, condition }`.
+- **The slug in the path must be a real table the role can read** (`orders`). u-code's own microfrontend uses `/v2/items/1/aggregation` with an **API key**; with a user token that path is "Permission denied".
+- Used by **Analytics by tariff** (`entities/tariff-analytics/model/queries.ts`), which runs three queries: the deposit rows, totals per tariff, and one grand total. Totals are computed by the backend (DESIGN.md §0), including the weighted rate (`SUM(uzs) / SUM(usd)`).
+- Search and the dividend period are SQL fragments built from user input; values go through a quoting helper that doubles `'`.
+
 ## Roles and permissions (auth API, read-only)
 
 | Call | Endpoint | Used for |

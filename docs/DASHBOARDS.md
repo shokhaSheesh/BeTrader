@@ -1,6 +1,6 @@
 # Dashboards & Analytics: data spec
 
-> **Status (2026-09-22):** all widgets below are built in the admin with **mock data** (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**. Wiring means replacing each mock with an aggregation endpoint.
+> **Status:** the Dashboard widgets below are **mock data**; **Analytics by tariff is wired to real data** (2026-10-14). The rest are mock (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**. Wiring means replacing each mock with an aggregation endpoint.
 
 We draw every chart ourselves (see DESIGN.md), but the **data must match** the dashboards the u-code admin currently embeds. This file lists every widget on those dashboards and what it shows, captured on 2026-09-22.
 
@@ -57,7 +57,11 @@ Filter: **date**.
 
 One row per investor.
 
-## `/analytics/tariffs`, from Metabase
+## `/analytics/tariffs` ✅ wired (was the Metabase pivot)
+
+Rebuilt from u-code's **"Analytics by tariff" microfrontend**, which runs SQL through the aggregation endpoint (docs/API.md). Our page runs the same query with the signed-in user's token: investors × tariffs, each deposit with date, investment (USD and UZS), rate and the dividends of the first deposit, plus backend-computed totals. Filters: investor name (server-side) and the dividend period. Verified against the microfrontend: same 239 deposits, 125 investors and identical totals.
+
+### The original Metabase pivot
 
 Filter: **date**. A pivot table:
 

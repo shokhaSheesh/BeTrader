@@ -1,145 +1,241 @@
-import { formatMoney } from '@/shared/lib/format'
-import { TARIFFS, tariffPivot } from '@/shared/mocks/analytics'
-import { Badge, Dash, PageHeader } from '@/shared/ui'
-import { ChartCard } from '@/widgets/chart-card'
+import { useMemo } from 'react'
+import { useTariffAnalyticsQuery, type TariffTotals } from '@/entities/tariff-analytics'
+import { useListParams } from '@/shared/hooks/useListParams'
+import { parseIsoDate, toIsoDate } from '@/shared/lib/date'
+import { formatAmount, formatMoney, formatNumber } from '@/shared/lib/format'
+import {
+  Button,
+  Dash,
+  DateRangeFilter,
+  EmptyState,
+  FilterBar,
+  PageHeader,
+  PageLoader,
+  SearchInput,
+} from '@/shared/ui'
 
-// Mock of the Metabase "Analytics by tariff" pivot (docs/DASHBOARDS.md). Numbers are invented.
-// Totals are on here; the original had them off (docs/DASHBOARDS.md recommends turning them on).
-const usd = (v: number) => formatMoney(v, 'USD')
+// Rebuilt from u-code's "Analytics by tariff" microfrontend; same SQL, our design (docs/API.md).
+const SUB_COLUMNS = ['Deposit date', 'Investment (USD)', 'Deposit (UZS)', 'Rate', 'Dividends (USD)']
 const th = 'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted'
-const td = 'h-12 px-4 whitespace-nowrap'
+const td = 'h-12 px-4 whitespace-nowrap align-top'
+const sticky = 'sticky left-0 z-[1] bg-surface shadow-[inset_-1px_0_0_var(--color-line)]'
 
-function columnTotals() {
-  return Object.fromEntries(
-    TARIFFS.map((t) => [
-      t.key,
-      tariffPivot.reduce(
-        (acc, r) => ({
-          investment: acc.investment + (r.cells[t.key]?.investment ?? 0),
-          dividends: acc.dividends + (r.cells[t.key]?.dividends ?? 0),
-        }),
-        { investment: 0, dividends: 0 },
-      ),
-    ]),
-  ) as Record<(typeof TARIFFS)[number]['key'], { investment: number; dividends: number }>
+const year = new Date().getFullYear()
+const DEFAULT_FROM = toIsoDate(year, 0, 1)
+const DEFAULT_TO = toIsoDate(year, 11, 31)
+
+/** The dividend window the SQL needs: `to` is exclusive, so add a day. */
+function toPeriod(from: string, to: string) {
+  const end = parseIsoDate(to)!
+  // Through a real Date so month and year ends roll over (31 Dec → 1 Jan).
+  const next = new Date(end.y, end.m, end.d + 1)
+  return { from, to: toIsoDate(next.getFullYear(), next.getMonth(), next.getDate()) }
+}
+
+const money = (v: number | null | undefined, currency: 'USD' | 'UZS') =>
+  // The column header states the currency, so UZS cells stay plain and the table reads cleanly.
+  v != null ? (
+    <span className="num">{currency === 'USD' ? formatMoney(v, 'USD') : formatNumber(v)}</span>
+  ) : (
+    <Dash />
+  )
+const rate = (v: number | null | undefined) =>
+  v != null ? <span className="num">{formatAmount(v)}</span> : <Dash />
+/** "2026-09-24 10:46" as the backend formats it → "24.09.2026 10:46". */
+const depositDate = (value: string | null) => {
+  const m = value && /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/.exec(value)
+  return m ? <span className="num">{`${m[3]}.${m[2]}.${m[1]} ${m[4]}`}</span> : <Dash />
+}
+
+function TotalCells({ totals }: { totals: TariffTotals | undefined }) {
+  return (
+    <>
+      <td className={`${td} text-fg-muted`}>
+        {totals?.investors != null ? `${totals.investors} investors` : <Dash />}
+      </td>
+      <td className={`${td} text-right`}>{money(totals?.investmentUsd, 'USD')}</td>
+      <td className={`${td} text-right`}>{money(totals?.investmentUzs, 'UZS')}</td>
+      <td className={`${td} text-right`}>{rate(totals?.rate)}</td>
+      <td className={`${td} text-right`}>{money(totals?.dividendUsd, 'USD')}</td>
+    </>
+  )
 }
 
 export default function AnalyticsTariffsPage() {
-  const totals = columnTotals()
-  const rowTotal = (r: (typeof tariffPivot)[number]) =>
-    TARIFFS.reduce(
-      (acc, t) => ({
-        investment: acc.investment + (r.cells[t.key]?.investment ?? 0),
-        dividends: acc.dividends + (r.cells[t.key]?.dividends ?? 0),
-      }),
-      { investment: 0, dividends: 0 },
-    )
-  const grand = TARIFFS.reduce(
-    (acc, t) => ({
-      investment: acc.investment + totals[t.key].investment,
-      dividends: acc.dividends + totals[t.key].dividends,
-    }),
-    { investment: 0, dividends: 0 },
-  )
+  const list = useListParams(['from', 'to'])
+  const from = list.filter('from') ?? DEFAULT_FROM
+  const to = list.filter('to') ?? DEFAULT_TO
+  const period = useMemo(() => toPeriod(from, to), [from, to])
+  const query = useTariffAnalyticsQuery(period, list.search)
+  const data = query.data
 
   return (
     <>
       <PageHeader
         title="Analytics by tariff"
-        description={
-          <span className="inline-flex flex-wrap items-center gap-2">
-            <Badge tone="warning">Mock data</Badge> Each investor's investment and dividends per
-            project.
-          </span>
-        }
+        description="Each investor's deposits per tariff, with the dividends accrued in the selected period."
       />
-      <ChartCard
-        mock
-        title="Investor × project"
-        description="Amounts in USD"
-        table={
-          <div className="overflow-x-auto">
+
+      <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
+        <SearchInput
+          value={list.searchInput}
+          onChange={list.setSearchInput}
+          placeholder="Search by investor name"
+        />
+        <DateRangeFilter
+          label="Dividends period"
+          from={from}
+          to={to}
+          onChange={({ from, to }) => list.setFilters({ from, to })}
+        />
+      </FilterBar>
+
+      <div className="relative overflow-hidden rounded-md border border-line bg-surface">
+        {query.isPending ? (
+          <PageLoader label="Loading analytics" />
+        ) : query.isError ? (
+          <EmptyState
+            variant="error"
+            title="Couldn't load the report"
+            description="Something went wrong on our side or the connection dropped."
+            action={
+              <Button
+                variant="secondary"
+                loading={query.isFetching}
+                onClick={() => query.refetch()}
+              >
+                Try again
+              </Button>
+            }
+          />
+        ) : !data || data.investors.length === 0 ? (
+          <EmptyState
+            variant={list.search ? 'no-results' : 'empty'}
+            title={list.search ? 'Nothing matches this search' : 'No deposits yet'}
+            description={
+              list.search
+                ? `No investor found for “${list.search}”.`
+                : 'Deposits appear here once investors buy into a project.'
+            }
+            action={
+              list.search ? (
+                <Button variant="secondary" onClick={list.resetAll}>
+                  Reset search
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <div
+            className={`overflow-x-auto transition-opacity ${query.isFetching ? 'opacity-60' : ''}`}
+          >
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-surface-muted">
-                  <th rowSpan={2} className={`${th} text-left`}>
-                    Investor
+                  <th rowSpan={2} className={`${th} ${sticky} bg-surface-muted text-left`}>
+                    Full name
                   </th>
                   <th rowSpan={2} className={`${th} text-left`}>
                     Percent
                   </th>
-                  {TARIFFS.map((t) => (
+                  {data.tariffs.map((t) => (
                     <th
-                      key={t.key}
-                      colSpan={2}
+                      key={t}
+                      colSpan={SUB_COLUMNS.length}
                       className={`${th} border-l border-line text-center`}
                     >
-                      <span className="inline-flex items-center gap-2">
-                        <span className="size-2.5 rounded-xs" style={{ background: t.color }} />
-                        {t.name}
-                      </span>
+                      {t}
                     </th>
                   ))}
-                  <th colSpan={2} className={`${th} border-l border-line text-center`}>
-                    Total
-                  </th>
                 </tr>
                 <tr className="bg-surface-muted">
-                  {[...TARIFFS.map((t) => t.key), 'total'].flatMap((k) => [
-                    <th key={`${k}-i`} className={`${th} border-l border-line text-right`}>
-                      Investment
-                    </th>,
-                    <th key={`${k}-d`} className={`${th} text-right`}>
-                      Dividends
-                    </th>,
-                  ])}
+                  {data.tariffs.flatMap((t) =>
+                    SUB_COLUMNS.map((c, i) => (
+                      <th
+                        key={`${t}-${c}`}
+                        className={`${th} ${i === 0 ? 'border-l border-line text-left' : 'text-right'}`}
+                      >
+                        {c}
+                      </th>
+                    )),
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {tariffPivot.map((r) => {
-                  const rt = rowTotal(r)
-                  return (
-                    <tr key={r.id} className="border-t border-line hover:bg-surface-hover">
-                      <td className={`${td} font-medium`}>{r.name}</td>
-                      <td className={`${td} num`}>{r.percent}</td>
-                      {TARIFFS.map((t) => (
-                        <FragmentCells key={t.key} cell={r.cells[t.key]} />
-                      ))}
-                      <td className={`${td} num border-l border-line text-right font-medium`}>
-                        {usd(rt.investment)}
-                      </td>
-                      <td className={`${td} num text-right font-medium`}>{usd(rt.dividends)}</td>
-                    </tr>
-                  )
-                })}
-                <tr className="border-t border-line bg-surface-muted font-semibold">
-                  <td className={td} colSpan={2}>
-                    Total
-                  </td>
-                  {TARIFFS.map((t) => (
-                    <FragmentCells key={t.key} cell={totals[t.key]} />
-                  ))}
-                  <td className={`${td} num border-l border-line text-right`}>
-                    {usd(grand.investment)}
-                  </td>
-                  <td className={`${td} num text-right`}>{usd(grand.dividends)}</td>
-                </tr>
+                {data.investors.map((investor) => (
+                  <tr
+                    key={investor.fullName ?? '—'}
+                    className="group border-t border-line hover:bg-surface-hover"
+                  >
+                    <td
+                      className={`${td} ${sticky} font-medium transition-colors group-hover:bg-surface-hover`}
+                    >
+                      {investor.fullName ?? <Dash />}
+                    </td>
+                    <td className={`${td} num text-fg-muted`}>{investor.percent ?? <Dash />}</td>
+                    {data.tariffs.flatMap((t) => {
+                      const deposits = investor.byTariff.get(t) ?? []
+                      // One line per deposit, stacked inside the investor's row.
+                      const lines = (
+                        render: (d: (typeof deposits)[number]) => React.ReactNode,
+                        align: string,
+                      ) => (
+                        <div className="flex flex-col gap-1.5">
+                          {deposits.length ? (
+                            deposits.map((d, i) => (
+                              <span key={i} className={align}>
+                                {render(d)}
+                              </span>
+                            ))
+                          ) : (
+                            <Dash />
+                          )}
+                        </div>
+                      )
+                      return [
+                        <td key={`${t}-date`} className={`${td} border-l border-line`}>
+                          {lines((d) => depositDate(d.depositAt), '')}
+                        </td>,
+                        <td key={`${t}-usd`} className={`${td} text-right`}>
+                          {lines((d) => money(d.investmentUsd, 'USD'), '')}
+                        </td>,
+                        <td key={`${t}-uzs`} className={`${td} text-right`}>
+                          {lines((d) => money(d.investmentUzs, 'UZS'), '')}
+                        </td>,
+                        <td key={`${t}-rate`} className={`${td} text-right`}>
+                          {lines((d) => rate(d.rate), '')}
+                        </td>,
+                        <td key={`${t}-div`} className={`${td} text-right`}>
+                          {lines(
+                            (d) =>
+                              d.dividendUsd ? (
+                                money(d.dividendUsd, 'USD')
+                              ) : (
+                                <span className="text-fg-subtle">—</span>
+                              ),
+                            '',
+                          )}
+                        </td>,
+                      ]
+                    })}
+                  </tr>
+                ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t border-line bg-surface-muted font-semibold">
+                  <td className={`${td} ${sticky} bg-surface-muted`}>Total</td>
+                  <td className={`${td} text-fg-muted`}>
+                    {data.grand?.investors != null ? `${data.grand.investors} investors` : <Dash />}
+                  </td>
+                  {data.tariffs.map((t) => (
+                    <TotalCells key={t} totals={data.totals.get(t)} />
+                  ))}
+                </tr>
+              </tfoot>
             </table>
           </div>
-        }
-      />
-    </>
-  )
-}
-
-function FragmentCells({ cell }: { cell: { investment: number; dividends: number } | null }) {
-  return (
-    <>
-      <td className={`${td} num border-l border-line text-right`}>
-        {cell ? usd(cell.investment) : <Dash />}
-      </td>
-      <td className={`${td} num text-right`}>{cell ? usd(cell.dividends) : <Dash />}</td>
+        )}
+      </div>
     </>
   )
 }

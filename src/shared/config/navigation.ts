@@ -306,9 +306,10 @@ export const NAVIGATION: NavEntry[] = [
         icon: ChartPie,
       },
       {
-        label: 'By tariff',
+        label: 'Analytics by tariff',
         to: ROUTES.analytics.tariffs,
-        resource: { menuId: '479855ef-96d8-4888-b7ba-44b4d8652d55' },
+        // u-code's "Analytics by tariff" microfrontend menu: this page replaces it
+        resource: { menuId: '049c81c9-01a8-42f0-908e-b73054d110fc' },
         icon: ChartColumnBig,
       },
     ],
