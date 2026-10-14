@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Read-only for now.** Only the GET endpoints below are wired. The create, edit and delete *pages* exist, but their Save and Delete buttons call `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed. To wire one, replace that call with the real mutation.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -100,13 +100,25 @@ Filters combine with each other and with `search`. **There is no aggregation end
 | Menu tree | `GET {VITE_API_URL}/v3/menus?parent_id=…&project-id=…` (walked folder by folder; the table slug is `data.table.slug`) | Menu API: which table sits in which menu |
 | Menu visibility | `GET /v2/menu-permission/detailed/{project}/{role}/{parent}` | Sidebar visibility |
 
-Quirks: a **hidden menu returns `permission: {}`** (not `read: false`), so only an explicit `read: true` counts as visible; an **empty folder returns `menus: null`**. The root menu id is a u-code constant (`shared/config/ucode.ts`). The session stores `roleId` and `projectId` from the login response (`data.response.role`). Saving (`PUT /v2/role-permission/detailed`, `POST /v2/role`) is not wired: writes are on hold.
+Quirks: a **hidden menu returns `permission: {}`** (not `read: false`), so only an explicit `read: true` counts as visible; an **empty folder returns `menus: null`**. The root menu id is a u-code constant (`shared/config/ucode.ts`). The session stores `roleId` and `projectId` from the login response (`data.response.role`). Saving (`PUT /v2/role-permission/detailed`, `POST /v2/role`) is not wired yet.
 
-## File uploads (found, not wired)
+## Writing
 
-u-code's own web app uploads through `POST {VITE_API_URL}/upload`: `multipart/form-data` with the file in a `file` field. It returns `{ filename }`, and PHOTO fields then store the CDN URL (`https://cdn.u-code.io/<bucket>/Media/<filename>`). There's also `POST /v1/files/folder_upload`, plus `GET/PUT/DELETE /v1/files` for managing stored files.
+We write exactly where u-code's own admin writes (taken from its bundle, 2026-10-14), so whatever the backend runs on a write runs for ours too. u-code's admin has **no action buttons or `invoke_function` calls** on any of the money tables (orders, dividends, accounts, project investors, currency rates, transactions, investors, cards): its create, edit and delete are these same plain calls.
 
-**Not wired**, because an upload is a write: it creates a real file on Niyat's CDN, even from a test, and writes are on hold until they're approved (see the top of this file). Once approved, the plan is an `ImageUpload` field (our design, no native `<input type="file">`) for `projects.image` and `investors.image`, confirming the exact response and URL shape with one test upload.
+| Action | Request | Client |
+| --- | --- | --- |
+| Create | `POST /v2/items/{slug}` with `{ data: { ...fields } }` | `createTableItem` |
+| Update | `PUT /v2/items/{slug}` with `{ data: { guid, ...fields } }` | `updateTableItem` |
+| Delete | `DELETE /v2/items/{slug}/{guid}` | `deleteTableItem` |
+| Upload (PHOTO/FILE) | `POST /v1/files/folder_upload?folder_name={field.attributes.path}&format={EXT}`, multipart `file` → `{ link }`; the field stores `https://cdn.u-code.io/{link}` | `uploadFile` |
+
+- Hooks: `useCreateItemMutation`, `useUpdateItemMutation`, `useDeleteItemMutation` (`shared/api/queries.ts`) refetch the table's lists and records afterwards.
+- **New records start from the backend's defaults** (`attributes.defaultValue` in `/v2/fields`): e.g. `projects.currency` = `["USD"]`. `"NOW"` on a date field is resolved to the moment of creation (`createDefaults`).
+- Values go in the types the backend stores: numbers as numbers, cleared fields as `null`, dates as `YYYY-MM-DD`.
+- A failed write shows the backend's reason (`backendMessage`), without the `rpc error: code = … desc =` prefix, and the form keeps the user's input.
+- Verified on Projects with every write intercepted in the browser (no request reached u-code): create (with image upload), edit, a rejected edit, delete.
+- **Open:** `created_time` on rows made by u-code's admin holds Tashkent wall time marked `Z` (e.g. `16:42:57Z` for a row whose `created_at` is `11:42:57` UTC). We send a true UTC time. Check one real create against a u-code-made row.
 
 ## Page → table map
 

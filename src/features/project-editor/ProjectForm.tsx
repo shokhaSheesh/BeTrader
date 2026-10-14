@@ -3,13 +3,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { PROJECTS_TABLE, type Project } from '@/entities/project'
 import { useProjectTypeOptions } from '@/entities/project-type'
+import { backendMessage } from '@/shared/api/errors'
+import { uploadFile } from '@/shared/api/ucode'
 import { useTableFields } from '@/shared/api/useTableFields'
-import { numericText, numberToText } from '@/shared/lib/form'
+import { createDefaults, numericText, numberToText, textToNumber } from '@/shared/lib/form'
+import { toast } from '@/shared/lib/toast'
 import {
   DatePicker,
   Field,
   FormFooter,
   FormSection,
+  ImageField,
   MultiSelect,
   PageLoader,
   Select,
@@ -33,9 +37,11 @@ const schema = z.object({
   investment: z.boolean(),
   insurance: z.boolean(),
   insurance_amount: numericText,
+  board_order: numericText,
+  image: z.string().nullable(),
 })
 
-/** Form values use the backend's field slugs, so the future POST/PUT body maps 1:1. */
+/** Form values use the backend's field slugs, so the POST/PUT body maps 1:1. */
 export type ProjectFormValues = z.infer<typeof schema>
 
 function projectFormValues(p?: Project): ProjectFormValues {
@@ -55,19 +61,55 @@ function projectFormValues(p?: Project): ProjectFormValues {
     investment: p?.holdOnInvestment ?? false,
     insurance: p?.insurance ?? false,
     insurance_amount: numberToText(p?.insuranceAmount),
+    board_order: numberToText(p?.boardOrder),
+    image: p?.imageUrl ?? null,
   }
+}
+
+const NUMERIC = [
+  'minimal_amount',
+  'deposit_maturity_month',
+  'dividend_period',
+  'insurance_amount',
+  'board_order',
+] as const
+
+/** The record as the backend stores it: numbers as numbers, cleared fields as null. */
+function toPayload(values: ProjectFormValues): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    ...values,
+    project_types_id: values.project_types_id || null,
+  }
+  for (const name of NUMERIC) payload[name] = textToNumber(values[name])
+  return payload
 }
 
 interface ProjectFormProps {
   project?: Project
   submitLabel: string
   cancelTo: string
-  onSubmit: (values: ProjectFormValues) => void
+  /** The record to send: the form's values, plus the backend's defaults on a new project */
+  onSubmit: (payload: Record<string, unknown>) => void
+  submitting?: boolean
 }
 
-export function ProjectForm({ project, submitLabel, cancelTo, onSubmit }: ProjectFormProps) {
+export function ProjectForm(props: ProjectFormProps) {
   const fields = useTableFields(PROJECTS_TABLE)
+  // The form starts from the schema's defaults, so it waits for the schema
+  if (fields.isPending) return <PageLoader label="Loading form" />
+  return <ProjectFormBody {...props} fields={fields} />
+}
+
+function ProjectFormBody({
+  project,
+  submitLabel,
+  cancelTo,
+  onSubmit,
+  submitting,
+  fields,
+}: ProjectFormProps & { fields: ReturnType<typeof useTableFields> }) {
   const types = useProjectTypeOptions()
+  const schemaFields = fields.data ?? []
   const {
     register,
     control,
@@ -75,19 +117,32 @@ export function ProjectForm({ project, submitLabel, cancelTo, onSubmit }: Projec
     formState: { errors },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: projectFormValues(project),
+    // A new project starts with what the backend defines as defaults (e.g. currency USD)
+    defaultValues: project
+      ? projectFormValues(project)
+      : { ...projectFormValues(), ...pickFormKeys(createDefaults(schemaFields)) },
   })
 
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  const submit = (values: ProjectFormValues) =>
+    onSubmit(
+      project ? toPayload(values) : { ...createDefaults(schemaFields), ...toPayload(values) },
+    )
+
   const label = fields.fieldLabel
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormSection title="Names">
         <TextField label={label('name_en')} {...register('name_en')} />
         <TextField label={label('name_ru')} {...register('name_ru')} />
         <TextField label={label('name_uz')} {...register('name_uz')} />
         <TextField label={label('ticker')} {...register('ticker')} />
+        <TextField
+          label={label('board_order')}
+          numeric
+          error={errors.board_order?.message}
+          {...register('board_order')}
+        />
       </FormSection>
 
       <FormSection title="Investment terms">
@@ -182,19 +237,36 @@ export function ProjectForm({ project, submitLabel, cancelTo, onSubmit }: Projec
         ))}
       </FormSection>
 
-      <FormSection title={label('image')} description="Uploading images isn't connected yet.">
-        {project?.imageUrl ? (
-          <img
-            src={project.imageUrl}
-            alt=""
-            className="size-24 rounded-sm bg-surface-muted object-cover"
-          />
-        ) : (
-          <p className="text-fg-muted">No image.</p>
-        )}
+      <FormSection title={label('image')}>
+        <Controller
+          control={control}
+          name="image"
+          render={({ field }) => (
+            <ImageField
+              id="image"
+              value={field.value}
+              onChange={field.onChange}
+              upload={(file) =>
+                uploadFile(file, schemaFields.find((f) => f.slug === 'image')?.folder)
+              }
+              onError={(error) =>
+                toast.error(
+                  "Couldn't upload the image",
+                  backendMessage(error) ?? 'Please try again.',
+                )
+              }
+            />
+          )}
+        />
       </FormSection>
 
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
+      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
+}
+
+/** Only the defaults that are form fields; the rest (e.g. created_time) go in on submit. */
+function pickFormKeys(defaults: Record<string, unknown>): Partial<ProjectFormValues> {
+  const keys = Object.keys(projectFormValues())
+  return Object.fromEntries(Object.entries(defaults).filter(([k]) => keys.includes(k)))
 }

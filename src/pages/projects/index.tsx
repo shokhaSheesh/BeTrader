@@ -232,7 +232,12 @@ export default function ProjectsPage() {
           )
         }
       />
-      <DeleteRecordDialog noun="project" target={toDelete} onClose={() => setToDelete(null)} />
+      <DeleteRecordDialog
+        noun="project"
+        table={PROJECTS_TABLE}
+        target={toDelete}
+        onClose={() => setToDelete(null)}
+      />
     </>
   )
 }

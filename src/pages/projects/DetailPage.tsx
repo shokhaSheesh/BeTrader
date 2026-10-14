@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { PROJECTS_TABLE, useProjectQuery } from '@/entities/project'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -27,6 +27,7 @@ const badges = (values: string[], label: (v: string) => string, field?: string) 
 
 export default function ProjectDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useProjectQuery(id)
   const fields = useTableFields(PROJECTS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -163,8 +164,10 @@ export default function ProjectDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="project"
+              table={PROJECTS_TABLE}
               target={deleting ? p : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.projects.list, { replace: true })}
             />
           </>
         )

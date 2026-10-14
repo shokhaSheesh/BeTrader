@@ -1,7 +1,7 @@
 import { http } from './http'
 import type { Paginated } from '@/shared/types/api'
 
-// Read-only access to u-code tables. Every admin section maps to a table slug (docs/API.md).
+// Access to u-code tables. Every admin section maps to a table slug (docs/API.md).
 
 interface ListEnvelope<T> {
   data: { data: { count: number; response: T[] } }
@@ -77,6 +77,10 @@ export interface TableField {
   type: string
   label: string
   options: FieldOption[]
+  /** The value a new record starts with, as the backend defines it (`"NOW"` on dates) */
+  defaultValue?: unknown
+  /** Storage folder for PHOTO / FILE fields */
+  folder?: string
 }
 
 interface FieldsEnvelope {
@@ -85,7 +89,12 @@ interface FieldsEnvelope {
       slug: string
       type: string
       label: string
-      attributes?: { label_en?: string; options?: FieldOption[] }
+      attributes?: {
+        label_en?: string
+        options?: FieldOption[]
+        defaultValue?: unknown
+        path?: string
+      }
     }[]
   }
 }
@@ -98,7 +107,55 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
     type: f.type,
     label: f.attributes?.label_en || f.label,
     options: f.attributes?.options ?? [],
+    defaultValue: f.attributes?.defaultValue,
+    folder: f.attributes?.path,
   }))
+}
+
+// Writes go exactly where u-code's own admin sends them, so whatever the backend runs on a
+// write (table functions, triggers) runs for ours too (docs/API.md "Writing").
+
+interface WriteEnvelope {
+  data: { data?: Record<string, unknown> & { guid?: string; data?: { guid?: string } } }
+}
+
+/** POST /v2/items/{slug}: creates a record. Returns its guid when the backend sends it back. */
+export async function createTableItem(
+  slug: string,
+  values: Record<string, unknown>,
+): Promise<string | undefined> {
+  const { data } = await http.post<WriteEnvelope>(`/v2/items/${slug}`, { data: values })
+  const created = data.data.data
+  return created?.guid ?? created?.data?.guid
+}
+
+/** PUT /v2/items/{slug}: updates the record named by `guid` with the values sent. */
+export async function updateTableItem(
+  slug: string,
+  guid: string,
+  values: Record<string, unknown>,
+): Promise<void> {
+  await http.put(`/v2/items/${slug}`, { data: { guid, ...values } })
+}
+
+/** DELETE /v2/items/{slug}/{guid} */
+export async function deleteTableItem(slug: string, guid: string): Promise<void> {
+  await http.delete(`/v2/items/${slug}/${guid}`)
+}
+
+/**
+ * POST /v1/files/folder_upload: stores a file in u-code's media storage, into the field's
+ * folder, and returns its public URL, the value a PHOTO or FILE field holds.
+ */
+export async function uploadFile(file: File, folder?: string): Promise<string> {
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await http.post<{ data: { link: string } }>('/v1/files/folder_upload', form, {
+    params: { folder_name: folder, format: file.name.split('.').pop()?.toUpperCase() },
+    // Large images on a slow line take longer than a regular request
+    timeout: 120_000,
+  })
+  return `https://cdn.u-code.io/${data.data.link}`
 }
 
 export interface AggregationRequest {
