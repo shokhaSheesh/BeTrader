@@ -1,13 +1,15 @@
 import { useParams } from 'react-router'
-import { useOrderQuery } from '@/entities/order'
+import { ORDERS_TABLE, useOrderQuery } from '@/entities/order'
 import { OrderForm } from '@/features/order-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function EditPage() {
   const { id } = useParams()
   const query = useOrderQuery(id)
+  const update = useUpdateRecord({ table: ORDERS_TABLE, noun: 'order', routes: RECORDS.orders }, id)
+
   return (
     <RecordBoundary query={query} noun="order" back={{ to: RECORDS.orders.list, label: 'Orders' }}>
       {(o) => {
@@ -22,7 +24,8 @@ export default function EditPage() {
               order={o}
               submitLabel="Save changes"
               cancelTo={RECORDS.orders.detail(o.id)}
-              onSubmit={() => notWired('save')}
+              submitting={update.submitting}
+              onSubmit={update.submit}
             />
           </>
         )

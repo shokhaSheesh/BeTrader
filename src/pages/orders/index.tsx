@@ -316,7 +316,13 @@ export default function OrdersPage() {
       />
       <DeleteRecordDialog
         noun="order"
-        target={toDelete && { name: toDelete.orderId ? `Order ${toDelete.orderId}` : 'This order' }}
+        table={ORDERS_TABLE}
+        target={
+          toDelete && {
+            id: toDelete.id,
+            name: toDelete.orderId ? `Order ${toDelete.orderId}` : 'This order',
+          }
+        }
         onClose={() => setToDelete(null)}
       />
     </>

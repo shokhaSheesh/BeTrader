@@ -6,10 +6,17 @@ import { ORDERS_TABLE, type Order } from '@/entities/order'
 import { useProjectOptions } from '@/entities/project'
 import { InvestorPickerField } from '@/entities/investor'
 import { useTableFields } from '@/shared/api/useTableFields'
-import { numericText, numberToText } from '@/shared/lib/form'
+import {
+  createDefaults,
+  missingRequired,
+  numericText,
+  numberToText,
+  textToNumber,
+  updateBody,
+} from '@/shared/lib/form'
 import { investorLabel } from '@/shared/lib/format'
 import {
-  DatePicker,
+  DateTimePicker,
   Field,
   FormFooter,
   FormSection,
@@ -43,6 +50,7 @@ const schema = z.object({
   transaction_id: z.string().trim(),
 })
 
+/** Form values use the backend's field slugs, so the POST/PUT body maps 1:1. */
 export type OrderFormValues = z.infer<typeof schema>
 
 const MULTI = ['type', 'status', 'currency', 'from_account', 'to_account'] as const
@@ -56,53 +64,105 @@ const NUMBERS = [
   'currency_rate',
 ] as const
 
+function toValues(order?: Order): OrderFormValues {
+  return {
+    investors_id: order?.investorId ?? '',
+    projects_id: order?.projectId ?? '',
+    account_id: order?.accountId ?? '',
+    type: order?.type ?? [],
+    status: order?.status ?? [],
+    currency: order?.currency ?? [],
+    from_account: order?.fromAccount ?? [],
+    to_account: order?.toAccount ?? [],
+    amount_uzs: numberToText(order?.amountUzs),
+    amount_usd: numberToText(order?.amountUsd),
+    amount_uzs_with_fee: numberToText(order?.amountUzsWithFee),
+    amount_usd_with_fee: numberToText(order?.amountUsdWithFee),
+    transaction_fee: numberToText(order?.transactionFee),
+    insurance: numberToText(order?.insurance),
+    is_insurance: order?.isInsurance ?? false,
+    currency_rate: numberToText(order?.currencyRate),
+    deposit_maturity_date: order?.depositMaturityDate ?? null,
+    transaction_id: order?.transactionId ?? '',
+  }
+}
+
+/** The record as the backend stores it: ids or null, amounts as numbers. */
+function toPayload(values: OrderFormValues): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    ...values,
+    investors_id: values.investors_id || null,
+    projects_id: values.projects_id || null,
+    account_id: values.account_id || null,
+  }
+  for (const name of NUMBERS) payload[name] = textToNumber(values[name])
+  return payload
+}
+
 interface OrderFormProps {
   order?: Order
   submitLabel: string
   cancelTo: string
-  onSubmit: (values: OrderFormValues) => void
+  /**
+   * The record to send. New order: every field, plus the backend's defaults (type buy,
+   * status pending, created now). Existing order: the changed fields plus the required ones.
+   */
+  onSubmit: (payload: Record<string, unknown>) => void
+  submitting?: boolean
 }
 
-export function OrderForm({ order, submitLabel, cancelTo, onSubmit }: OrderFormProps) {
+export function OrderForm(props: OrderFormProps) {
   const fields = useTableFields(ORDERS_TABLE)
+  // The form starts from the schema's defaults and required flags, so it waits for the schema
+  if (fields.isPending) return <PageLoader label="Loading form" />
+  return <OrderFormBody {...props} fields={fields} />
+}
+
+function OrderFormBody({
+  order,
+  submitLabel,
+  cancelTo,
+  onSubmit,
+  submitting,
+  fields,
+}: OrderFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const schemaFields = fields.data ?? []
   const projects = useProjectOptions()
   const {
     register,
     control,
     handleSubmit,
     setValue,
-    formState: { errors },
+    setError,
+    formState: { errors, dirtyFields },
   } = useForm<OrderFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      investors_id: order?.investorId ?? '',
-      projects_id: order?.projectId ?? '',
-      account_id: order?.accountId ?? '',
-      type: order?.type ?? [],
-      status: order?.status ?? [],
-      currency: order?.currency ?? [],
-      from_account: order?.fromAccount ?? [],
-      to_account: order?.toAccount ?? [],
-      amount_uzs: numberToText(order?.amountUzs),
-      amount_usd: numberToText(order?.amountUsd),
-      amount_uzs_with_fee: numberToText(order?.amountUzsWithFee),
-      amount_usd_with_fee: numberToText(order?.amountUsdWithFee),
-      transaction_fee: numberToText(order?.transactionFee),
-      insurance: numberToText(order?.insurance),
-      is_insurance: order?.isInsurance ?? false,
-      currency_rate: numberToText(order?.currencyRate),
-      deposit_maturity_date: order?.depositMaturityDate?.slice(0, 10) ?? null,
-      transaction_id: order?.transactionId ?? '',
-    },
+    defaultValues: order
+      ? toValues(order)
+      : { ...toValues(), ...pickFormKeys(createDefaults(schemaFields)) },
   })
   const investorId = useWatch({ control, name: 'investors_id' })
   const accounts = useInvestorAccountOptions(investorId || null)
 
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  const submit = (values: OrderFormValues) => {
+    const payload = toPayload(values)
+    // Fields the backend requires, checked here so the user sees which one is missing
+    const missing = missingRequired(payload, schemaFields)
+    if (missing.length) {
+      for (const slug of missing) setError(slug as keyof OrderFormValues, { message: 'Required' })
+      return
+    }
+    onSubmit(
+      order
+        ? updateBody(payload, dirtyFields, schemaFields)
+        : { ...createDefaults(schemaFields), ...payload },
+    )
+  }
+
   const L = fields.fieldLabel
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormSection title="Who and what">
         <Controller
           control={control}
@@ -202,7 +262,7 @@ export function OrderForm({ order, submitLabel, cancelTo, onSubmit }: OrderFormP
             control={control}
             name="deposit_maturity_date"
             render={({ field }) => (
-              <DatePicker
+              <DateTimePicker
                 id="deposit_maturity_date"
                 value={field.value}
                 onChange={field.onChange}
@@ -212,7 +272,13 @@ export function OrderForm({ order, submitLabel, cancelTo, onSubmit }: OrderFormP
         </Field>
       </FormSection>
 
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
+      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
+}
+
+/** Only the defaults that are form fields; the rest (e.g. created_time) go in on submit. */
+function pickFormKeys(defaults: Record<string, unknown>): Partial<OrderFormValues> {
+  const keys = Object.keys(toValues())
+  return Object.fromEntries(Object.entries(defaults).filter(([k]) => keys.includes(k)))
 }

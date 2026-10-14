@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { ORDERS_TABLE, useOrderQuery } from '@/entities/order'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -26,6 +26,7 @@ import {
 
 export default function OrderDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useOrderQuery(id)
   const fields = useTableFields(ORDERS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -161,8 +162,10 @@ export default function OrderDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="order"
-              target={deleting ? { name: title } : null}
+              table={ORDERS_TABLE}
+              target={deleting ? { id: o.id, name: title } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.orders.list, { replace: true })}
             />
           </>
         )
