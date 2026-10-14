@@ -177,8 +177,10 @@ export default function ProjectInvestorsPage() {
       />
       <DeleteRecordDialog
         noun="investment"
+        table={PROJECT_INVESTORS_TABLE}
         target={
           toDelete && {
+            id: toDelete.id,
             name: `${toDelete.investorName ?? 'Investor'} in ${toDelete.projectName ?? 'project'}`,
           }
         }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { PROJECT_INVESTORS_TABLE, useProjectInvestorQuery } from '@/entities/project-investor'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -13,6 +13,7 @@ const dash = <span className="text-fg-subtle">—</span>
 
 export default function ProjectInvestorDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useProjectInvestorQuery(id)
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -114,8 +115,10 @@ export default function ProjectInvestorDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="investment"
-              target={deleting ? { name: title } : null}
+              table={PROJECT_INVESTORS_TABLE}
+              target={deleting ? { id: r.id, name: title } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.projectInvestors.list, { replace: true })}
             />
           </>
         )

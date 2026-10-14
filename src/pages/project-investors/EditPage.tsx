@@ -1,13 +1,17 @@
 import { useParams } from 'react-router'
-import { useProjectInvestorQuery } from '@/entities/project-investor'
+import { PROJECT_INVESTORS_TABLE, useProjectInvestorQuery } from '@/entities/project-investor'
 import { ProjectInvestorForm } from '@/features/project-investor-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function ProjectInvestorEditPage() {
   const { id } = useParams()
   const query = useProjectInvestorQuery(id)
+  const update = useUpdateRecord(
+    { table: PROJECT_INVESTORS_TABLE, noun: 'investment', routes: RECORDS.projectInvestors },
+    id,
+  )
 
   return (
     <RecordBoundary
@@ -25,7 +29,8 @@ export default function ProjectInvestorEditPage() {
             record={r}
             submitLabel="Save changes"
             cancelTo={RECORDS.projectInvestors.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

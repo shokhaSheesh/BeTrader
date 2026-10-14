@@ -1,9 +1,16 @@
+import { PROJECT_INVESTORS_TABLE } from '@/entities/project-investor'
 import { ProjectInvestorForm } from '@/features/project-investor-editor'
-import { notWired } from '@/features/record-actions'
+import { useCreateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
 
 export default function ProjectInvestorCreatePage() {
+  const create = useCreateRecord({
+    table: PROJECT_INVESTORS_TABLE,
+    noun: 'investment',
+    routes: RECORDS.projectInvestors,
+  })
+
   return (
     <>
       <PageHeader
@@ -13,7 +20,8 @@ export default function ProjectInvestorCreatePage() {
       <ProjectInvestorForm
         submitLabel="Add investment"
         cancelTo={RECORDS.projectInvestors.list}
-        onSubmit={() => notWired('create')}
+        submitting={create.submitting}
+        onSubmit={create.submit}
       />
     </>
   )

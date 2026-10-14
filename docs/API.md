@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -141,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **Project investors, checked end to end in Test (2026-10-14):** create, edit, delete (Test 31 rows vs Production 135). **Test's `project_investors` has 4 fields Production doesn't:** `investment_uzs`, `dividend_uzs` (FLOAT), `status` (SINGLE_LINE, e.g. `"active"`), `closing_date` (DATE_TIME), all without labels yet. The form uses only the fields both environments have, until the backend team says these are going to Production.
 - **Project types, checked end to end in Test (2026-10-14):** list, detail, create, edit and delete, with the required `calculate_dividend` enforced; schema and rights the same as Production.
 - **Projects, checked end to end in Test (2026-10-14):** list, detail, create (with image), edit and delete; the field schema (same 19 fields, types, options and defaults as Production; Production only adds display settings), project types picker, menus and the role's rights (`projects`: read/create/update/delete all Yes in both).
 

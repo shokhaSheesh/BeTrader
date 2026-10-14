@@ -7,7 +7,14 @@ import { useProjectOptions } from '@/entities/project'
 import { PROJECT_INVESTORS_TABLE, type ProjectInvestor } from '@/entities/project-investor'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
-import { numericText, numberToText } from '@/shared/lib/form'
+import {
+  createDefaults,
+  missingRequired,
+  numericText,
+  numberToText,
+  textToNumber,
+  updateBody,
+} from '@/shared/lib/form'
 import { formatPhone } from '@/shared/lib/format'
 import {
   Field,
@@ -26,22 +33,56 @@ const schema = z.object({
   dividend: numericText,
 })
 
+/** Form values use the backend's field slugs, so the POST/PUT body maps 1:1. */
 export type ProjectInvestorFormValues = z.infer<typeof schema>
+
+function toValues(record?: ProjectInvestor): ProjectInvestorFormValues {
+  return {
+    investors_id: record?.investorId ?? '',
+    projects_id: record?.projectId ?? '',
+    investment: numberToText(record?.investment),
+    dividend: numberToText(record?.interestIncome),
+  }
+}
+
+/** The record as the backend stores it: ids or null, amounts as numbers. */
+function toPayload(values: ProjectInvestorFormValues): Record<string, unknown> {
+  return {
+    investors_id: values.investors_id || null,
+    projects_id: values.projects_id || null,
+    investment: textToNumber(values.investment),
+    dividend: textToNumber(values.dividend),
+  }
+}
 
 interface ProjectInvestorFormProps {
   record?: ProjectInvestor
   submitLabel: string
   cancelTo: string
-  onSubmit: (values: ProjectInvestorFormValues) => void
+  /**
+   * The record to send. New record: every field, plus the backend's defaults.
+   * Existing record: the changed fields plus the required ones (empty when nothing changed).
+   */
+  onSubmit: (payload: Record<string, unknown>) => void
+  submitting?: boolean
 }
 
-export function ProjectInvestorForm({
+export function ProjectInvestorForm(props: ProjectInvestorFormProps) {
+  const fields = useTableFields(PROJECT_INVESTORS_TABLE)
+  // The form starts from the schema's defaults and required flags, so it waits for the schema
+  if (fields.isPending) return <PageLoader label="Loading form" />
+  return <ProjectInvestorFormBody {...props} fields={fields} />
+}
+
+function ProjectInvestorFormBody({
   record,
   submitLabel,
   cancelTo,
   onSubmit,
-}: ProjectInvestorFormProps) {
-  const fields = useTableFields(PROJECT_INVESTORS_TABLE)
+  submitting,
+  fields,
+}: ProjectInvestorFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const schemaFields = fields.data ?? []
   const projects = useProjectOptions()
   const [investorSearch, setInvestorSearch] = useState('')
   const investors = useInvestorOptions(useDebouncedValue(investorSearch, 350))
@@ -57,24 +98,43 @@ export function ProjectInvestorForm({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, dirtyFields },
   } = useForm<ProjectInvestorFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      investors_id: record?.investorId ?? '',
-      projects_id: record?.projectId ?? '',
-      investment: numberToText(record?.investment),
-      dividend: numberToText(record?.interestIncome),
-    },
+    defaultValues: record
+      ? toValues(record)
+      : { ...toValues(), ...pickFormKeys(createDefaults(schemaFields)) },
   })
 
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  const submit = (values: ProjectInvestorFormValues) => {
+    const payload = toPayload(values)
+    // Fields the backend requires, checked here so the user sees which one is missing
+    const missing = missingRequired(payload, schemaFields)
+    if (missing.length) {
+      for (const slug of missing)
+        setError(slug as keyof ProjectInvestorFormValues, { message: 'Required' })
+      return
+    }
+    onSubmit(
+      record
+        ? updateBody(payload, dirtyFields, schemaFields)
+        : { ...createDefaults(schemaFields), ...payload },
+    )
+  }
+
   const label = fields.fieldLabel
+  const required = fields.isRequired
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormSection title="Investment">
-        <Field label={label('investors_id')} htmlFor="investors_id">
+        <Field
+          label={label('investors_id')}
+          htmlFor="investors_id"
+          required={required('investors_id')}
+          error={errors.investors_id?.message}
+        >
           <Controller
             control={control}
             name="investors_id"
@@ -96,7 +156,12 @@ export function ProjectInvestorForm({
             )}
           />
         </Field>
-        <Field label={label('projects_id')} htmlFor="projects_id">
+        <Field
+          label={label('projects_id')}
+          htmlFor="projects_id"
+          required={required('projects_id')}
+          error={errors.projects_id?.message}
+        >
           <Controller
             control={control}
             name="projects_id"
@@ -113,18 +178,26 @@ export function ProjectInvestorForm({
         </Field>
         <TextField
           label={label('investment')}
+          required={required('investment')}
           numeric
           error={errors.investment?.message}
           {...register('investment')}
         />
         <TextField
           label={label('dividend')}
+          required={required('dividend')}
           numeric
           error={errors.dividend?.message}
           {...register('dividend')}
         />
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
+      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
+}
+
+/** Only the defaults that are form fields; the rest go in on submit. */
+function pickFormKeys(defaults: Record<string, unknown>): Partial<ProjectInvestorFormValues> {
+  const keys = Object.keys(toValues())
+  return Object.fromEntries(Object.entries(defaults).filter(([k]) => keys.includes(k)))
 }
