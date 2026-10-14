@@ -1,3 +1,5 @@
+import { WRITABLE_ENVIRONMENT_IDS } from '@/shared/config/environments'
+import { useSessionStore } from '@/shared/session/store'
 import { http } from './http'
 import type { Paginated } from '@/shared/types/api'
 
@@ -115,6 +117,25 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
 // Writes go exactly where u-code's own admin sends them, so whatever the backend runs on a
 // write (table functions, triggers) runs for ours too (docs/API.md "Writing").
 
+/** A write was stopped before it left the browser: this session's environment isn't writable. */
+export class WriteBlockedError extends Error {
+  constructor() {
+    super('Changes are switched off in this environment, so nothing was sent.')
+    this.name = 'WriteBlockedError'
+  }
+}
+
+/**
+ * Every write passes through here first. Only sessions in a writable environment (Test, for
+ * now) may write; anything else, including a stale Production session, is refused locally.
+ */
+function assertWritable() {
+  const environmentId = useSessionStore.getState().session?.environmentId
+  if (!environmentId || !WRITABLE_ENVIRONMENT_IDS.includes(environmentId)) {
+    throw new WriteBlockedError()
+  }
+}
+
 interface WriteEnvelope {
   data: { data?: Record<string, unknown> & { guid?: string; data?: { guid?: string } } }
 }
@@ -124,6 +145,7 @@ export async function createTableItem(
   slug: string,
   values: Record<string, unknown>,
 ): Promise<string | undefined> {
+  assertWritable()
   const { data } = await http.post<WriteEnvelope>(`/v2/items/${slug}`, { data: values })
   const created = data.data.data
   return created?.guid ?? created?.data?.guid
@@ -135,12 +157,17 @@ export async function updateTableItem(
   guid: string,
   values: Record<string, unknown>,
 ): Promise<void> {
+  assertWritable()
   await http.put(`/v2/items/${slug}`, { data: { guid, ...values } })
 }
 
-/** DELETE /v2/items/{slug}/{guid} */
+/**
+ * DELETE /v2/items/{slug}/{guid}, with the body u-code's own admin sends: `{ data: {} }`.
+ * Without a body it answers 400 "EOF"; with a bare `{}`, 500.
+ */
 export async function deleteTableItem(slug: string, guid: string): Promise<void> {
-  await http.delete(`/v2/items/${slug}/${guid}`)
+  assertWritable()
+  await http.delete(`/v2/items/${slug}/${guid}`, { data: { data: {} } })
 }
 
 /**
@@ -148,6 +175,7 @@ export async function deleteTableItem(slug: string, guid: string): Promise<void>
  * folder, and returns its public URL, the value a PHOTO or FILE field holds.
  */
 export async function uploadFile(file: File, folder?: string): Promise<string> {
+  assertWritable()
   const form = new FormData()
   form.append('file', file)
   const { data } = await http.post<{ data: { link: string } }>('/v1/files/folder_upload', form, {

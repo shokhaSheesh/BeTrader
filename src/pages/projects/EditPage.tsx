@@ -30,7 +30,11 @@ export default function ProjectEditPage() {
             submitLabel="Save changes"
             cancelTo={RECORDS.projects.detail(p.id)}
             submitting={update.isPending}
-            onSubmit={(values) =>
+            onSubmit={(values) => {
+              if (Object.keys(values).length === 0) {
+                toast.info('Nothing to save', 'No field was changed.')
+                return navigate(RECORDS.projects.detail(p.id), { replace: true })
+              }
               update.mutate(
                 { id: p.id, values },
                 {
@@ -45,7 +49,7 @@ export default function ProjectEditPage() {
                     ),
                 },
               )
-            }
+            }}
           />
         </>
       )}

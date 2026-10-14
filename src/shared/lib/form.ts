@@ -28,3 +28,20 @@ export function createDefaults(fields: { slug: string; defaultValue?: unknown }[
       .map((f) => [f.slug, f.defaultValue === 'NOW' ? new Date().toISOString() : f.defaultValue]),
   )
 }
+
+/**
+ * Keeps only the fields the user changed (react-hook-form's `dirtyFields`), so an edit never
+ * rewrites values nobody touched. u-code's PUT updates just the fields sent.
+ */
+export function changedOnly(
+  payload: Record<string, unknown>,
+  dirtyFields: Record<string, unknown>,
+): Record<string, unknown> {
+  const isDirty = (flag: unknown): boolean =>
+    Array.isArray(flag)
+      ? flag.some(isDirty)
+      : typeof flag === 'object' && flag !== null
+        ? Object.values(flag).some(isDirty)
+        : flag === true
+  return Object.fromEntries(Object.entries(payload).filter(([key]) => isDirty(dirtyFields[key])))
+}

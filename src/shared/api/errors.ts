@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { WriteBlockedError } from './ucode'
 
 /**
  * The reason the backend gave for a failed request, to show the user as-is.
@@ -6,6 +7,7 @@ import axios from 'axios'
  * wrapped in gRPC noise ("rpc error: code = Internal desc = …"), so that prefix is dropped.
  */
 export function backendMessage(error: unknown): string | undefined {
+  if (error instanceof WriteBlockedError) return error.message
   if (!axios.isAxiosError(error)) return undefined
   if (!error.response) return 'No connection to the server.'
   const body = error.response.data as { description?: unknown; data?: unknown } | undefined

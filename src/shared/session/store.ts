@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { TARGET_ENVIRONMENT } from '@/shared/config/environments'
 
 export interface Session {
   accessToken: string
@@ -29,12 +30,17 @@ export const useSessionStore = create<SessionState>()(
     }),
     {
       name: 'niyat-admin-auth',
-      version: 2,
-      // v1 sessions have no role: sign in again so permissions can be loaded.
+      version: 3,
+      // v1 sessions have no role; v2 sessions were opened in Production before the admin
+      // moved to the Test environment. Either way: sign in again.
       migrate: () => ({ session: null }) as unknown as SessionState,
     },
   ),
 )
 
-/** An expired access token is fine: the http client refreshes it before the next request. */
-export const useIsAuthenticated = () => useSessionStore((s) => s.session !== null)
+/**
+ * An expired access token is fine: the http client refreshes it before the next request.
+ * A session from another environment is not: signing in again moves it to the target one.
+ */
+export const useIsAuthenticated = () =>
+  useSessionStore((s) => s.session?.environmentId === TARGET_ENVIRONMENT.id)

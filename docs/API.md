@@ -110,15 +110,34 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 | --- | --- | --- |
 | Create | `POST /v2/items/{slug}` with `{ data: { ...fields } }` | `createTableItem` |
 | Update | `PUT /v2/items/{slug}` with `{ data: { guid, ...fields } }` | `updateTableItem` |
-| Delete | `DELETE /v2/items/{slug}/{guid}` | `deleteTableItem` |
+| Delete | `DELETE /v2/items/{slug}/{guid}` with body `{ data: {} }` (no body → 400 "EOF"; bare `{}` → 500) | `deleteTableItem` |
 | Upload (PHOTO/FILE) | `POST /v1/files/folder_upload?folder_name={field.attributes.path}&format={EXT}`, multipart `file` → `{ link }`; the field stores `https://cdn.u-code.io/{link}` | `uploadFile` |
 
 - Hooks: `useCreateItemMutation`, `useUpdateItemMutation`, `useDeleteItemMutation` (`shared/api/queries.ts`) refetch the table's lists and records afterwards.
 - **New records start from the backend's defaults** (`attributes.defaultValue` in `/v2/fields`): e.g. `projects.currency` = `["USD"]`. `"NOW"` on a date field is resolved to the moment of creation (`createDefaults`).
 - Values go in the types the backend stores: numbers as numbers, cleared fields as `null`, dates as `YYYY-MM-DD`.
 - A failed write shows the backend's reason (`backendMessage`), without the `rpc error: code = … desc =` prefix, and the form keeps the user's input.
-- Verified on Projects with every write intercepted in the browser (no request reached u-code): create (with image upload), edit, a rejected edit, delete.
-- **Open:** `created_time` on rows made by u-code's admin holds Tashkent wall time marked `Z` (e.g. `16:42:57Z` for a row whose `created_at` is `11:42:57` UTC). We send a true UTC time. Check one real create against a u-code-made row.
+- **Create** returns the new record's `guid`; the app opens it.
+- **PUT updates only the fields sent** (verified: fields left out kept their values). So an edit sends **only the fields the user changed**, plus `guid` (`changedOnly`); saving an untouched form sends nothing.
+- Verified for real on Projects in the **Test** environment (create, edit, delete), checking after each step that Production was unchanged. Rejected-save and upload paths were tested with the requests intercepted.
+- `created_time` on rows made by u-code's admin holds Tashkent wall time marked `Z`; ours is true UTC (equal to `created_at`).
+
+### Environments: Test until writes are approved
+
+**The data API ignores the `environment-id` and `resource-id` headers.** Any value, even a made-up one, reads the database of the *session*. Login (`default-login`) always opens a Production session, and `PUT /v2/refresh { refresh_token, env_id }` moves that session into another environment (the token's claims don't change; u-code tracks it server-side). Other sessions, and fresh logins, are unaffected.
+
+| Environment | `environment-id` | `resource-id` |
+| --- | --- | --- |
+| Production | `0b7d0ea1-43af-42b3-92fa-829c497a14f9` | `3c4e9c05-ffab-4f9e-95b3-1a16b0f53d42` |
+| Test | `07226aec-23df-4c7d-b685-2de52572abc2` | `a72c0c6b-2c91-4680-b8f6-062062874fe6` |
+
+(From the auth API `GET /v2/resource-environment?project-id=…&environment-id=…`; each environment also has a type-2 resource we don't use.)
+
+- `shared/config/environments.ts`: the admin works in **Test** unless the build sets `VITE_ENVIRONMENT=production`. Login switches the session right after signing in, and fails rather than fall back to Production.
+- **Writes are refused locally** (`assertWritable`, before any request) unless the session is in an environment listed in `WRITABLE_ENVIRONMENT_IDS`: only Test for now.
+- A session from another environment counts as signed out, so it signs in again into the target one. The header shows a **Test environment** badge.
+- Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
+- The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 
 ## Page → table map
 

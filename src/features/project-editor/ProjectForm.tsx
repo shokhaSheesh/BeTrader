@@ -6,7 +6,13 @@ import { useProjectTypeOptions } from '@/entities/project-type'
 import { backendMessage } from '@/shared/api/errors'
 import { uploadFile } from '@/shared/api/ucode'
 import { useTableFields } from '@/shared/api/useTableFields'
-import { createDefaults, numericText, numberToText, textToNumber } from '@/shared/lib/form'
+import {
+  changedOnly,
+  createDefaults,
+  numericText,
+  numberToText,
+  textToNumber,
+} from '@/shared/lib/form'
 import { toast } from '@/shared/lib/toast'
 import {
   DatePicker,
@@ -88,7 +94,10 @@ interface ProjectFormProps {
   project?: Project
   submitLabel: string
   cancelTo: string
-  /** The record to send: the form's values, plus the backend's defaults on a new project */
+  /**
+   * The record to send. New project: every field, plus the backend's defaults.
+   * Existing project: only the fields the user changed (empty when nothing changed).
+   */
   onSubmit: (payload: Record<string, unknown>) => void
   submitting?: boolean
 }
@@ -114,7 +123,7 @@ function ProjectFormBody({
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(schema),
     // A new project starts with what the backend defines as defaults (e.g. currency USD)
@@ -125,7 +134,9 @@ function ProjectFormBody({
 
   const submit = (values: ProjectFormValues) =>
     onSubmit(
-      project ? toPayload(values) : { ...createDefaults(schemaFields), ...toPayload(values) },
+      project
+        ? changedOnly(toPayload(values), dirtyFields)
+        : { ...createDefaults(schemaFields), ...toPayload(values) },
     )
 
   const label = fields.fieldLabel
