@@ -171,8 +171,10 @@ export default function AccountsPage() {
       />
       <DeleteRecordDialog
         noun="account"
+        table={ACCOUNTS_TABLE}
         target={
           toDelete && {
+            id: toDelete.id,
             name: `The account of ${investorLabel(toDelete.investorName, toDelete.investorPhone)}`,
           }
         }

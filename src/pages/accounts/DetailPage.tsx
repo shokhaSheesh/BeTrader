@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { ACCOUNTS_TABLE, useAccountQuery } from '@/entities/account'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -24,6 +24,7 @@ const money = (value: number | null, currency: 'UZS' | 'USD') =>
 
 export default function AccountDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useAccountQuery(id)
   const fields = useTableFields(ACCOUNTS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -99,8 +100,10 @@ export default function AccountDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="account"
-              target={deleting ? { name: `The account of ${owner}` } : null}
+              table={ACCOUNTS_TABLE}
+              target={deleting ? { id: a.id, name: `The account of ${owner}` } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.accounts.list, { replace: true })}
             />
           </>
         )

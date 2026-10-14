@@ -1,13 +1,18 @@
 import { useParams } from 'react-router'
-import { useAccountQuery } from '@/entities/account'
+import { ACCOUNTS_TABLE, useAccountQuery } from '@/entities/account'
 import { AccountForm } from '@/features/account-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function AccountEditPage() {
   const { id } = useParams()
   const query = useAccountQuery(id)
+  const update = useUpdateRecord(
+    { table: ACCOUNTS_TABLE, noun: 'account', routes: RECORDS.accounts },
+    id,
+  )
+
   return (
     <RecordBoundary
       query={query}
@@ -24,7 +29,8 @@ export default function AccountEditPage() {
             account={a}
             submitLabel="Save changes"
             cancelTo={RECORDS.accounts.detail(a.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

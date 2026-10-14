@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below). Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -141,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **Accounts, checked end to end in Test (2026-10-14):** create, edit, delete (Test 251 vs Production 11 660). Same schema in both. **On create the backend sets `full_name` from the investor** and replaces whatever is sent (on edit, a sent name sticks), so the Create form leaves it out and Edit shows it. One account per investor is the app's pattern (one Test investor has 4); the backend doesn't stop duplicates.
 - **Investors (2026-10-14).** `investors` is the app's **login table** (u-code "auth table": `user_id_auth`, `role_id`, `client_type_id`, `pin_code`, `fmc_token`).
   - **The admin edits and deletes investors, never creates them** (product decision, 2026-10-14). Investors sign up in the app; u-code would refuse a create anyway without login details (500 `this table is auth table. Auth information not fully given`).
   - **Login accounts are shared by every environment** (verified 2026-10-14 with the auth API, `GET {auth}/v2/user/{user_id_auth}?client-type-id=…&project-id=…`): an investor that exists in both environments points to the **same** `user_id_auth` in each, and both sessions read that one account. So **deleting investors is refused outside Production** (`SHARED_LOGIN_TABLES` in `shared/config/environments.ts`, checked in `deleteTableItem` before any request): in Test it could remove a real person's login. In Production, Delete works as normal.
