@@ -1,16 +1,16 @@
 # Dashboards & Analytics: data spec
 
-> **Status** (2026-10-14): **Analytics by tariff** is native, on real data. **Dividends analytics** embeds the published Metabase dashboard. The `/dashboard` widgets below are still **mock** (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**.
+> **Status** (2026-10-14): **Analytics by tariff** is native, on real data. **Dividends analytics** and the **Dashboard** embed the published Metabase and DataLens dashboards; the mock data is gone. The widget inventory below is what those dashboards contain, kept for when the backend team gives us endpoints to rebuild them natively.
 >
 > **Embedded dashboards.** u-code embeds three published dashboards, all of them public links with no login (`shared/config/dashboards.ts`):
 >
 > | u-code page | Tool | Dashboard | Ours |
 > | --- | --- | --- | --- |
-> | Dashboard | Yandex DataLens | `datalens.yandex/8xi4w15qfqsmt` | `/dashboard` — still mock |
+> | Dashboard | Yandex DataLens | `datalens.yandex/8xi4w15qfqsmt` | `/dashboard` — embedded |
 > | Analytics → Dividends analytics | Metabase | `public/dashboard/e6bf5716-…` — "BeTrader Dividends Dash" | `/analytics/dividends` — embedded |
 > | Analytics → Analytics by tariff | Metabase | `public/dashboard/5b5b7fd7-…` — pivot | rebuilt natively from the microfrontend |
 >
-> The frames take their period from our own filter (`date=from~to`) and hide their title and filter bar. Metabase is OSS v0.63, so signed embedding is available if the backend team ever closes the public links; SSO embedding is not.
+> The Metabase frame takes its period from our own filter (`date=from~to`) and hides its title and filter bar. **DataLens can't be driven that way:** a public DataLens link ignores URL parameters (tested with the selector's own value format, `Дата=__between___interval_<from>_<to>`, its field aliases `created_at_kvxm`/`date_wqu8`, and `_embedded`/`_no_controls`). It keeps filter state server-side (`?state=<hash>`). So the Dashboard has no filter of ours; its own date picker and tabs, inside the frame, work. DataLens's signed (private) embedding would accept parameters, if the backend team sets it up. Metabase is OSS v0.63, so signed embedding is available if the backend team ever closes the public links; SSO embedding is not.
 >
 > **Open with the backend team:** the dividends dashboard is reachable without logging in and lists every investor's full name, PINFL, income and tax withheld.
 

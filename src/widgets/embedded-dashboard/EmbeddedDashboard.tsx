@@ -7,6 +7,8 @@ interface EmbeddedDashboardProps {
   src: string
   /** What the frame shows: used by the link and the error state */
   title: string
+  /** The page has no filter bar above the frame, so it can take that height too */
+  noFilters?: boolean
 }
 
 /** How long a dashboard may take to render before we call it broken. */
@@ -19,7 +21,7 @@ const TIMEOUT = 30_000
  * and our permissions do not reach inside it. We own the loader, the failure state and
  * the period, so the page still behaves like the rest of the panel (DESIGN.md §1, §3).
  */
-export function EmbeddedDashboard({ src, title }: EmbeddedDashboardProps) {
+export function EmbeddedDashboard({ src, title, noFilters = false }: EmbeddedDashboardProps) {
   // Remounts the frame, so "Try again" really reloads it
   const [attempt, setAttempt] = useState(0)
   const frame = `${src}-${attempt}`
@@ -36,7 +38,11 @@ export function EmbeddedDashboard({ src, title }: EmbeddedDashboardProps) {
   }, [status, frame])
 
   return (
-    <div className="relative h-[calc(100vh-17rem)] min-h-125 overflow-hidden rounded-md border border-line bg-surface">
+    <div
+      className={`relative min-h-125 overflow-hidden rounded-md border border-line bg-surface ${
+        noFilters ? 'h-[calc(100vh-12.5rem)]' : 'h-[calc(100vh-17rem)]'
+      }`}
+    >
       {status === 'error' ? (
         <EmptyState
           variant="error"
