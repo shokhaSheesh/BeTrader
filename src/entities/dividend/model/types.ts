@@ -11,6 +11,9 @@ export interface DividendDto {
   order_amount: number | null
   amount_uzs: number | null
   amount_usd: number | null
+  // Only the Test environment's schema has these so far
+  nominal_amount_usd?: number | null
+  remaining_amount_usd?: number | null
   from_date: string | null
   to_date: string | null
   investors_id: string | null
@@ -30,6 +33,10 @@ export interface Dividend {
   orderAmount: number | null
   amountUzs: number | null
   amountUsd: number | null
+  /** "Declared profit, $" */
+  nominalAmountUsd: number | null
+  /** "Not distributed, $" */
+  remainingAmountUsd: number | null
   fromDate: string | null
   toDate: string | null
   investorId: string | null
@@ -51,6 +58,8 @@ export function toDividend(d: DividendDto): Dividend {
     orderAmount: d.order_amount,
     amountUzs: d.amount_uzs,
     amountUsd: d.amount_usd,
+    nominalAmountUsd: d.nominal_amount_usd ?? null,
+    remainingAmountUsd: d.remaining_amount_usd ?? null,
     fromDate: d.from_date,
     toDate: d.to_date,
     investorId: d.investors_id,

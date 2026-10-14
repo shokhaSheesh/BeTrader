@@ -1,9 +1,16 @@
+import { DIVIDENDS_TABLE } from '@/entities/dividend'
 import { DividendForm } from '@/features/dividend-editor'
-import { notWired } from '@/features/record-actions'
+import { useCreateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
 
 export default function CreatePage() {
+  const create = useCreateRecord({
+    table: DIVIDENDS_TABLE,
+    noun: 'dividend',
+    routes: RECORDS.dividends,
+  })
+
   return (
     <>
       <PageHeader
@@ -13,7 +20,8 @@ export default function CreatePage() {
       <DividendForm
         submitLabel="Create dividend"
         cancelTo={RECORDS.dividends.list}
-        onSubmit={() => notWired('create')}
+        submitting={create.submitting}
+        onSubmit={create.submit}
       />
     </>
   )

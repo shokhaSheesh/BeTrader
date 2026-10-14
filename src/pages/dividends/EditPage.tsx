@@ -1,13 +1,17 @@
 import { useParams } from 'react-router'
-import { useDividendQuery } from '@/entities/dividend'
+import { DIVIDENDS_TABLE, useDividendQuery } from '@/entities/dividend'
 import { DividendForm } from '@/features/dividend-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function EditPage() {
   const { id } = useParams()
   const query = useDividendQuery(id)
+  const update = useUpdateRecord(
+    { table: DIVIDENDS_TABLE, noun: 'dividend', routes: RECORDS.dividends },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -26,7 +30,8 @@ export default function EditPage() {
               dividend={o}
               submitLabel="Save changes"
               cancelTo={RECORDS.dividends.detail(o.id)}
-              onSubmit={() => notWired('save')}
+              submitting={update.submitting}
+              onSubmit={update.submit}
             />
           </>
         )

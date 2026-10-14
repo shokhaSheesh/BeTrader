@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { DIVIDENDS_TABLE, useDividendQuery } from '@/entities/dividend'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -26,6 +26,7 @@ import {
 
 export default function DividendDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useDividendQuery(id)
   const fields = useTableFields(DIVIDENDS_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -127,10 +128,14 @@ export default function DividendDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="dividend"
+              table={DIVIDENDS_TABLE}
               target={
-                deleting ? { name: `The dividend of ${d.investorName ?? 'this investor'}` } : null
+                deleting
+                  ? { id: d.id, name: `The dividend of ${d.investorName ?? 'this investor'}` }
+                  : null
               }
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.dividends.list, { replace: true })}
             />
           </>
         )

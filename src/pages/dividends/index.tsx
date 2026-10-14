@@ -235,7 +235,13 @@ export default function DividendsPage() {
       />
       <DeleteRecordDialog
         noun="dividend"
-        target={toDelete && { name: `The dividend of ${toDelete.investorName ?? 'this investor'}` }}
+        table={DIVIDENDS_TABLE}
+        target={
+          toDelete && {
+            id: toDelete.id,
+            name: `The dividend of ${toDelete.investorName ?? 'this investor'}`,
+          }
+        }
         onClose={() => setToDelete(null)}
       />
     </>
