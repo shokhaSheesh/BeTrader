@@ -138,6 +138,8 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - A session from another environment counts as signed out, so it signs in again into the target one. The header shows a **Test environment** badge.
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
+- **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **Projects, checked end to end in Test (2026-10-14):** list, detail, create (with image), edit and delete; the field schema (same 19 fields, types, options and defaults as Production; Production only adds display settings), project types picker, menus and the role's rights (`projects`: read/create/update/delete all Yes in both).
 
 ## Page → table map
 
