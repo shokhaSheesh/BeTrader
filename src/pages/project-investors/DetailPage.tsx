@@ -23,6 +23,7 @@ export default function ProjectInvestorDetailPage() {
     <RecordBoundary query={query} noun="investment" back={back} alsoPending={fields.isPending}>
       {(r) => {
         const L = fields.fieldLabel
+        const has = (slug: string) => !!fields.data?.some((f) => f.slug === slug)
         const title = `${r.investorName ?? 'Investor'} in ${r.projectName ?? 'project'}`
         return (
           <>
@@ -96,6 +97,46 @@ export default function ProjectInvestorDetailPage() {
                         dash
                       ),
                   },
+                  // Fields only the Test environment's schema has so far
+                  ...(has('investment_uzs')
+                    ? [
+                        {
+                          label: L('investment_uzs'),
+                          value:
+                            r.investmentUzs != null ? (
+                              <span className="num">{formatAmount(r.investmentUzs)}</span>
+                            ) : (
+                              dash
+                            ),
+                        },
+                      ]
+                    : []),
+                  ...(has('dividend_uzs')
+                    ? [
+                        {
+                          label: L('dividend_uzs'),
+                          value:
+                            r.interestIncomeUzs != null ? (
+                              <span className="num">{formatAmount(r.interestIncomeUzs)}</span>
+                            ) : (
+                              dash
+                            ),
+                        },
+                      ]
+                    : []),
+                  ...(has('status') ? [{ label: L('status'), value: r.status ?? dash }] : []),
+                  ...(has('closing_date')
+                    ? [
+                        {
+                          label: L('closing_date'),
+                          value: r.closingDate ? (
+                            <span className="num">{formatDateTime(r.closingDate)}</span>
+                          ) : (
+                            dash
+                          ),
+                        },
+                      ]
+                    : []),
                 ]}
               />
               <DetailSection

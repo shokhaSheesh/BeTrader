@@ -17,6 +17,11 @@ export interface ProjectInvestorDto {
   } | null
   projects_id: string | null
   projects_id_data: { name_en: string | null } | null
+  // Fields only the Test environment has so far (absent in Production rows)
+  investment_uzs?: number | null
+  dividend_uzs?: number | null
+  status?: string | null
+  closing_date?: string | null
   created_time: string
   updated_time: string
 }
@@ -31,6 +36,11 @@ export interface ProjectInvestor {
   projectName: string | null
   investment: number | null
   interestIncome: number | null
+  investmentUzs: number | null
+  interestIncomeUzs: number | null
+  /** Free text in the backend (e.g. "active"), shown as sent */
+  status: string | null
+  closingDate: string | null
   createdTime: string
   updatedTime: string
 }
@@ -46,6 +56,10 @@ export function toProjectInvestor(dto: ProjectInvestorDto): ProjectInvestor {
     projectName: dto.projects_id_data?.name_en ?? null,
     investment: dto.investment,
     interestIncome: dto.dividend,
+    investmentUzs: dto.investment_uzs ?? null,
+    interestIncomeUzs: dto.dividend_uzs ?? null,
+    status: dto.status || null,
+    closingDate: dto.closing_date ?? null,
     createdTime: dto.created_time,
     updatedTime: dto.updated_time,
   }

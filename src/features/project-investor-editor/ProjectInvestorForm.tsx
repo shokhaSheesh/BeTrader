@@ -17,6 +17,7 @@ import {
 } from '@/shared/lib/form'
 import { formatPhone } from '@/shared/lib/format'
 import {
+  DateTimePicker,
   Field,
   FormFooter,
   FormSection,
@@ -31,6 +32,11 @@ const schema = z.object({
   projects_id: z.string(),
   investment: numericText,
   dividend: numericText,
+  // Only in the Test environment's schema so far: shown when the backend has them
+  investment_uzs: numericText,
+  dividend_uzs: numericText,
+  status: z.string().trim(),
+  closing_date: z.string().nullable(),
 })
 
 /** Form values use the backend's field slugs, so the POST/PUT body maps 1:1. */
@@ -42,17 +48,33 @@ function toValues(record?: ProjectInvestor): ProjectInvestorFormValues {
     projects_id: record?.projectId ?? '',
     investment: numberToText(record?.investment),
     dividend: numberToText(record?.interestIncome),
+    investment_uzs: numberToText(record?.investmentUzs),
+    dividend_uzs: numberToText(record?.interestIncomeUzs),
+    status: record?.status ?? '',
+    closing_date: record?.closingDate ?? null,
   }
 }
 
-/** The record as the backend stores it: ids or null, amounts as numbers. */
-function toPayload(values: ProjectInvestorFormValues): Record<string, unknown> {
-  return {
+/**
+ * The record as the backend stores it: ids or null, amounts as numbers. Only fields the
+ * backend's schema has are sent, so the Test-only ones never reach an environment without them.
+ */
+function toPayload(
+  values: ProjectInvestorFormValues,
+  schemaFields: { slug: string }[],
+): Record<string, unknown> {
+  const all: Record<string, unknown> = {
     investors_id: values.investors_id || null,
     projects_id: values.projects_id || null,
     investment: textToNumber(values.investment),
     dividend: textToNumber(values.dividend),
+    investment_uzs: textToNumber(values.investment_uzs),
+    dividend_uzs: textToNumber(values.dividend_uzs),
+    status: values.status || null,
+    closing_date: values.closing_date,
   }
+  const known = new Set(schemaFields.map((f) => f.slug))
+  return Object.fromEntries(Object.entries(all).filter(([slug]) => known.has(slug)))
 }
 
 interface ProjectInvestorFormProps {
@@ -108,7 +130,7 @@ function ProjectInvestorFormBody({
   })
 
   const submit = (values: ProjectInvestorFormValues) => {
-    const payload = toPayload(values)
+    const payload = toPayload(values, schemaFields)
     // Fields the backend requires, checked here so the user sees which one is missing
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
@@ -125,6 +147,7 @@ function ProjectInvestorFormBody({
 
   const label = fields.fieldLabel
   const required = fields.isRequired
+  const has = (slug: string) => schemaFields.some((f) => f.slug === slug)
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
@@ -190,7 +213,53 @@ function ProjectInvestorFormBody({
           error={errors.dividend?.message}
           {...register('dividend')}
         />
+        {has('investment_uzs') && (
+          <TextField
+            label={label('investment_uzs')}
+            required={required('investment_uzs')}
+            numeric
+            error={errors.investment_uzs?.message}
+            {...register('investment_uzs')}
+          />
+        )}
+        {has('dividend_uzs') && (
+          <TextField
+            label={label('dividend_uzs')}
+            required={required('dividend_uzs')}
+            numeric
+            error={errors.dividend_uzs?.message}
+            {...register('dividend_uzs')}
+          />
+        )}
       </FormSection>
+      {(has('status') || has('closing_date')) && (
+        <FormSection title="Status">
+          {has('status') && (
+            <TextField
+              label={label('status')}
+              required={required('status')}
+              error={errors.status?.message}
+              {...register('status')}
+            />
+          )}
+          {has('closing_date') && (
+            <Field
+              label={label('closing_date')}
+              htmlFor="closing_date"
+              required={required('closing_date')}
+              error={errors.closing_date?.message}
+            >
+              <Controller
+                control={control}
+                name="closing_date"
+                render={({ field }) => (
+                  <DateTimePicker id="closing_date" value={field.value} onChange={field.onChange} />
+                )}
+              />
+            </Field>
+          )}
+        </FormSection>
+      )}
       <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )

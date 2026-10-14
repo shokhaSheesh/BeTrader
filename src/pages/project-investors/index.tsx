@@ -33,8 +33,13 @@ import {
 const FILTER_KEYS = ['project', 'from', 'to'] as const
 
 // Investment and interest income carry no currency in the backend, so none is shown (DESIGN.md §0).
-function buildColumns(label: (field: string) => string): Column<ProjectInvestor>[] {
-  return [
+// The UZS amounts, status and closing date exist only in the Test environment's schema so far:
+// their columns appear when the backend has the field.
+function buildColumns(
+  label: (field: string) => string,
+  has: (field: string) => boolean,
+): Column<ProjectInvestor>[] {
+  const columns: (Column<ProjectInvestor> | false)[] = [
     {
       id: 'investor',
       header: label('investors_id'),
@@ -69,6 +74,30 @@ function buildColumns(label: (field: string) => string): Column<ProjectInvestor>
       align: 'right',
       cell: (r) => (r.interestIncome != null ? formatAmount(r.interestIncome) : <Dash />),
     },
+    has('investment_uzs') && {
+      id: 'investment_uzs',
+      header: label('investment_uzs'),
+      align: 'right',
+      cell: (r) => (r.investmentUzs != null ? formatAmount(r.investmentUzs) : <Dash />),
+    },
+    has('dividend_uzs') && {
+      id: 'dividend_uzs',
+      header: label('dividend_uzs'),
+      align: 'right',
+      cell: (r) => (r.interestIncomeUzs != null ? formatAmount(r.interestIncomeUzs) : <Dash />),
+    },
+    has('status') && {
+      id: 'status',
+      header: label('status'),
+      cell: (r) => <TextCell value={r.status} />,
+    },
+    has('closing_date') && {
+      id: 'closing_date',
+      header: label('closing_date'),
+      align: 'right',
+      skeleton: 'w-32',
+      cell: (r) => <DateTimeCell value={r.closingDate} />,
+    },
     {
       id: 'created_time',
       header: label('created_time'),
@@ -84,6 +113,7 @@ function buildColumns(label: (field: string) => string): Column<ProjectInvestor>
       cell: (r) => <DateTimeCell value={r.updatedTime} />,
     },
   ]
+  return columns.filter((c): c is Column<ProjectInvestor> => c !== false)
 }
 
 export default function ProjectInvestorsPage() {
@@ -106,7 +136,7 @@ export default function ProjectInvestorsPage() {
   const [toDelete, setToDelete] = useState<ProjectInvestor | null>(null)
 
   const columns = [
-    ...buildColumns(fields.fieldLabel),
+    ...buildColumns(fields.fieldLabel, (slug) => !!fields.data?.some((f) => f.slug === slug)),
     actionsColumn<ProjectInvestor>({
       table: PROJECT_INVESTORS_TABLE,
       onView: (r) => navigate(RECORDS.projectInvestors.detail(r.id)),
