@@ -148,9 +148,12 @@ export default function InvestorDetailPage() {
                 ]}
               />
             </div>
+            {/* Not wired on purpose: see the note on the Investors list */}
             <DeleteRecordDialog
               noun="investor"
-              target={deleting ? { name: i.fullName ?? i.phone ?? 'This investor' } : null}
+              target={
+                deleting ? { id: i.id, name: i.fullName ?? i.phone ?? 'This investor' } : null
+              }
               onClose={() => setDeleting(false)}
             />
           </>

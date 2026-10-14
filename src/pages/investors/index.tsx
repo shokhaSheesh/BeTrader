@@ -306,9 +306,17 @@ export default function InvestorsPage() {
           )
         }
       />
+      {/* Not wired on purpose: an investor is also an app login (u-code "auth table"). Until the
+          backend team confirms deleting the row doesn't remove a shared login account, deleting
+          stays off (docs/API.md "Investors"). */}
       <DeleteRecordDialog
         noun="investor"
-        target={toDelete && { name: toDelete.fullName ?? toDelete.phone ?? 'This investor' }}
+        target={
+          toDelete && {
+            id: toDelete.id,
+            name: toDelete.fullName ?? toDelete.phone ?? 'This investor',
+          }
+        }
         onClose={() => setToDelete(null)}
       />
     </>

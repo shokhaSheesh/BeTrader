@@ -32,6 +32,9 @@ export interface InvestorDto {
   is_identified: boolean | null
   score: number | null
   campaign: string | null
+  // Only the Test environment's schema has these so far
+  social_type?: string | null
+  social_sub_type?: string | null
   media_source: string | null
   /** SINGLE_LINE with options (e.g. "dark") */
   mode: string | null
@@ -69,6 +72,8 @@ export interface Investor {
   score: number | null
   campaign: string | null
   mediaSource: string | null
+  socialType: string | null
+  socialSubType: string | null
   mode: string | null
   tgChatId: number | null
   imageUrl: string | null
@@ -104,6 +109,8 @@ export function toInvestor(dto: InvestorDto): Investor {
     score: dto.score,
     campaign: dto.campaign || null,
     mediaSource: dto.media_source || null,
+    socialType: dto.social_type || null,
+    socialSubType: dto.social_sub_type || null,
     mode: dto.mode || null,
     tgChatId: dto.tg_caht_id,
     imageUrl: dto.image || null,

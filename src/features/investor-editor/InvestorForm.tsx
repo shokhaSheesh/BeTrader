@@ -1,13 +1,25 @@
+import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { INVESTORS_TABLE, type Investor } from '@/entities/investor'
+import { backendMessage } from '@/shared/api/errors'
+import { uploadFile } from '@/shared/api/ucode'
 import { useTableFields } from '@/shared/api/useTableFields'
-import { numericText, numberToText } from '@/shared/lib/form'
+import {
+  createDefaults,
+  missingRequired,
+  numericText,
+  numberToText,
+  textToNumber,
+  updateBody,
+} from '@/shared/lib/form'
+import { toast } from '@/shared/lib/toast'
 import {
   Field,
   FormFooter,
   FormSection,
+  ImageField,
   MultiSelect,
   PageLoader,
   Select,
@@ -16,9 +28,10 @@ import {
 } from '@/shared/ui'
 
 // Every editable field of `investors`. Not here on purpose:
-// - secrets: `pin_code`, `fmc_token`, `user_id_auth` (never shown or edited in the admin)
+// - the app login's own fields: `pin_code`, `fmc_token`, `user_id_auth` (never shown or edited)
 // - system lookups set by the backend on sign-up: `client_type_id`, `role_id`
-// - `image`: uploads aren't wired yet
+// The environments' schemas differ (Production has campaign/media_source, Test has
+// social_type/social_sub_type), so each field shows only when the schema has it.
 const text = z.string().trim()
 const schema = z.object({
   surname: text,
@@ -45,10 +58,13 @@ const schema = z.object({
   score: numericText,
   campaign: text,
   media_source: text,
+  social_type: text,
+  social_sub_type: text,
   tg_caht_id: numericText,
+  image: z.string().nullable(),
 })
 
-/** Keyed by the backend's field slugs, so the future POST/PUT body maps 1:1. */
+/** Keyed by the backend's field slugs, so the POST/PUT body maps 1:1. */
 export type InvestorFormValues = z.infer<typeof schema>
 
 function toValues(i?: Investor): InvestorFormValues {
@@ -77,132 +93,244 @@ function toValues(i?: Investor): InvestorFormValues {
     score: numberToText(i?.score),
     campaign: i?.campaign ?? '',
     media_source: i?.mediaSource ?? '',
+    social_type: i?.socialType ?? '',
+    social_sub_type: i?.socialSubType ?? '',
     tg_caht_id: numberToText(i?.tgChatId),
+    image: i?.imageUrl ?? null,
   }
+}
+
+/**
+ * The record as the backend stores it: numbers as numbers, an unset mode as null.
+ * Only fields the backend's schema has are sent.
+ */
+function toPayload(values: InvestorFormValues, known: Set<string>): Record<string, unknown> {
+  const all: Record<string, unknown> = {
+    ...values,
+    mode: values.mode || null,
+    score: textToNumber(values.score),
+    tg_caht_id: textToNumber(values.tg_caht_id),
+  }
+  return Object.fromEntries(Object.entries(all).filter(([slug]) => known.has(slug)))
 }
 
 interface InvestorFormProps {
   investor?: Investor
   submitLabel: string
   cancelTo: string
-  onSubmit: (values: InvestorFormValues) => void
+  /**
+   * The record to send. New investor: every field, plus the backend's defaults.
+   * Existing investor: the changed fields plus the required ones (empty when nothing changed).
+   */
+  onSubmit: (payload: Record<string, unknown>) => void
+  submitting?: boolean
 }
 
-export function InvestorForm({ investor, submitLabel, cancelTo, onSubmit }: InvestorFormProps) {
+export function InvestorForm(props: InvestorFormProps) {
   const fields = useTableFields(INVESTORS_TABLE)
+  // The form follows the schema (which fields exist, defaults, required), so it waits for it
+  if (fields.isPending) return <PageLoader label="Loading form" />
+  return <InvestorFormBody {...props} fields={fields} />
+}
+
+function InvestorFormBody({
+  investor,
+  submitLabel,
+  cancelTo,
+  onSubmit,
+  submitting,
+  fields,
+}: InvestorFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const schemaFields = fields.data ?? []
+  const known = new Set(schemaFields.map((f) => f.slug))
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, dirtyFields },
   } = useForm<InvestorFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: toValues(investor),
+    defaultValues: investor
+      ? toValues(investor)
+      : { ...toValues(), ...pickFormKeys(createDefaults(schemaFields)) },
   })
 
-  if (fields.isPending) return <PageLoader label="Loading form" />
-  const L = fields.fieldLabel
-  // Free-text date fields: the backend stores them as text (SINGLE_LINE), so they stay text here.
-  const textDateHint = 'Stored as text by the backend, e.g. 19.03.1994'
+  const submit = (values: InvestorFormValues) => {
+    const payload = toPayload(values, known)
+    // Fields the backend requires, checked here so the user sees which one is missing
+    const missing = missingRequired(payload, schemaFields)
+    if (missing.length) {
+      for (const slug of missing)
+        setError(slug as keyof InvestorFormValues, { message: 'Required' })
+      return
+    }
+    onSubmit(
+      investor
+        ? updateBody(payload, dirtyFields, schemaFields)
+        : { ...createDefaults(schemaFields), ...payload },
+    )
+  }
 
-  const multi = (name: 'gender' | 'lang' | 'platform_type') => (
-    <Field label={L(name)} htmlFor={name}>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <MultiSelect
-            id={name}
-            value={field.value}
-            onChange={field.onChange}
-            options={fields.fieldOptions(name)}
-          />
-        )}
-      />
-    </Field>
-  )
+  const L = fields.fieldLabel
+  const req = fields.isRequired
+  /** Renders a field only when this environment's schema has it */
+  const when = (slug: string, node: ReactNode) => (known.has(slug) ? node : null)
+  const textField = (
+    slug: keyof InvestorFormValues,
+    extra: {
+      hint?: string
+      className?: string
+      numeric?: boolean
+      type?: string
+      readOnly?: boolean
+    } = {},
+  ) =>
+    when(
+      slug,
+      <TextField
+        label={L(slug)}
+        required={req(slug)}
+        error={errors[slug]?.message}
+        {...extra}
+        {...register(slug)}
+      />,
+    )
+  // Free-text date fields: the backend stores them as text (SINGLE_LINE), so they stay text here.
+  const textDate = { hint: 'Stored as text by the backend, e.g. 19.03.1994' }
+
+  const multi = (name: 'gender' | 'lang' | 'platform_type') =>
+    when(
+      name,
+      <Field label={L(name)} htmlFor={name} required={req(name)} error={errors[name]?.message}>
+        <Controller
+          control={control}
+          name={name}
+          render={({ field }) => (
+            <MultiSelect
+              id={name}
+              value={field.value}
+              onChange={field.onChange}
+              options={fields.fieldOptions(name)}
+            />
+          )}
+        />
+      </Field>,
+    )
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormSection title="Personal">
-        <TextField label={L('surname')} {...register('surname')} />
-        <TextField label={L('name')} {...register('name')} />
-        <TextField label={L('patronymic')} {...register('patronymic')} />
-        <TextField label={L('full_name')} {...register('full_name')} />
+        {textField('surname')}
+        {textField('name')}
+        {textField('patronymic')}
+        {textField('full_name')}
         {multi('gender')}
-        <TextField label={L('birth_date')} hint={textDateHint} {...register('birth_date')} />
-        <TextField label={L('birth_place')} {...register('birth_place')} />
-        <TextField label={L('citizenship')} {...register('citizenship')} />
+        {textField('birth_date', textDate)}
+        {textField('birth_place')}
+        {textField('citizenship')}
       </FormSection>
 
       <FormSection title="Identity document">
-        <TextField label={L('passport')} className="num" {...register('passport')} />
-        <TextField label={L('pinfl')} className="num" {...register('pinfl')} />
-        <TextField label={L('issued_by')} {...register('issued_by')} />
-        <TextField label={L('issued_date')} hint={textDateHint} {...register('issued_date')} />
-        <Controller
-          control={control}
-          name="is_identified"
-          render={({ field }) => (
-            <SwitchField label="Identified" checked={field.value} onChange={field.onChange} />
-          )}
-        />
+        {textField('passport', { className: 'num' })}
+        {textField('pinfl', { className: 'num' })}
+        {textField('issued_by')}
+        {textField('issued_date', textDate)}
+        {when(
+          'is_identified',
+          <Controller
+            control={control}
+            name="is_identified"
+            render={({ field }) => (
+              <SwitchField label="Identified" checked={field.value} onChange={field.onChange} />
+            )}
+          />,
+        )}
       </FormSection>
 
       <FormSection title="Contact and address">
-        <TextField label={L('phone')} type="tel" className="num" {...register('phone')} />
-        <TextField label={L('country_name')} {...register('country_name')} />
-        <TextField label={L('city')} {...register('city')} />
-        <TextField label={L('district')} {...register('district')} />
-        <TextField label={L('street')} {...register('street')} />
+        {/* The phone is the app login: changing it here could move a login account, so on an
+            existing investor it stays read-only until the backend team confirms (docs/API.md). */}
+        {textField('phone', {
+          type: 'tel',
+          className: 'num',
+          ...(investor && {
+            readOnly: true,
+            hint: "It's the app login, so it can't be changed here yet.",
+          }),
+        })}
+        {textField('country_name')}
+        {textField('city')}
+        {textField('district')}
+        {textField('street')}
       </FormSection>
 
       <FormSection title="App and acquisition">
         {multi('lang')}
         {multi('platform_type')}
-        <Field label={L('mode')} htmlFor="mode">
+        {when(
+          'mode',
+          <Field
+            label={L('mode')}
+            htmlFor="mode"
+            required={req('mode')}
+            error={errors.mode?.message}
+          >
+            <Controller
+              control={control}
+              name="mode"
+              render={({ field }) => (
+                <Select
+                  id="mode"
+                  value={field.value || undefined}
+                  onChange={field.onChange}
+                  options={fields.fieldOptions('mode')}
+                />
+              )}
+            />
+          </Field>,
+        )}
+        {textField('score', { numeric: true })}
+        {textField('campaign')}
+        {textField('media_source')}
+        {textField('social_type')}
+        {textField('social_sub_type')}
+        {textField('tg_caht_id', { numeric: true })}
+      </FormSection>
+
+      {when(
+        'image',
+        <FormSection title={L('image')}>
           <Controller
             control={control}
-            name="mode"
+            name="image"
             render={({ field }) => (
-              <Select
-                id="mode"
-                value={field.value || undefined}
+              <ImageField
+                id="image"
+                value={field.value}
                 onChange={field.onChange}
-                options={fields.fieldOptions('mode')}
+                upload={(file) =>
+                  uploadFile(file, schemaFields.find((f) => f.slug === 'image')?.folder)
+                }
+                onError={(error) =>
+                  toast.error(
+                    "Couldn't upload the photo",
+                    backendMessage(error) ?? 'Please try again.',
+                  )
+                }
               />
             )}
           />
-        </Field>
-        <TextField
-          label={L('score')}
-          numeric
-          error={errors.score?.message}
-          {...register('score')}
-        />
-        <TextField label={L('campaign')} {...register('campaign')} />
-        <TextField label={L('media_source')} {...register('media_source')} />
-        <TextField
-          label={L('tg_caht_id')}
-          numeric
-          error={errors.tg_caht_id?.message}
-          {...register('tg_caht_id')}
-        />
-      </FormSection>
+        </FormSection>,
+      )}
 
-      <FormSection title={L('image')} description="Uploading images isn't connected yet.">
-        {investor?.imageUrl ? (
-          <img
-            src={investor.imageUrl}
-            alt=""
-            className="size-24 rounded-full bg-surface-muted object-cover"
-          />
-        ) : (
-          <p className="text-fg-muted">No photo.</p>
-        )}
-      </FormSection>
-
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
+      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
+}
+
+/** Only the defaults that are form fields; the rest (e.g. created_time) go in on submit. */
+function pickFormKeys(defaults: Record<string, unknown>): Partial<InvestorFormValues> {
+  const keys = Object.keys(toValues())
+  return Object.fromEntries(Object.entries(defaults).filter(([k]) => keys.includes(k)))
 }
