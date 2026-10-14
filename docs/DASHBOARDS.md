@@ -1,6 +1,18 @@
 # Dashboards & Analytics: data spec
 
-> **Status:** the Dashboard widgets below are **mock data**; **Analytics by tariff is wired to real data** (2026-10-14). The rest are mock (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**. Wiring means replacing each mock with an aggregation endpoint.
+> **Status** (2026-10-14): **Analytics by tariff** is native, on real data. **Dividends analytics** embeds the published Metabase dashboard. The `/dashboard` widgets below are still **mock** (`shared/mocks/analytics.ts`, badged "Mock data"). Two deliberate changes from the originals: the USD rate chart uses **one axis** (the original had two), and the three tariff donuts are **stacked bars**.
+>
+> **Embedded dashboards.** u-code embeds three published dashboards, all of them public links with no login (`shared/config/dashboards.ts`):
+>
+> | u-code page | Tool | Dashboard | Ours |
+> | --- | --- | --- | --- |
+> | Dashboard | Yandex DataLens | `datalens.yandex/8xi4w15qfqsmt` | `/dashboard` — still mock |
+> | Analytics → Dividends analytics | Metabase | `public/dashboard/e6bf5716-…` — "BeTrader Dividends Dash" | `/analytics/dividends` — embedded |
+> | Analytics → Analytics by tariff | Metabase | `public/dashboard/5b5b7fd7-…` — pivot | rebuilt natively from the microfrontend |
+>
+> The frames take their period from our own filter (`date=from~to`) and hide their title and filter bar. Metabase is OSS v0.63, so signed embedding is available if the backend team ever closes the public links; SSO embedding is not.
+>
+> **Open with the backend team:** the dividends dashboard is reachable without logging in and lists every investor's full name, PINFL, income and tax withheld.
 
 We draw every chart ourselves (see DESIGN.md), but the **data must match** the dashboards the u-code admin currently embeds. This file lists every widget on those dashboards and what it shows, captured on 2026-09-22.
 
