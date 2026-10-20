@@ -15,6 +15,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.investorScore.list, label: 'Investor score' }}
       title={(r) => r.investorName ?? 'Investor score'}
       editTo={(r) => RECORDS.investorScore.edit(r.id)}
+      wired
       deleteName={(r) => `The score of ${r.investorName ?? 'this investor'}`}
       sections={(r, L) => [
         {

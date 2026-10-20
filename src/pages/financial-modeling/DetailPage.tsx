@@ -17,6 +17,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.financialModeling.list, label: 'Financial modeling' }}
       title={(r) => <span className="num">{name(r)}</span>}
       editTo={(r) => RECORDS.financialModeling.edit(r.id)}
+      wired
       deleteName={name}
       sections={(r, L) => [
         {

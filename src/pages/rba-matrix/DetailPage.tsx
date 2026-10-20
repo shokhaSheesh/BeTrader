@@ -20,6 +20,7 @@ export default function DetailPage() {
       title={(r) => <span className="num">{band(r)}</span>}
       description={(r) => (r.score != null ? `Score ${r.score}` : undefined)}
       editTo={(r) => RECORDS.rbaMatrix.edit(r.id)}
+      wired
       deleteName={band}
       sections={(r, L) => [
         {

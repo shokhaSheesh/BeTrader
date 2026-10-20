@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { Pencil, Trash2 } from 'lucide-react'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -34,6 +35,13 @@ interface RecordDetailProps<T extends BaseRecord> {
   editTo?: (r: T) => string
   /** Name used in the delete confirmation; omit to hide Delete */
   deleteName?: (r: T) => string
+  /**
+   * Delete really deletes (the page's writes are wired); otherwise it says it isn't connected yet.
+   * Pass it once the page is wired and tested.
+   */
+  wired?: boolean
+  /** Fields of the record the table's backend function reads on delete (e.g. a type) */
+  deleteData?: (r: T) => Record<string, unknown>
   sections: (r: T, label: (slug: string) => string) => { title: string; items: DetailItem[] }[]
 }
 
@@ -47,8 +55,11 @@ export function RecordDetail<T extends BaseRecord>({
   description,
   editTo,
   deleteName,
+  wired = false,
+  deleteData,
   sections,
 }: RecordDetailProps<T>) {
+  const navigate = useNavigate()
   const fields = useTableFields(table)
   const { can } = usePermissions()
   const [deleting, setDeleting] = useState(false)
@@ -97,8 +108,11 @@ export function RecordDetail<T extends BaseRecord>({
           {showDelete && (
             <DeleteRecordDialog
               noun={noun}
-              target={deleting ? { name: showDelete(r) } : null}
+              table={wired ? table : undefined}
+              target={deleting ? { id: r.id, name: showDelete(r), data: deleteData?.(r) } : null}
               onClose={() => setDeleting(false)}
+              // The record is gone: back to where the page's "back" link points
+              onDeleted={() => navigate(back.to, { replace: true })}
             />
           )}
         </>

@@ -14,6 +14,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.amlBlacklist.list, label: 'AML blacklist' }}
       title={(r) => r.name ?? r.passport ?? 'Blacklist entry'}
       editTo={(r) => RECORDS.amlBlacklist.edit(r.id)}
+      wired
       deleteName={(r) => r.name ?? r.passport ?? 'This entry'}
       sections={(r, L) => [
         {
