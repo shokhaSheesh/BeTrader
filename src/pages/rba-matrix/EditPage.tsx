@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useRbaRuleQuery } from '@/entities/rba-rule'
-import { notWired } from '@/features/record-actions'
+import { RBA_MATRIX_TABLE, useRbaRuleQuery } from '@/entities/rba-rule'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
@@ -9,6 +9,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useRbaRuleQuery(id)
+  const update = useUpdateRecord(
+    { table: RBA_MATRIX_TABLE, noun: 'risk band', routes: RECORDS.rbaMatrix },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -31,7 +35,8 @@ export default function EditPage() {
 
             submitLabel="Save changes"
             cancelTo={RECORDS.rbaMatrix.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

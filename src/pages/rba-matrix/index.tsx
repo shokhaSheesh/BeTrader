@@ -127,7 +127,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="risk band"
-        target={toDelete && { name: 'This risk band' }}
+        table={RBA_MATRIX_TABLE}
+        target={toDelete && { id: toDelete.id, name: 'This risk band' }}
         onClose={() => setToDelete(null)}
       />
     </>

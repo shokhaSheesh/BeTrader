@@ -141,7 +141,13 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="score"
-        target={toDelete && { name: `The score of ${toDelete.investorName ?? 'this investor'}` }}
+        table={INVESTOR_SCORE_TABLE}
+        target={
+          toDelete && {
+            id: toDelete.id,
+            name: `The score of ${toDelete.investorName ?? 'this investor'}`,
+          }
+        }
         onClose={() => setToDelete(null)}
       />
     </>

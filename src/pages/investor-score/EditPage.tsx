@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useInvestorScoreQuery } from '@/entities/investor-score'
-import { notWired } from '@/features/record-actions'
+import { INVESTOR_SCORE_TABLE, useInvestorScoreQuery } from '@/entities/investor-score'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
@@ -10,6 +10,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useInvestorScoreQuery(id)
+  const update = useUpdateRecord(
+    { table: INVESTOR_SCORE_TABLE, noun: 'score', routes: RECORDS.investorScore },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -32,7 +36,8 @@ export default function EditPage() {
             }}
             submitLabel="Save changes"
             cancelTo={RECORDS.investorScore.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}
