@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useFinancialModelQuery } from '@/entities/financial-model'
-import { notWired } from '@/features/record-actions'
+import { FINANCIAL_MODELING_TABLE, useFinancialModelQuery } from '@/entities/financial-model'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
@@ -10,6 +10,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useFinancialModelQuery(id)
+  const update = useUpdateRecord(
+    { table: FINANCIAL_MODELING_TABLE, noun: 'price', routes: RECORDS.financialModeling },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -36,7 +40,8 @@ export default function EditPage() {
 
             submitLabel="Save changes"
             cancelTo={RECORDS.financialModeling.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}
