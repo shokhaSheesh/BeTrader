@@ -7,7 +7,7 @@ import {
   type FinancialModel,
 } from '@/entities/financial-model'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
-import { dateRangeFilter } from '@/shared/api/filters'
+import { dayRangeFilter } from '@/shared/api/filters'
 import { formatDate } from '@/shared/lib/format'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
@@ -78,7 +78,7 @@ export default function Page() {
   const query = useFinancialModelsQuery({
     page: list.page,
     pageSize: list.pageSize,
-    filters: { ...dateRangeFilter('date', list.filter('from'), list.filter('to')) },
+    filters: { ...dayRangeFilter('date', list.filter('from'), list.filter('to')) },
     order: { date: -1 },
   })
 
@@ -144,8 +144,10 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="price"
+        table={FINANCIAL_MODELING_TABLE}
         target={
           toDelete && {
+            id: toDelete.id,
             name: toDelete.date
               ? `${toDelete.projectKeyName ?? 'Price'} for ${formatDate(toDelete.date)}`
               : 'This price',

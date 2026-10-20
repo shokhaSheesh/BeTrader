@@ -7,7 +7,7 @@ import {
   type CurrencyRate,
 } from '@/entities/currency-rate'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
-import { dateRangeFilter } from '@/shared/api/filters'
+import { dayRangeFilter } from '@/shared/api/filters'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
 import { Can } from '@/shared/permissions'
@@ -89,7 +89,7 @@ export default function CurrencyRatesPage() {
   const query = useCurrencyRatesQuery({
     page: list.page,
     pageSize: list.pageSize,
-    filters: dateRangeFilter('date', list.filter('from'), list.filter('to')),
+    filters: dayRangeFilter('date', list.filter('from'), list.filter('to')),
     order: { date: -1 },
   })
 

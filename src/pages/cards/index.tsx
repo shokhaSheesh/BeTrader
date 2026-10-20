@@ -4,7 +4,7 @@ import { CalendarClock, CalendarX, CreditCard, Plus } from 'lucide-react'
 import { CARDS_TABLE, useInvestorCardsQuery, type InvestorCard } from '@/entities/investor-card'
 import { InvestorFilter } from '@/features/investor-filter'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
-import { dateRangeFilter, equalsFilter } from '@/shared/api/filters'
+import { dayRangeFilter, equalsFilter } from '@/shared/api/filters'
 import { useTableCount } from '@/shared/api/useTableCount'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
@@ -104,7 +104,7 @@ export default function CardsPage() {
     search: list.search,
     filters: {
       ...equalsFilter('investors_id', list.filter('investor')),
-      ...dateRangeFilter('expiry_date', list.filter('exp_from'), list.filter('exp_to')),
+      ...dayRangeFilter('expiry_date', list.filter('exp_from'), list.filter('exp_to')),
     },
     order: { created_time: -1 },
   })
@@ -112,7 +112,7 @@ export default function CardsPage() {
   // Backend counts only. Expiry windows are just filter bounds; the backend does the counting.
   const total = useTableCount(CARDS_TABLE)
   const expired = useTableCount(CARDS_TABLE, { expiry_date: { $lt: TODAY } })
-  const expiringSoon = useTableCount(CARDS_TABLE, dateRangeFilter('expiry_date', TODAY, IN_30_DAYS))
+  const expiringSoon = useTableCount(CARDS_TABLE, dayRangeFilter('expiry_date', TODAY, IN_30_DAYS))
 
   return (
     <>
