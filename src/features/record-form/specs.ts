@@ -114,21 +114,21 @@ export const FORM_SPECS = {
         title: 'English',
         fields: [
           { name: 'title_en', kind: 'text' },
-          { name: 'description_en', kind: 'longText' },
+          { name: 'description_en', kind: 'richText' },
         ],
       },
       {
         title: 'Russian',
         fields: [
           { name: 'title_ru', kind: 'text' },
-          { name: 'description_ru', kind: 'longText' },
+          { name: 'description_ru', kind: 'richText' },
         ],
       },
       {
         title: 'Uzbek',
         fields: [
           { name: 'title_uz', kind: 'text' },
-          { name: 'description_uz', kind: 'longText' },
+          { name: 'description_uz', kind: 'richText' },
         ],
       },
       { title: 'Photo', fields: [{ name: 'photo', kind: 'photo' }] },
@@ -142,21 +142,21 @@ export const FORM_SPECS = {
         title: 'English',
         fields: [
           { name: 'question_en', kind: 'text' },
-          { name: 'answer_en', kind: 'longText' },
+          { name: 'answer_en', kind: 'richText' },
         ],
       },
       {
         title: 'Russian',
         fields: [
           { name: 'question_ru', kind: 'text' },
-          { name: 'answer_ru', kind: 'longText' },
+          { name: 'answer_ru', kind: 'richText' },
         ],
       },
       {
         title: 'Uzbek',
         fields: [
           { name: 'question_uz', kind: 'text' },
-          { name: 'answer_uz', kind: 'longText' },
+          { name: 'answer_uz', kind: 'richText' },
         ],
       },
     ],
@@ -189,9 +189,9 @@ export const FORM_SPECS = {
       {
         title: 'Text',
         fields: [
-          { name: 'text_en', kind: 'longText' },
-          { name: 'text_ru', kind: 'longText' },
-          { name: 'text_uz', kind: 'longText' },
+          { name: 'text_en', kind: 'richText' },
+          { name: 'text_ru', kind: 'richText' },
+          { name: 'text_uz', kind: 'richText' },
         ],
       },
       { title: 'Files', fields: [{ name: 'files', kind: 'files' }] },
@@ -225,21 +225,21 @@ export const FORM_SPECS = {
         title: 'English',
         fields: [
           { name: 'title_en', kind: 'text' },
-          { name: 'content_en', kind: 'longText' },
+          { name: 'content_en', kind: 'richText' },
         ],
       },
       {
         title: 'Russian',
         fields: [
           { name: 'title_ru', kind: 'text' },
-          { name: 'content_ru', kind: 'longText' },
+          { name: 'content_ru', kind: 'richText' },
         ],
       },
       {
         title: 'Uzbek',
         fields: [
           { name: 'title_uz', kind: 'text' },
-          { name: 'content_uz', kind: 'longText' },
+          { name: 'content_uz', kind: 'richText' },
         ],
       },
       { title: 'Image', fields: [{ name: 'image', kind: 'photo' }] },

@@ -342,3 +342,7 @@ Every page, button and menu follows the signed-in role's permissions, loaded fro
 - [ ] Semantic tokens only: no raw hex or arbitrary values like `bg-[#…]` (§5)
 - [ ] Lime appears in at most 3 places on the screen and is never used as text on a light surface (§5)
 - [ ] Buttons and badges are pills; panels are `rounded-md`; nothing has a shadow except popovers (§5)
+
+### Rich text
+
+Texts the app shows formatted (FAQ answers, About us, notification content, News descriptions) are stored as HTML. They're shown with `RichText` (sanitized) and edited with `RichTextEditor`: our own toolbar (bold, italic, underline, heading, bulleted and numbered lists, link, undo/redo) and our own link popover, never a browser prompt. Toolbar buttons don't take focus, so the caret stays in the text. Never edit HTML as raw text.

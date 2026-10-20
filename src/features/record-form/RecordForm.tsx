@@ -26,6 +26,7 @@ import {
   MultiFileField,
   MultiSelect,
   PageLoader,
+  RichTextEditor,
   Select,
   SwitchField,
   TextArea,
@@ -52,6 +53,7 @@ export type FieldKind =
   | 'photo'
   | 'file'
   | 'files'
+  | 'richText'
 
 export interface FieldSpec {
   name: string
@@ -322,6 +324,31 @@ function RecordFormBody({
             error={error(f.name)}
             {...register(f.name)}
           />
+        )
+      case 'richText':
+        // Texts the app shows formatted (stored as HTML): edited formatted, not as raw tags
+        return (
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
+            <Controller
+              control={control}
+              name={f.name}
+              render={({ field }) => (
+                <RichTextEditor
+                  id={f.name}
+                  value={typeof field.value === 'string' ? field.value : ''}
+                  onChange={field.onChange}
+                  invalid={!!error(f.name)}
+                />
+              )}
+            />
+          </Field>
         )
       case 'switch':
         return (
