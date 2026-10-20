@@ -128,7 +128,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="template"
-        target={toDelete && { name: toDelete.en ?? 'This template' }}
+        table={SMS_TEMPLATES_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.en ?? 'This template' }}
         onClose={() => setToDelete(null)}
       />
     </>

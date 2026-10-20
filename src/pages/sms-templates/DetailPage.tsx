@@ -14,6 +14,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.smsTemplates.list, label: 'SMS templates' }}
       title={(r) => r.en ?? 'SMS template'}
       editTo={(r) => RECORDS.smsTemplates.edit(r.id)}
+      wired
       deleteName={(r) => r.en ?? 'This template'}
       sections={(r, L) => [
         {

@@ -15,9 +15,12 @@ export const textToNumber = (text: string): number | null => {
   return clean === '' ? null : Number(clean)
 }
 
+/** The backend writes "the moment of creation" as `NOW` or `now()` depending on the table. */
+const isNow = (value: unknown) => typeof value === 'string' && /^now(\(\))?$/i.test(value.trim())
+
 /**
  * Values a new record starts with, from the backend's field defaults (`attributes.defaultValue`).
- * `"NOW"` on a date field means the moment of creation, so it is resolved when the record is sent.
+ * `"NOW"` / `"now()"` on a date field means the moment of creation, resolved when the record is sent.
  */
 export function createDefaults(fields: { slug: string; defaultValue?: unknown }[]) {
   return Object.fromEntries(
@@ -25,7 +28,7 @@ export function createDefaults(fields: { slug: string; defaultValue?: unknown }[
       .filter(
         (f) => f.defaultValue !== undefined && f.defaultValue !== '' && f.defaultValue !== null,
       )
-      .map((f) => [f.slug, f.defaultValue === 'NOW' ? new Date().toISOString() : f.defaultValue]),
+      .map((f) => [f.slug, isNow(f.defaultValue) ? new Date().toISOString() : f.defaultValue]),
   )
 }
 

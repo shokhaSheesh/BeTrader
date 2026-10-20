@@ -242,6 +242,7 @@ export const FORM_SPECS = {
           { name: 'content_uz', kind: 'longText' },
         ],
       },
+      { title: 'Image', fields: [{ name: 'image', kind: 'photo' }] },
     ],
   },
   smsTemplates: {

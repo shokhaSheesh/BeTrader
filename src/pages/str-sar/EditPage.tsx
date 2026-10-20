@@ -29,7 +29,7 @@ export default function EditPage() {
           <RecordForm
             spec={FORM_SPECS.strSar}
             defaults={{
-              date: r.date?.slice(0, 10) ?? null,
+              date: r.date ?? null,
               policy_Type_id: r.policyTypeId,
               last_transaction_amount: numberToText(r.lastTransactionAmount),
               investors_id: r.investorId,

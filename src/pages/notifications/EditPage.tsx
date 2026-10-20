@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useNotificationItemQuery } from '@/entities/notification'
-import { notWired } from '@/features/record-actions'
+import { NOTIFICATIONS_TABLE, useNotificationItemQuery } from '@/entities/notification'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useNotificationItemQuery(id)
+  const update = useUpdateRecord(
+    { table: NOTIFICATIONS_TABLE, noun: 'notification', routes: RECORDS.notifications },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -24,7 +28,7 @@ export default function EditPage() {
             spec={FORM_SPECS.notifications}
             defaults={{
               type: r.type,
-              send_at: r.sendAt?.slice(0, 10) ?? null,
+              send_at: r.sendAt ?? null,
               link: r.link,
               is_sent: r.isSent ?? false,
               title_en: r.titleEn,
@@ -33,11 +37,13 @@ export default function EditPage() {
               content_en: r.contentEn,
               content_ru: r.contentRu,
               content_uz: r.contentUz,
+              image: r.image,
             }}
 
             submitLabel="Save changes"
             cancelTo={RECORDS.notifications.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

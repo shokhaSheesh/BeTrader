@@ -16,6 +16,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.notifications.list, label: 'Notifications' }}
       title={(r) => r.titleEn ?? 'Notification'}
       editTo={(r) => RECORDS.notifications.edit(r.id)}
+      wired
       deleteName={(r) => r.titleEn ?? 'This notification'}
       sections={(r, L) => [
         {

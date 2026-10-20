@@ -168,7 +168,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="notification"
-        target={toDelete && { name: toDelete.titleEn ?? 'This notification' }}
+        table={NOTIFICATIONS_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? 'This notification' }}
         onClose={() => setToDelete(null)}
       />
     </>
