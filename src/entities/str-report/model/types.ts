@@ -8,6 +8,11 @@ export interface StrReportDto {
   /** "Policy Type (cause)" */
   policy_Type_id: string | null
   policy_Type_id_data: PolicyTypeJoin
+  /**
+   * The same field as returned by a single-record read: u-code lowercases the key there
+   * (`policy_type_id`) and leaves `policy_Type_id_data` empty (verified 2026-10-20)
+   */
+  policy_type_id?: string | null
   /** currency not stated */
   last_transaction_amount: number | null
   /** "Investors" */
@@ -38,7 +43,7 @@ export interface StrReport {
 export const toStrReport = (d: StrReportDto): StrReport => ({
   id: d.guid,
   date: d.date || null,
-  policyTypeId: d.policy_Type_id || null,
+  policyTypeId: d.policy_Type_id || d.policy_type_id || null,
   lastTransactionAmount: d.last_transaction_amount,
   investorId: d.investors_id || null,
   passportInvestorId: d.investors_id_2 || null,
