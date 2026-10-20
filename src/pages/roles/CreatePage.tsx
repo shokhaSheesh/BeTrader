@@ -13,7 +13,7 @@ import { toast } from '@/shared/lib/toast'
 import { usePermissions } from '@/shared/permissions'
 import {
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   PageHeader,
   PageLoader,
@@ -77,6 +77,11 @@ export default function RoleCreatePage() {
         back={{ to: RECORDS.roles.list, label: 'Roles & permissions' }}
         title="Create role"
       />
+      <FormActions
+        cancelTo={RECORDS.roles.list}
+        submitLabel="Create role"
+        submitting={create.isPending}
+      />
       <FormSection title="Role">
         <TextField
           label="Name"
@@ -115,11 +120,6 @@ export default function RoleCreatePage() {
           />
         )}
       </section>
-      <FormFooter
-        cancelTo={RECORDS.roles.list}
-        submitLabel="Create role"
-        submitting={create.isPending}
-      />
     </form>
   )
 }

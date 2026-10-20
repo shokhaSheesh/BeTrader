@@ -124,7 +124,7 @@ Every list page has the same anatomy, built from the same shared components. No 
 | `Pagination` | Always at the bottom, always the same component, with the same page sizes (20 / 50 / 100). |
 | Rows | Clicking a row opens its **detail page**. The last column is always the ⋯ menu: View, Edit, Delete (`actionsColumn`). |
 | Detail page | `PageHeader` with a back link; actions on the right are Delete (`danger-ghost`) and **Edit** (primary). Then `DetailSection` panels of label/value pairs, with a "Record" panel (created, updated, ID) last. |
-| Create / edit | A **full page** (`/…/new`, `/…/:id/edit`), not a drawer: our records have too many fields for one. `FormSection` panels, then the sticky `FormFooter` (Cancel, Save). Field labels come from the backend (§0). |
+| Create / edit | A **full page** (`/…/new`, `/…/:id/edit`), not a drawer: our records have too many fields for one. the `FormActions` bar (Cancel, Save) **at the top**, pinned under the header while the form scrolls, then the `FormSection` panels. Field labels come from the backend (§0). |
 | Forms | Label above the control, error or hint below (`Field`). |
 | Settings pages | Tables that hold **one record** (About us, Contact info, Maintenance) are not lists: `SingletonDetail` shows the values with an **Edit** button, with no create, delete or table. |
 | Multi-language content | Fields in en/ru/uz are grouped into **English / Russian / Uzbek** sections in forms and detail pages; table headers add the language to the backend label ("Question (En)"). |

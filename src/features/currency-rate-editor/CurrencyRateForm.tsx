@@ -11,7 +11,7 @@ import {
   textToNumber,
   updateBody,
 } from '@/shared/lib/form'
-import { DatePicker, Field, FormFooter, FormSection, PageLoader, TextField } from '@/shared/ui'
+import { DatePicker, Field, FormActions, FormSection, PageLoader, TextField } from '@/shared/ui'
 
 // "Amount with percent" is a stored backend field: entered as-is, never calculated here (DESIGN.md §0).
 const schema = z.object({
@@ -104,6 +104,7 @@ function CurrencyRateFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Rate">
         <Field label={L('date')} htmlFor="date" required={req('date')} error={errors.date?.message}>
           <Controller
@@ -125,7 +126,6 @@ function CurrencyRateFormBody({
           />
         ))}
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

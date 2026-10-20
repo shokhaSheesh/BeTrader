@@ -19,7 +19,7 @@ import { formatPhone } from '@/shared/lib/format'
 import {
   DateTimePicker,
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   PageLoader,
   SearchSelect,
@@ -151,6 +151,7 @@ function ProjectInvestorFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Investment">
         <Field
           label={label('investors_id')}
@@ -261,7 +262,6 @@ function ProjectInvestorFormBody({
           )}
         </FormSection>
       )}
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

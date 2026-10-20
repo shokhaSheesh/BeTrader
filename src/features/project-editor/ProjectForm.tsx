@@ -17,7 +17,7 @@ import { toast } from '@/shared/lib/toast'
 import {
   DatePicker,
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   ImageField,
   MultiSelect,
@@ -143,6 +143,7 @@ function ProjectFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Names">
         <TextField label={label('name_en')} {...register('name_en')} />
         <TextField label={label('name_ru')} {...register('name_ru')} />
@@ -270,8 +271,6 @@ function ProjectFormBody({
           )}
         />
       </FormSection>
-
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

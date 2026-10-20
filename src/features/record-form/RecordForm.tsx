@@ -20,7 +20,7 @@ import {
   DateTimePicker,
   Field,
   FileField,
-  FormFooter,
+  FormActions,
   FormSection,
   ImageField,
   MultiFileField,
@@ -464,13 +464,13 @@ function RecordFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       {spec.sections.map((s) => (
         <FormSection key={s.title} title={s.title} description={s.description}>
           {/* A field shows only when this environment's schema has it */}
           {s.fields.filter((f) => known.has(f.name)).map(render)}
         </FormSection>
       ))}
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

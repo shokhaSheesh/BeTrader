@@ -5,7 +5,7 @@ import { backendMessage } from '@/shared/api/errors'
 import { RECORDS } from '@/shared/config/routes'
 import { toast } from '@/shared/lib/toast'
 import { useRoleAccess } from '@/shared/permissions'
-import { FormFooter, PageHeader, PageLoader } from '@/shared/ui'
+import { FormActions, PageHeader, PageLoader } from '@/shared/ui'
 
 /** Edits a role's table rights. Saving is PUT /v2/role-permission/detailed (auth API). */
 export default function RoleEditPage() {
@@ -22,6 +22,7 @@ export default function RoleEditPage() {
 
   return (
     <form
+      className="flex flex-col gap-6"
       onSubmit={(e) => {
         e.preventDefault()
         if (!draft.tables) return
@@ -39,15 +40,15 @@ export default function RoleEditPage() {
         back={{ to: RECORDS.roles.detail(id!), label: role?.name ?? 'Role' }}
         title={`Edit permissions${role ? `: ${role.name}` : ''}`}
       />
+      <FormActions
+        cancelTo={RECORDS.roles.detail(id!)}
+        submitLabel="Save permissions"
+        submitting={save.isPending}
+      />
       <PermissionMatrix
         tables={draft.tables}
         onToggle={draft.toggle}
         onToggleColumn={draft.setColumn}
-      />
-      <FormFooter
-        cancelTo={RECORDS.roles.detail(id!)}
-        submitLabel="Save permissions"
-        submitting={save.isPending}
       />
     </form>
   )

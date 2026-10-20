@@ -11,7 +11,7 @@ import { investorLabel } from '@/shared/lib/format'
 import {
   DatePicker,
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   PageLoader,
   SearchSelect,
@@ -112,6 +112,7 @@ function CardFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Card">
         <TextField
           label={L('masked_pan')}
@@ -178,7 +179,6 @@ function CardFormBody({
           />
         </Field>
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

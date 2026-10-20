@@ -17,7 +17,7 @@ import { investorLabel } from '@/shared/lib/format'
 import {
   DateTimePicker,
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   MultiSelect,
   PageLoader,
@@ -152,6 +152,7 @@ function DividendFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Who and what">
         <Controller
           control={control}
@@ -232,7 +233,6 @@ function DividendFormBody({
           />
         ))}
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

@@ -17,7 +17,7 @@ import {
 import { toast } from '@/shared/lib/toast'
 import {
   Field,
-  FormFooter,
+  FormActions,
   FormSection,
   ImageField,
   MultiSelect,
@@ -220,6 +220,7 @@ function InvestorFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Personal">
         {textField('surname')}
         {textField('name')}
@@ -320,8 +321,6 @@ function InvestorFormBody({
           />
         </FormSection>,
       )}
-
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

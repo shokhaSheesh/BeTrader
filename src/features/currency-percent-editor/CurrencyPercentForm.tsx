@@ -11,7 +11,7 @@ import {
   textToNumber,
   updateBody,
 } from '@/shared/lib/form'
-import { Field, FormFooter, FormSection, MultiSelect, PageLoader, TextField } from '@/shared/ui'
+import { Field, FormActions, FormSection, MultiSelect, PageLoader, TextField } from '@/shared/ui'
 
 const schema = z.object({ type: z.array(z.string()), percent: numericText })
 
@@ -97,6 +97,7 @@ function CurrencyPercentFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Percent">
         <Field label={L('type')} htmlFor="type" required={req('type')} error={errors.type?.message}>
           <Controller
@@ -120,7 +121,6 @@ function CurrencyPercentFormBody({
           {...register('percent')}
         />
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }

@@ -15,7 +15,7 @@ import {
   updateBody,
 } from '@/shared/lib/form'
 import { investorLabel } from '@/shared/lib/format'
-import { Field, FormFooter, FormSection, PageLoader, SearchSelect, TextField } from '@/shared/ui'
+import { Field, FormActions, FormSection, PageLoader, SearchSelect, TextField } from '@/shared/ui'
 
 const schema = z.object({
   investors_id: z.string(),
@@ -122,6 +122,7 @@ function AccountFormBody({
 
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
+      <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       <FormSection title="Owner">
         <Field
           label={L('investors_id')}
@@ -173,7 +174,6 @@ function AccountFormBody({
           />
         ))}
       </FormSection>
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }
