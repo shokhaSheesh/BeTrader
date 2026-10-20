@@ -1,4 +1,5 @@
 import { useParams } from 'react-router'
+import { usePolicyTypeLabel } from '@/entities/policy-type'
 import { STR_SAR_TABLE, useStrReportQuery } from '@/entities/str-report'
 import { RECORDS } from '@/shared/config/routes'
 import { investorLabel } from '@/shared/lib/format'
@@ -7,16 +8,21 @@ import { RecordDetail } from '@/widgets/record-detail'
 
 export default function DetailPage() {
   const { id } = useParams()
+  const policyTypeLabel = usePolicyTypeLabel()
+  // A single-record read doesn't join the policy type: fall back to looking its name up
+  const cause = (r: { cause: string | null; policyTypeId: string | null }) =>
+    r.cause ?? policyTypeLabel(r.policyTypeId)
   return (
     <RecordDetail
       table={STR_SAR_TABLE}
       noun="report"
       query={useStrReportQuery(id)}
       back={{ to: RECORDS.strSar.list, label: 'STR/SAR' }}
-      title={(r) => r.cause ?? 'Report'}
+      title={(r) => cause(r) ?? 'Report'}
       description={(r) => (r.date ? <DateTimeCell value={r.date} /> : undefined)}
       editTo={(r) => RECORDS.strSar.edit(r.id)}
-      deleteName={(r) => (r.cause ? `The report "${r.cause}"` : 'This report')}
+      wired
+      deleteName={(r) => (cause(r) ? `The report "${cause(r)}"` : 'This report')}
       sections={(r, L) => [
         {
           title: 'Report',
@@ -26,7 +32,7 @@ export default function DetailPage() {
               label: L('policy_Type_id'),
               value: r.policyTypeId ? (
                 <RecordLink to={RECORDS.policyTypes.detail(r.policyTypeId)}>
-                  <Badge tone="warning">{r.cause ?? 'Open policy type'}</Badge>
+                  <Badge tone="warning">{cause(r) ?? 'Open policy type'}</Badge>
                 </RecordLink>
               ) : (
                 <Dash />

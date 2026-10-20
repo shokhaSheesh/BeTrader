@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useStrReportQuery } from '@/entities/str-report'
-import { notWired } from '@/features/record-actions'
+import { STR_SAR_TABLE, useStrReportQuery } from '@/entities/str-report'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
@@ -10,6 +10,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useStrReportQuery(id)
+  const update = useUpdateRecord(
+    { table: STR_SAR_TABLE, noun: 'report', routes: RECORDS.strSar },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -39,7 +43,8 @@ export default function EditPage() {
             }}
             submitLabel="Save changes"
             cancelTo={RECORDS.strSar.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

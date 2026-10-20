@@ -163,8 +163,12 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="report"
+        table={STR_SAR_TABLE}
         target={
-          toDelete && { name: toDelete.cause ? `The report "${toDelete.cause}"` : 'This report' }
+          toDelete && {
+            id: toDelete.id,
+            name: toDelete.cause ? `The report "${toDelete.cause}"` : 'This report',
+          }
         }
         onClose={() => setToDelete(null)}
       />

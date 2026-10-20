@@ -15,6 +15,7 @@ export default function DetailPage() {
       title={(r) => r.labelEn ?? 'Policy type'}
       description={(r) => r.labelRu ?? undefined}
       editTo={(r) => RECORDS.policyTypes.edit(r.id)}
+      wired
       deleteName={(r) => r.labelEn ?? 'This policy type'}
       sections={(r, L) => [
         {

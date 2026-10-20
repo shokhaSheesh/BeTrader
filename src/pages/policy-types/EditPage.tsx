@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { usePolicyTypeQuery } from '@/entities/policy-type'
-import { notWired } from '@/features/record-actions'
+import { POLICY_TYPES_TABLE, usePolicyTypeQuery } from '@/entities/policy-type'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = usePolicyTypeQuery(id)
+  const update = useUpdateRecord(
+    { table: POLICY_TYPES_TABLE, noun: 'policy type', routes: RECORDS.policyTypes },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -26,7 +30,8 @@ export default function EditPage() {
 
             submitLabel="Save changes"
             cancelTo={RECORDS.policyTypes.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}
