@@ -1,5 +1,6 @@
 import {
   ENVIRONMENTS,
+  SHARED_LOGIN_FIELDS,
   SHARED_LOGIN_TABLES,
   WRITABLE_ENVIRONMENT_IDS,
 } from '@/shared/config/environments'
@@ -133,6 +134,27 @@ export class WriteBlockedError extends Error {
   }
 }
 
+const isProduction = () =>
+  useSessionStore.getState().session?.environmentId === ENVIRONMENTS.production.id
+
+/**
+ * Login rows share their account with Production (SHARED_LOGIN_TABLES): outside Production the
+ * admin doesn't create them, delete them, or write the account's own fields.
+ */
+function assertLoginSafe(slug: string, action: 'create' | 'update' | 'delete', values?: object) {
+  if (!SHARED_LOGIN_TABLES.includes(slug) || isProduction()) return
+  const noun = slug === 'employee' ? 'employees' : 'investors'
+  if (action !== 'update')
+    throw new WriteBlockedError(
+      `${action === 'create' ? 'Creating' : 'Deleting'} ${noun} is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.`,
+    )
+  const touched = (SHARED_LOGIN_FIELDS[slug] ?? []).filter((f) => values && f in values)
+  if (touched.length)
+    throw new WriteBlockedError(
+      `Changing ${touched.join(', ')} is off in the Test environment: it belongs to a login shared with Production. Nothing was sent.`,
+    )
+}
+
 /**
  * Every write passes through here first. Only sessions in a writable environment (Test, for
  * now) may write; anything else, including a stale Production session, is refused locally.
@@ -154,6 +176,7 @@ export async function createTableItem(
   values: Record<string, unknown>,
 ): Promise<string | undefined> {
   assertWritable()
+  assertLoginSafe(slug, 'create')
   const { data } = await http.post<WriteEnvelope>(`/v2/items/${slug}`, { data: values })
   const created = data.data.data
   return created?.guid ?? created?.data?.guid
@@ -166,6 +189,7 @@ export async function updateTableItem(
   values: Record<string, unknown>,
 ): Promise<void> {
   assertWritable()
+  assertLoginSafe(slug, 'update', values)
   await http.put(`/v2/items/${slug}`, { data: { guid, ...values } })
 }
 
@@ -181,13 +205,7 @@ export async function deleteTableItem(
   data: Record<string, unknown> = {},
 ): Promise<void> {
   assertWritable()
-  // A login row shares its account with Production: only Production may delete it
-  const environmentId = useSessionStore.getState().session?.environmentId
-  if (SHARED_LOGIN_TABLES.includes(slug) && environmentId !== ENVIRONMENTS.production.id) {
-    throw new WriteBlockedError(
-      'Deleting investors is off in the Test environment: their app logins are shared with Production, so it could lock a real person out. Nothing was sent.',
-    )
-  }
+  assertLoginSafe(slug, 'delete')
   await http.delete(`/v2/items/${slug}/${guid}`, { data: { data } })
 }
 

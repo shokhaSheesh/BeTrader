@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useEmployeeQuery } from '@/entities/employee'
-import { notWired } from '@/features/record-actions'
+import { EMPLOYEES_TABLE, useEmployeeQuery } from '@/entities/employee'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useEmployeeQuery(id)
+  const update = useUpdateRecord(
+    { table: EMPLOYEES_TABLE, noun: 'employee', routes: RECORDS.employees },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -28,10 +32,12 @@ export default function EditPage() {
               password: '',
               role_id: r.roleId,
               client_type_id: r.clientTypeId,
+              photo: r.photo,
             }}
             submitLabel="Save changes"
             cancelTo={RECORDS.employees.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

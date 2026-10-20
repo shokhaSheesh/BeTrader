@@ -38,4 +38,14 @@ export const WRITABLE_ENVIRONMENT_IDS: readonly string[] = [ENVIRONMENTS.test.id
  * account (verified 2026-10-14). Deleting such a row outside Production could remove a real
  * person's login, so it's refused there.
  */
-export const SHARED_LOGIN_TABLES: readonly string[] = ['investors']
+export const SHARED_LOGIN_TABLES: readonly string[] = ['investors', 'employee']
+
+/**
+ * Per login table, the fields that belong to the login account itself. Outside Production the
+ * admin never writes them, since the account is shared with Production: an employee's login,
+ * password, role or client type there would change a real admin's access.
+ */
+export const SHARED_LOGIN_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  investors: ['phone'],
+  employee: ['login', 'password', 'role_id', 'client_type_id'],
+}

@@ -20,6 +20,7 @@ export default function DetailPage() {
       )}
       description={(r) => (r.role ? <Badge>{r.role}</Badge> : undefined)}
       editTo={(r) => RECORDS.employees.edit(r.id)}
+      wired
       deleteName={(r) => r.login ?? 'This employee'}
       sections={(r, L) => [
         {

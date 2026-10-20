@@ -132,7 +132,8 @@ export default function EmployeesPage() {
       />
       <DeleteRecordDialog
         noun="employee"
-        target={toDelete && { name: toDelete.login ?? 'This employee' }}
+        table={EMPLOYEES_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.login ?? 'This employee' }}
         onClose={() => setToDelete(null)}
       />
     </>

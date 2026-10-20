@@ -313,7 +313,7 @@ export const FORM_SPECS = {
           { name: 'client_type_id', kind: 'lookup', table: 'client_type', labelField: 'name' },
         ],
       },
-      { title: 'Photo', description: "Uploading images isn't connected yet.", fields: [] },
+      { title: 'Photo', fields: [{ name: 'photo', kind: 'photo' }] },
     ],
   },
 } satisfies Record<string, FormSpec>
