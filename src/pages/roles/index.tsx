@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Plus } from 'lucide-react'
-import { ROLES_TABLE, useRolesQuery, type Role } from '@/entities/role'
+import { ROLES_TABLE, useDeleteRoleMutation, useRolesQuery, type Role } from '@/entities/role'
 import { actionsColumn, DeleteRecordDialog } from '@/features/record-actions'
 import { useLookupOptions } from '@/shared/api/useLookupOptions'
 import { RECORDS } from '@/shared/config/routes'
@@ -21,6 +21,7 @@ export default function RolesPage() {
   const clientTypes = useLookupOptions('client_type', 'name')
   const navigate = useNavigate()
   const [toDelete, setToDelete] = useState<Role | null>(null)
+  const deleteRole = useDeleteRoleMutation()
   const clientTypeName = (id: string | null) =>
     clientTypes.options.find((o) => o.value === id)?.label ?? null
 
@@ -90,7 +91,8 @@ export default function RolesPage() {
       />
       <DeleteRecordDialog
         noun="role"
-        target={toDelete && { name: toDelete.name }}
+        remove={deleteRole.mutateAsync}
+        target={toDelete && { id: toDelete.id, name: toDelete.name }}
         onClose={() => setToDelete(null)}
       />
     </>

@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { backendMessage } from '@/shared/api/errors'
 import { useDeleteItemMutation } from '@/shared/api/queries'
 import { toast } from '@/shared/lib/toast'
@@ -17,6 +18,8 @@ interface DeleteRecordDialogProps {
   onClose: () => void
   /** After a successful delete, e.g. leave the record's own page */
   onDeleted?: () => void
+  /** Deletes something that isn't a table record (e.g. a role, on the auth API) */
+  remove?: (id: string) => Promise<unknown>
 }
 
 export function DeleteRecordDialog({
@@ -25,28 +28,34 @@ export function DeleteRecordDialog({
   table,
   onClose,
   onDeleted,
+  remove: removeOther,
 }: DeleteRecordDialogProps) {
-  const remove = useDeleteItemMutation(table ?? '')
+  const removeItem = useDeleteItemMutation(table ?? '')
+  const removeCustom = useMutation({ mutationFn: (id: string) => removeOther!(id) })
+  const pending = removeItem.isPending || removeCustom.isPending
 
   const confirm = () => {
     if (!target) return
-    if (!table || !target.id) {
+    if ((!table && !removeOther) || !target.id) {
       notWired('delete')
       return onClose()
     }
-    remove.mutate(
-      { id: target.id, data: target.data },
-      {
-        onSuccess: () => {
-          toast.success(`${capitalize(noun)} deleted`, `${target.name} is gone.`)
-          onClose()
-          onDeleted?.()
-        },
-        // The dialog stays open, so the user can retry or cancel
-        onError: (error) =>
-          toast.error(`Couldn't delete the ${noun}`, backendMessage(error) ?? 'Please try again.'),
+    const handlers = {
+      onSuccess: () => {
+        toast.success(`${capitalize(noun)} deleted`, `${target.name} is gone.`)
+        onClose()
+        onDeleted?.()
       },
-    )
+      // The dialog stays open, so the user can retry or cancel
+      onError: (error: unknown) =>
+        toast.error(`Couldn't delete the ${noun}`, backendMessage(error) ?? 'Please try again.'),
+    }
+    // Through the promise, not mutate()'s callbacks: refreshing the data can unmount this dialog
+    // (the deleted record's page swaps to "not found"), and then those callbacks never run.
+    const run = removeOther
+      ? removeCustom.mutateAsync(target.id)
+      : removeItem.mutateAsync({ id: target.id, data: target.data })
+    run.then(handlers.onSuccess, handlers.onError)
   }
 
   return (
@@ -62,7 +71,7 @@ export function DeleteRecordDialog({
       }
       confirmLabel={`Delete ${noun}`}
       danger
-      loading={remove.isPending}
+      loading={pending}
       onConfirm={confirm}
     />
   )

@@ -1,15 +1,18 @@
-import { useParams } from 'react-router'
-import { useRolesQuery } from '@/entities/role'
-import { notWired } from '@/features/record-actions'
+import { useNavigate, useParams } from 'react-router'
+import { useRolesQuery, useSaveRolePermissionsMutation } from '@/entities/role'
 import { PermissionMatrix, usePermissionDraft } from '@/features/role-permissions'
+import { backendMessage } from '@/shared/api/errors'
 import { RECORDS } from '@/shared/config/routes'
+import { toast } from '@/shared/lib/toast'
 import { useRoleAccess } from '@/shared/permissions'
 import { FormFooter, PageHeader, PageLoader } from '@/shared/ui'
 
-/** Edits a role's table rights. Saving is PUT /v2/role-permission/detailed: not wired yet (writes are on hold). */
+/** Edits a role's table rights. Saving is PUT /v2/role-permission/detailed (auth API). */
 export default function RoleEditPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const roles = useRolesQuery()
+  const save = useSaveRolePermissionsMutation(id)
   const access = useRoleAccess(id)
   const role = roles.data?.find((r) => r.id === id)
   const draft = usePermissionDraft(access.tables)
@@ -21,7 +24,15 @@ export default function RoleEditPage() {
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        notWired('save')
+        if (!draft.tables) return
+        save.mutate(draft.tables, {
+          onSuccess: () => {
+            toast.success('Permissions saved')
+            navigate(RECORDS.roles.detail(id!), { replace: true })
+          },
+          onError: (error) =>
+            toast.error("Couldn't save the permissions", backendMessage(error) ?? error.message),
+        })
       }}
     >
       <PageHeader
@@ -33,7 +44,11 @@ export default function RoleEditPage() {
         onToggle={draft.toggle}
         onToggleColumn={draft.setColumn}
       />
-      <FormFooter cancelTo={RECORDS.roles.detail(id!)} submitLabel="Save permissions" />
+      <FormFooter
+        cancelTo={RECORDS.roles.detail(id!)}
+        submitLabel="Save permissions"
+        submitting={save.isPending}
+      />
     </form>
   )
 }

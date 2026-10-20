@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
-import { ROLES_TABLE, useRolesQuery } from '@/entities/role'
+import { ROLES_TABLE, useDeleteRoleMutation, useRolesQuery } from '@/entities/role'
 import { DeleteRecordDialog } from '@/features/record-actions'
 import { PermissionMatrix } from '@/features/role-permissions'
 import { NAVIGATION } from '@/shared/config/navigation'
@@ -11,6 +11,8 @@ import { Badge, Button, ButtonLink, EmptyState, PageHeader, PageLoader } from '@
 
 export default function RoleDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const deleteRole = useDeleteRoleMutation()
   const roles = useRolesQuery()
   const access = useRoleAccess(id)
   const [deleting, setDeleting] = useState(false)
@@ -90,8 +92,10 @@ export default function RoleDetailPage() {
       </div>
       <DeleteRecordDialog
         noun="role"
-        target={deleting ? { name: role.name } : null}
+        remove={deleteRole.mutateAsync}
+        target={deleting ? { id: role.id, name: role.name } : null}
         onClose={() => setDeleting(false)}
+        onDeleted={() => navigate(RECORDS.roles.list, { replace: true })}
       />
     </>
   )

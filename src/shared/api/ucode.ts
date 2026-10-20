@@ -159,7 +159,7 @@ function assertLoginSafe(slug: string, action: 'create' | 'update' | 'delete', v
  * Every write passes through here first. Only sessions in a writable environment (Test, for
  * now) may write; anything else, including a stale Production session, is refused locally.
  */
-function assertWritable() {
+export function assertWritable() {
   const environmentId = useSessionStore.getState().session?.environmentId
   if (!environmentId || !WRITABLE_ENVIRONMENT_IDS.includes(environmentId)) {
     throw new WriteBlockedError()
