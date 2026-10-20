@@ -198,8 +198,12 @@ export default function ReferralLinksPage() {
       />
       <DeleteRecordDialog
         noun="referral link"
+        table={REFERRAL_LINKS_TABLE}
         target={
-          toDelete && { name: `The link shared by ${toDelete.senderName ?? 'this investor'}` }
+          toDelete && {
+            id: toDelete.id,
+            name: `The link shared by ${toDelete.senderName ?? 'this investor'}`,
+          }
         }
         onClose={() => setToDelete(null)}
       />

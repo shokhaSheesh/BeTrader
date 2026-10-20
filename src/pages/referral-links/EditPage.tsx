@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useReferralLinkQuery } from '@/entities/referral-link'
-import { notWired } from '@/features/record-actions'
+import { REFERRAL_LINKS_TABLE, useReferralLinkQuery } from '@/entities/referral-link'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useReferralLinkQuery(id)
+  const update = useUpdateRecord(
+    { table: REFERRAL_LINKS_TABLE, noun: 'referral link', routes: RECORDS.referralLinks },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -25,7 +29,8 @@ export default function EditPage() {
             defaults={{ is_active: r.isActive ?? false }}
             submitLabel="Save changes"
             cancelTo={RECORDS.referralLinks.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

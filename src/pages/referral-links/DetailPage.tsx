@@ -26,6 +26,7 @@ export default function DetailPage() {
         r.isActive ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>
       }
       editTo={(r) => RECORDS.referralLinks.edit(r.id)}
+      wired
       deleteName={(r) => `The link shared by ${r.senderName ?? 'this investor'}`}
       sections={(r, L) => [
         {

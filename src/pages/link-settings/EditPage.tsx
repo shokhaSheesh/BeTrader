@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useLinkSettingQuery } from '@/entities/link-setting'
-import { notWired } from '@/features/record-actions'
+import { LINK_SETTINGS_TABLE, useLinkSettingQuery } from '@/entities/link-setting'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
@@ -9,6 +9,15 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useLinkSettingQuery(id)
+  // A settings record: saving returns to the page that shows it
+  const update = useUpdateRecord(
+    {
+      table: LINK_SETTINGS_TABLE,
+      noun: 'link settings',
+      routes: { list: RECORDS.linkSettings.list, detail: () => RECORDS.linkSettings.list },
+    },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -26,7 +35,8 @@ export default function EditPage() {
             defaults={{ sender_percentage: numberToText(r.senderPercentage), base_url: r.baseUrl }}
             submitLabel="Save changes"
             cancelTo={RECORDS.linkSettings.list}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}
