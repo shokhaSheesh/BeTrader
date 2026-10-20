@@ -194,11 +194,7 @@ export const FORM_SPECS = {
           { name: 'text_uz', kind: 'longText' },
         ],
       },
-      {
-        title: 'Files',
-        description: "Uploading files isn't connected yet; the current files stay as they are.",
-        fields: [],
-      },
+      { title: 'Files', fields: [{ name: 'files', kind: 'files' }] },
     ],
   },
   contactInfo: {

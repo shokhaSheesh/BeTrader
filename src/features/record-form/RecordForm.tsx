@@ -23,6 +23,7 @@ import {
   FormFooter,
   FormSection,
   ImageField,
+  MultiFileField,
   MultiSelect,
   PageLoader,
   Select,
@@ -50,6 +51,7 @@ export type FieldKind =
   | 'lookup'
   | 'photo'
   | 'file'
+  | 'files'
 
 export interface FieldSpec {
   name: string
@@ -120,7 +122,7 @@ function schemaFor(spec: FormSpec) {
           ? z.string().nullable()
           : f.kind === 'switch'
             ? z.boolean()
-            : f.kind === 'options'
+            : f.kind === 'options' || f.kind === 'files'
               ? z.array(z.string())
               : z.string().trim()
   }
@@ -166,7 +168,7 @@ function RecordFormBody({
           (backendDefaults[f.name] as RecordFormValues[string] | undefined) ??
           (f.kind === 'date' || f.kind === 'photo' || f.kind === 'file'
             ? null
-            : f.kind === 'options'
+            : f.kind === 'options' || f.kind === 'files'
               ? []
               : f.kind === 'switch'
                 ? false
@@ -361,7 +363,8 @@ function RecordFormBody({
           </Field>
         )
       case 'photo':
-      case 'file': {
+      case 'file':
+      case 'files': {
         // Uploads go to the field's storage folder, as u-code's own admin does
         const upload = (file: File) =>
           uploadFile(file, schemaFields.find((s) => s.slug === f.name)?.folder)
@@ -381,6 +384,16 @@ function RecordFormBody({
               name={f.name}
               render={({ field }) => {
                 const value = typeof field.value === 'string' && field.value ? field.value : null
+                if (f.kind === 'files')
+                  return (
+                    <MultiFileField
+                      id={f.name}
+                      value={Array.isArray(field.value) ? field.value : []}
+                      onChange={field.onChange}
+                      upload={upload}
+                      onError={onError}
+                    />
+                  )
                 return f.kind === 'photo' ? (
                   <ImageField
                     id={f.name}

@@ -15,6 +15,7 @@ export { DateRangeFilter, FilterMultiSelect, FilterSearchSelect, FilterSelect } 
 export { FormSection } from './FormSection'
 export { FileField } from './FileField'
 export { ImageField } from './ImageField'
+export { MultiFileField } from './MultiFileField'
 export { GlobalProgress } from './GlobalProgress'
 export { LoadMoreRow, type Paging } from './LoadMoreRow'
 export { ListEmptyState } from './ListEmptyState'
