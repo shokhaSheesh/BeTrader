@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { Pencil, Trash2 } from 'lucide-react'
 import { CURRENCY_PERCENT_TABLE, useCurrencyPercentQuery } from '@/entities/currency-percent'
 import { DeleteRecordDialog } from '@/features/record-actions'
@@ -20,6 +20,7 @@ import {
 
 export default function CurrencyPercentDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const query = useCurrencyPercentQuery(id)
   const fields = useTableFields(CURRENCY_PERCENT_TABLE)
   const [deleting, setDeleting] = useState(false)
@@ -74,8 +75,10 @@ export default function CurrencyPercentDetailPage() {
             </div>
             <DeleteRecordDialog
               noun="percent"
-              target={deleting ? { name } : null}
+              table={CURRENCY_PERCENT_TABLE}
+              target={deleting ? { id: c.id, name, data: { type: c.type } } : null}
               onClose={() => setDeleting(false)}
+              onDeleted={() => navigate(RECORDS.currencyPercent.list, { replace: true })}
             />
           </>
         )

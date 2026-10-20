@@ -5,8 +5,11 @@ import { ConfirmDialog } from '@/shared/ui'
 import { notWired } from './notWired'
 
 interface DeleteRecordDialogProps {
-  /** Record to delete; null keeps the dialog closed. `id` is needed once `table` is set. */
-  target: { id?: string; name: string } | null
+  /**
+   * Record to delete; null keeps the dialog closed. `id` is needed once `table` is set.
+   * `data`: fields the table's backend function reads on delete (e.g. a currency percent's type).
+   */
+  target: { id?: string; name: string; data?: Record<string, unknown> } | null
   /** Singular, lowercase: "project" */
   noun: string
   /** u-code table the record lives in. Pages whose deletes aren't wired yet leave it out. */
@@ -31,16 +34,19 @@ export function DeleteRecordDialog({
       notWired('delete')
       return onClose()
     }
-    remove.mutate(target.id, {
-      onSuccess: () => {
-        toast.success(`${capitalize(noun)} deleted`, `${target.name} is gone.`)
-        onClose()
-        onDeleted?.()
+    remove.mutate(
+      { id: target.id, data: target.data },
+      {
+        onSuccess: () => {
+          toast.success(`${capitalize(noun)} deleted`, `${target.name} is gone.`)
+          onClose()
+          onDeleted?.()
+        },
+        // The dialog stays open, so the user can retry or cancel
+        onError: (error) =>
+          toast.error(`Couldn't delete the ${noun}`, backendMessage(error) ?? 'Please try again.'),
       },
-      // The dialog stays open, so the user can retry or cancel
-      onError: (error) =>
-        toast.error(`Couldn't delete the ${noun}`, backendMessage(error) ?? 'Please try again.'),
-    })
+    )
   }
 
   return (

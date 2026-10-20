@@ -120,8 +120,12 @@ export default function CurrencyPercentPage() {
       />
       <DeleteRecordDialog
         noun="percent"
+        table={CURRENCY_PERCENT_TABLE}
         target={
           toDelete && {
+            id: toDelete.id,
+            // The backend function reads the type on delete (docs/API.md)
+            data: { type: toDelete.type },
             name:
               toDelete.type.map((t) => fields.optionLabel('type', t)).join(', ') || 'This percent',
           }

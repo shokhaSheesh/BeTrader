@@ -69,15 +69,21 @@ export function missingRequired(
  * The body of an edit: the fields the user changed, plus every field the backend requires.
  * u-code rejects an update that leaves out a required field, even an unchanged one (500
  * "invalid input syntax for type uuid"), so those ride along with their current values.
+ * `alwaysSend` adds fields a table's backend function reads on every write (e.g.
+ * `currency_percent.type`), though the schema doesn't mark them required.
  * Nothing changed → empty, and nothing is sent.
  */
 export function updateBody(
   payload: Record<string, unknown>,
   dirtyFields: Record<string, unknown>,
   fields: { slug: string; required: boolean }[],
+  alwaysSend: readonly string[] = [],
 ): Record<string, unknown> {
   const changes = changedOnly(payload, dirtyFields)
   if (Object.keys(changes).length === 0) return changes
-  const required = fields.filter((f) => f.required && f.slug in payload).map((f) => f.slug)
-  return { ...Object.fromEntries(required.map((slug) => [slug, payload[slug]])), ...changes }
+  const carried = [
+    ...fields.filter((f) => f.required && f.slug in payload).map((f) => f.slug),
+    ...alwaysSend.filter((slug) => slug in payload),
+  ]
+  return { ...Object.fromEntries(carried.map((slug) => [slug, payload[slug]])), ...changes }
 }

@@ -1,13 +1,17 @@
 import { useParams } from 'react-router'
-import { useCurrencyPercentQuery } from '@/entities/currency-percent'
+import { CURRENCY_PERCENT_TABLE, useCurrencyPercentQuery } from '@/entities/currency-percent'
 import { CurrencyPercentForm } from '@/features/currency-percent-editor'
-import { notWired } from '@/features/record-actions'
+import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
 
 export default function EditPage() {
   const { id } = useParams()
   const query = useCurrencyPercentQuery(id)
+  const update = useUpdateRecord(
+    { table: CURRENCY_PERCENT_TABLE, noun: 'percent', routes: RECORDS.currencyPercent },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -26,7 +30,8 @@ export default function EditPage() {
               item={o}
               submitLabel="Save changes"
               cancelTo={RECORDS.currencyPercent.detail(o.id)}
-              onSubmit={() => notWired('save')}
+              submitting={update.submitting}
+              onSubmit={update.submit}
             />
           </>
         )

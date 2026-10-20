@@ -171,9 +171,15 @@ export async function updateTableItem(
 
 /**
  * DELETE /v2/items/{slug}/{guid}, with the body u-code's own admin sends: `{ data: {} }`.
- * Without a body it answers 400 "EOF"; with a bare `{}`, 500.
+ * Without a body it answers 400 "EOF"; with a bare `{}`, 500. Tables whose backend function reads
+ * the record on delete get those fields in `data`.
  */
-export async function deleteTableItem(slug: string, guid: string): Promise<void> {
+export async function deleteTableItem(
+  slug: string,
+  guid: string,
+  /** Fields of the record a table's backend function reads on delete (e.g. `currency_percent.type`) */
+  data: Record<string, unknown> = {},
+): Promise<void> {
   assertWritable()
   // A login row shares its account with Production: only Production may delete it
   const environmentId = useSessionStore.getState().session?.environmentId
@@ -182,7 +188,7 @@ export async function deleteTableItem(slug: string, guid: string): Promise<void>
       'Deleting investors is off in the Test environment: their app logins are shared with Production, so it could lock a real person out. Nothing was sent.',
     )
   }
-  await http.delete(`/v2/items/${slug}/${guid}`, { data: { data: {} } })
+  await http.delete(`/v2/items/${slug}/${guid}`, { data: { data } })
 }
 
 /**
