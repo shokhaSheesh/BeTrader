@@ -153,7 +153,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="document"
-        target={toDelete && { name: toDelete.titleEn ?? 'This document' }}
+        table={DOCUMENTS_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? 'This document' }}
         onClose={() => setToDelete(null)}
       />
     </>

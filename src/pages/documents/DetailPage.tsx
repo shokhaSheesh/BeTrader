@@ -15,6 +15,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.documents.list, label: 'Documents' }}
       title={(r) => r.titleEn ?? 'Document'}
       editTo={(r) => RECORDS.documents.edit(r.id)}
+      wired
       deleteName={(r) => r.titleEn ?? 'This document'}
       sections={(r, L) => [
         {

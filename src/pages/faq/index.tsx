@@ -133,7 +133,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="question"
-        target={toDelete && { name: toDelete.questionEn ?? 'This question' }}
+        table={FAQ_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.questionEn ?? 'This question' }}
         onClose={() => setToDelete(null)}
       />
     </>

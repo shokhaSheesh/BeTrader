@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useNewsItemQuery } from '@/entities/news'
-import { notWired } from '@/features/record-actions'
+import { NEWS_TABLE, useNewsItemQuery } from '@/entities/news'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,7 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useNewsItemQuery(id)
+  const update = useUpdateRecord({ table: NEWS_TABLE, noun: 'news item', routes: RECORDS.news }, id)
   return (
     <RecordBoundary query={query} noun="news item" back={{ to: RECORDS.news.list, label: 'News' }}>
       {(r) => (
@@ -25,11 +26,13 @@ export default function EditPage() {
               description_en: r.descriptionEn,
               description_ru: r.descriptionRu,
               description_uz: r.descriptionUz,
+              photo: r.photo,
             }}
 
             submitLabel="Save changes"
             cancelTo={RECORDS.news.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

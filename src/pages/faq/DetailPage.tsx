@@ -14,6 +14,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.faq.list, label: 'FAQ' }}
       title={(r) => r.questionEn ?? 'Question'}
       editTo={(r) => RECORDS.faq.edit(r.id)}
+      wired
       deleteName={(r) => r.questionEn ?? 'This question'}
       sections={(r, L) => [
         {

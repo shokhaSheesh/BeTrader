@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**, **Cards**, **Orders** (wired; valid-order test pending), **Dividends**, **Currency rates**, **Currency percent**, **Transaction policy**, **Financial modeling**, **AML blacklist**, **Investor score**, **RBA matrix**, **STR/SAR**, **Policy types**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**, **Cards**, **Orders** (wired; valid-order test pending), **Dividends**, **Currency rates**, **Currency percent**, **Transaction policy**, **Financial modeling**, **AML blacklist**, **Investor score**, **RBA matrix**, **STR/SAR**, **Policy types**, **News**, **FAQ**, **Documents**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -141,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **News, FAQ and Documents, checked end to end in Test (2026-10-20):** create, edit, delete (from the list and the detail page). News is empty in both environments; FAQ 6/6; Documents 654 vs 23 812. **Uploads are wired in RecordForm** (`photo` → ImageField, `file` → FileField, into the field's storage folder): a news photo and a document PDF went to Test's storage, and edits kept them. FAQ answers (and other long texts) are stored as **HTML** from u-code's rich-text editor.
 - **STR/SAR and Policy types, checked end to end in Test (2026-10-20):** create, edit, delete. STR's date uses the date-and-time picker; the test report had no investor. A new policy type shows up at once where policy types are picked. Real reports and types untouched.
 - **A single-record read differs from the list**: `GET /v2/items/{slug}/{id}` returns `policy_Type_id` lowercased as `policy_type_id`, and `policy_Type_id_data` empty even with `with_relations`. Models read both keys; detail and edit pages look the policy type's name up (`usePolicyTypeLabel`).
 - **RecordDetail** (shared detail page) deletes for real only when the page passes `wired`; until then it says deleting isn't connected yet.

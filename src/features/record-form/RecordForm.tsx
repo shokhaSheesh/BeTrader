@@ -3,8 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { InvestorPickerField } from '@/entities/investor'
 import { usePolicyTypeOptions } from '@/entities/policy-type'
+import { backendMessage } from '@/shared/api/errors'
+import { uploadFile } from '@/shared/api/ucode'
 import { useLookupOptions } from '@/shared/api/useLookupOptions'
 import { useTableFields } from '@/shared/api/useTableFields'
+import { toast } from '@/shared/lib/toast'
 import {
   createDefaults,
   missingRequired,
@@ -16,8 +19,10 @@ import {
   DatePicker,
   DateTimePicker,
   Field,
+  FileField,
   FormFooter,
   FormSection,
+  ImageField,
   MultiSelect,
   PageLoader,
   Select,
@@ -43,6 +48,8 @@ export type FieldKind =
   | 'options'
   | 'password'
   | 'lookup'
+  | 'photo'
+  | 'file'
 
 export interface FieldSpec {
   name: string
@@ -109,7 +116,7 @@ function schemaFor(spec: FormSpec) {
     shape[f.name] =
       f.kind === 'number'
         ? numericText
-        : f.kind === 'date'
+        : f.kind === 'date' || f.kind === 'photo' || f.kind === 'file'
           ? z.string().nullable()
           : f.kind === 'switch'
             ? z.boolean()
@@ -157,7 +164,13 @@ function RecordFormBody({
         f.name,
         defaults?.[f.name] ??
           (backendDefaults[f.name] as RecordFormValues[string] | undefined) ??
-          (f.kind === 'date' ? null : f.kind === 'options' ? [] : f.kind === 'switch' ? false : ''),
+          (f.kind === 'date' || f.kind === 'photo' || f.kind === 'file'
+            ? null
+            : f.kind === 'options'
+              ? []
+              : f.kind === 'switch'
+                ? false
+                : ''),
       ]),
     ),
   })
@@ -347,6 +360,49 @@ function RecordFormBody({
             />
           </Field>
         )
+      case 'photo':
+      case 'file': {
+        // Uploads go to the field's storage folder, as u-code's own admin does
+        const upload = (file: File) =>
+          uploadFile(file, schemaFields.find((s) => s.slug === f.name)?.folder)
+        const onError = (e: unknown) =>
+          toast.error("Couldn't upload the file", backendMessage(e) ?? 'Please try again.')
+        return (
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
+            <Controller
+              control={control}
+              name={f.name}
+              render={({ field }) => {
+                const value = typeof field.value === 'string' && field.value ? field.value : null
+                return f.kind === 'photo' ? (
+                  <ImageField
+                    id={f.name}
+                    value={value}
+                    onChange={field.onChange}
+                    upload={upload}
+                    onError={onError}
+                  />
+                ) : (
+                  <FileField
+                    id={f.name}
+                    value={value}
+                    onChange={field.onChange}
+                    upload={upload}
+                    onError={onError}
+                  />
+                )
+              }}
+            />
+          </Field>
+        )
+      }
       case 'investor':
         return (
           <Controller

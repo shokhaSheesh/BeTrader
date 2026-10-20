@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useFaqItemQuery } from '@/entities/faq'
-import { notWired } from '@/features/record-actions'
+import { FAQ_TABLE, useFaqItemQuery } from '@/entities/faq'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,7 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useFaqItemQuery(id)
+  const update = useUpdateRecord({ table: FAQ_TABLE, noun: 'question', routes: RECORDS.faq }, id)
   return (
     <RecordBoundary query={query} noun="question" back={{ to: RECORDS.faq.list, label: 'FAQ' }}>
       {(r) => (
@@ -29,7 +30,8 @@ export default function EditPage() {
 
             submitLabel="Save changes"
             cancelTo={RECORDS.faq.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}

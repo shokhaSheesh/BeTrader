@@ -14,6 +14,7 @@ export default function DetailPage() {
       back={{ to: RECORDS.news.list, label: 'News' }}
       title={(r) => r.titleEn ?? 'News'}
       editTo={(r) => RECORDS.news.edit(r.id)}
+      wired
       deleteName={(r) => r.titleEn ?? 'This news item'}
       sections={(r, L) => [
         {

@@ -131,7 +131,7 @@ export const FORM_SPECS = {
           { name: 'description_uz', kind: 'longText' },
         ],
       },
-      { title: 'Photo', description: "Uploading images isn't connected yet.", fields: [] },
+      { title: 'Photo', fields: [{ name: 'photo', kind: 'photo' }] },
     ],
   },
   faq: {
@@ -175,8 +175,11 @@ export const FORM_SPECS = {
       },
       {
         title: 'Files',
-        description: "Uploading files isn't connected yet; the current files stay as they are.",
-        fields: [],
+        fields: [
+          { name: 'file', kind: 'file' },
+          { name: 'file_en', kind: 'file' },
+          { name: 'file_uz', kind: 'file' },
+        ],
       },
     ],
   },
