@@ -2,7 +2,7 @@
 
 The admin panel reads data straight from the u-code backend that powers the current Niyat admin. Mapped on 2026-09-22.
 
-> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**, **Cards**, **Orders** (wired; valid-order test pending), **Dividends**, **Currency rates**, **Currency percent**, **Transaction policy**, **Financial modeling**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
+> **Writes are being wired page by page** (see "Writing" below). Done: **Projects**, **Project types**, **Project investors**, **Investors** (edit and delete, no create; see "Investors" below), **Accounts**, **Cards**, **Orders** (wired; valid-order test pending), **Dividends**, **Currency rates**, **Currency percent**, **Transaction policy**, **Financial modeling**, **AML blacklist**. Every other create, edit and delete page still calls `notWired()` (`features/record-actions`), which shows a toast saying nothing was changed.
 
 ## Auth
 
@@ -141,6 +141,7 @@ We write exactly where u-code's own admin writes (taken from its bundle, 2026-10
 - Test is a separate, smaller database (249 investors on 2026-10-14) and its menu permissions differ: Analytics and Integrations aren't visible there.
 - The embedded Metabase and DataLens dashboards are public links to **Production** data, whatever the environment.
 - **Uploads follow the session too**: a file uploaded in Test lands in Test's storage (`cdn.u-code.io/b7666a21-…/Media/…`); Production's files are under `719a301e-…`.
+- **AML blacklist, checked end to end in Test (2026-10-20):** create, edit, delete (Test 17 127 vs Production 22 700), with an entry no real person can match (passport `ZZ0000000`, PINFL all zeros), found through the list's search. Delete is on the list only.
 - **Financial modeling, checked end to end in Test (2026-10-20):** create, edit, delete (Test 25 vs Production 186; the SP500 prices untouched), with a price keyed `ZZTEST` dated 2001 so it can't join the SP500 series. Like Transaction policy, delete is on the list only.
 - **Date filters on DATE fields** (a day, no time) must send plain dates: u-code compares them with the *UTC date* of a timestamp, so local midnight as UTC (19:00 the day before) shifted every range back a day. `dayRangeFilter` for DATE fields (cards' expiry, currency rates, financial modeling), `dateRangeFilter` for DATE_TIME and system timestamps.
 - **Transaction policy, checked end to end in Test (2026-10-20):** create, edit, delete (Test 6 vs Production 6; the 6 real policies untouched), with a policy that has no policy type. No backend function surprises. It uses the shared **RecordForm** (`features/record-form`), now on the same saving pattern as the hand-made forms: backend labels, required marks and defaults, edits with only the changed + required fields (+ `spec.alwaysSend`), only fields the schema knows, DATE_TIME fields with the date-and-time picker, empty passwords not sent. 15 pages use it; every spec field exists in both environments' schemas.

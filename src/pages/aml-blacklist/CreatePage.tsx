@@ -1,9 +1,16 @@
-import { notWired } from '@/features/record-actions'
+import { BLACKLIST_TABLE } from '@/entities/blacklist-entry'
+import { useCreateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
 
 export default function CreatePage() {
+  const create = useCreateRecord({
+    table: BLACKLIST_TABLE,
+    noun: 'entry',
+    routes: RECORDS.amlBlacklist,
+  })
+
   return (
     <>
       <PageHeader
@@ -14,7 +21,8 @@ export default function CreatePage() {
         spec={FORM_SPECS.amlBlacklist}
         submitLabel="Add to blacklist"
         cancelTo={RECORDS.amlBlacklist.list}
-        onSubmit={() => notWired('create')}
+        submitting={create.submitting}
+        onSubmit={create.submit}
       />
     </>
   )

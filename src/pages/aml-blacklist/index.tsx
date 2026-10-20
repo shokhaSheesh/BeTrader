@@ -129,7 +129,10 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="entry"
-        target={toDelete && { name: toDelete.name ?? toDelete.passport ?? 'This entry' }}
+        table={BLACKLIST_TABLE}
+        target={
+          toDelete && { id: toDelete.id, name: toDelete.name ?? toDelete.passport ?? 'This entry' }
+        }
         onClose={() => setToDelete(null)}
       />
     </>

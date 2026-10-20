@@ -1,6 +1,6 @@
 import { useParams } from 'react-router'
-import { useBlacklistEntryQuery } from '@/entities/blacklist-entry'
-import { notWired } from '@/features/record-actions'
+import { BLACKLIST_TABLE, useBlacklistEntryQuery } from '@/entities/blacklist-entry'
+import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
@@ -8,6 +8,10 @@ import { PageHeader, RecordBoundary } from '@/shared/ui'
 export default function EditPage() {
   const { id } = useParams()
   const query = useBlacklistEntryQuery(id)
+  const update = useUpdateRecord(
+    { table: BLACKLIST_TABLE, noun: 'entry', routes: RECORDS.amlBlacklist },
+    id,
+  )
   return (
     <RecordBoundary
       query={query}
@@ -26,7 +30,8 @@ export default function EditPage() {
 
             submitLabel="Save changes"
             cancelTo={RECORDS.amlBlacklist.detail(r.id)}
-            onSubmit={() => notWired('save')}
+            submitting={update.submitting}
+            onSubmit={update.submit}
           />
         </>
       )}
