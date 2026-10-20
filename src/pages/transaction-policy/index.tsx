@@ -120,7 +120,8 @@ export default function Page() {
       />
       <DeleteRecordDialog
         noun="policy"
-        target={toDelete && { name: toDelete.policyTypeLabel ?? 'This policy' }}
+        table={TRANSACTION_POLICY_TABLE}
+        target={toDelete && { id: toDelete.id, name: toDelete.policyTypeLabel ?? 'This policy' }}
         onClose={() => setToDelete(null)}
       />
     </>

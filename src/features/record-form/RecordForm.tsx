@@ -5,9 +5,16 @@ import { InvestorPickerField } from '@/entities/investor'
 import { usePolicyTypeOptions } from '@/entities/policy-type'
 import { useLookupOptions } from '@/shared/api/useLookupOptions'
 import { useTableFields } from '@/shared/api/useTableFields'
-import { numericText } from '@/shared/lib/form'
+import {
+  createDefaults,
+  missingRequired,
+  numericText,
+  textToNumber,
+  updateBody,
+} from '@/shared/lib/form'
 import {
   DatePicker,
+  DateTimePicker,
   Field,
   FormFooter,
   FormSection,
@@ -21,8 +28,8 @@ import {
 
 /**
  * Declarative form for simple tables: each field is a backend slug plus a kind.
- * Labels come from the backend schema (DESIGN.md §0); values keep the backend's slugs,
- * so the future POST/PUT body maps 1:1. Richer tables (projects, orders…) have their own forms.
+ * Labels, required marks and defaults come from the backend schema (DESIGN.md §0); values keep the
+ * backend's slugs, so the POST/PUT body maps 1:1. Richer tables (projects, orders…) have their own forms.
  */
 export type FieldKind =
   | 'text'
@@ -49,6 +56,8 @@ export interface FieldSpec {
 export interface FormSpec {
   table: string
   sections: { title: string; description?: string; fields: FieldSpec[] }[]
+  /** Fields the table's backend function reads on every edit, sent even when unchanged */
+  alwaysSend?: readonly string[]
 }
 
 /** Text, numbers-as-text and dates are strings; switches are booleans; options are string arrays. */
@@ -62,7 +71,35 @@ interface RecordFormProps {
   initialLabels?: Record<string, string | undefined>
   submitLabel: string
   cancelTo: string
-  onSubmit: (values: RecordFormValues) => void
+  /**
+   * The record to send. Create: every field, plus the backend's defaults. Edit: the changed
+   * fields plus the required ones and `spec.alwaysSend` (empty when nothing changed).
+   */
+  onSubmit: (payload: Record<string, unknown>) => void
+  submitting?: boolean
+}
+
+/**
+ * The record as the backend stores it: numbers as numbers, an unset link as null, an empty
+ * password left out (keeps the current one). Only fields the backend's schema has are sent.
+ */
+function toPayload(
+  values: RecordFormValues,
+  all: FieldSpec[],
+  known: Set<string>,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {}
+  for (const f of all) {
+    if (!known.has(f.name)) continue
+    const value = values[f.name]
+    if (f.kind === 'number') payload[f.name] = textToNumber(typeof value === 'string' ? value : '')
+    else if (f.kind === 'password') {
+      if (typeof value === 'string' && value) payload[f.name] = value
+    } else if (f.kind === 'policyType' || f.kind === 'investor' || f.kind === 'lookup')
+      payload[f.name] = value || null
+    else payload[f.name] = value
+  }
+  return payload
 }
 
 function schemaFor(spec: FormSpec) {
@@ -83,32 +120,67 @@ function schemaFor(spec: FormSpec) {
   return z.object(shape)
 }
 
-export function RecordForm({
+export function RecordForm(props: RecordFormProps) {
+  const fields = useTableFields(props.spec.table)
+  // The form starts from the schema's defaults and required flags, so it waits for the schema
+  if (fields.isPending) return <PageLoader label="Loading form" />
+  return <RecordFormBody {...props} fields={fields} />
+}
+
+function RecordFormBody({
   spec,
   defaults,
   initialLabels,
   submitLabel,
   cancelTo,
   onSubmit,
-}: RecordFormProps) {
-  const fields = useTableFields(spec.table)
+  submitting,
+  fields,
+}: RecordFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const schemaFields = fields.data ?? []
+  const known = new Set(schemaFields.map((f) => f.slug))
   const policyTypes = usePolicyTypeOptions()
   const all = spec.sections.flatMap((s) => s.fields)
+  const isEdit = defaults !== undefined
+  // A new record starts with what the backend defines as defaults
+  const backendDefaults = isEdit ? {} : createDefaults(schemaFields)
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, dirtyFields },
   } = useForm<RecordFormValues>({
     resolver: zodResolver(schemaFor(spec)),
     defaultValues: Object.fromEntries(
-      all.map((f) => [f.name, defaults?.[f.name] ?? (f.kind === 'date' ? null : '')]),
+      all.map((f) => [
+        f.name,
+        defaults?.[f.name] ??
+          (backendDefaults[f.name] as RecordFormValues[string] | undefined) ??
+          (f.kind === 'date' ? null : f.kind === 'options' ? [] : f.kind === 'switch' ? false : ''),
+      ]),
     ),
   })
 
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  const submit = (values: RecordFormValues) => {
+    const payload = toPayload(values, all, known)
+    // Fields the backend requires, checked here so the user sees which one is missing
+    const missing = missingRequired(payload, schemaFields)
+    if (missing.length) {
+      for (const slug of missing) setError(slug, { message: 'Required' })
+      return
+    }
+    onSubmit(
+      isEdit
+        ? updateBody(payload, dirtyFields, schemaFields, spec.alwaysSend)
+        : { ...backendDefaults, ...payload },
+    )
+  }
+
   const L = fields.fieldLabel
+  const req = fields.isRequired
   const error = (name: string) => errors[name]?.message as string | undefined
+  const typeOf = (name: string) => schemaFields.find((f) => f.slug === name)?.type
 
   const render = (f: FieldSpec) => {
     switch (f.kind) {
@@ -119,6 +191,8 @@ export function RecordForm({
             key={f.name}
             label={L(f.name)}
             hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
             className={f.kind === 'code' ? 'num' : undefined}
             {...register(f.name)}
           />
@@ -129,6 +203,7 @@ export function RecordForm({
             key={f.name}
             label={L(f.name)}
             hint={f.hint}
+            required={req(f.name)}
             numeric
             error={error(f.name)}
             {...register(f.name)}
@@ -136,23 +211,39 @@ export function RecordForm({
         )
       case 'date':
         return (
-          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
             <Controller
               control={control}
               name={f.name}
-              render={({ field }) => (
-                <DatePicker
-                  id={f.name}
-                  value={typeof field.value === 'string' ? field.value : null}
-                  onChange={field.onChange}
-                />
-              )}
+              render={({ field }) => {
+                const value = typeof field.value === 'string' ? field.value : null
+                // A DATE_TIME field keeps its time; a DATE field is a day
+                return typeOf(f.name) === 'DATE_TIME' ? (
+                  <DateTimePicker id={f.name} value={value} onChange={field.onChange} />
+                ) : (
+                  <DatePicker id={f.name} value={value} onChange={field.onChange} />
+                )
+              }}
             />
           </Field>
         )
       case 'policyType':
         return (
-          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
             <Controller
               control={control}
               name={f.name}
@@ -177,12 +268,21 @@ export function RecordForm({
             autoComplete="new-password"
             label={L(f.name)}
             hint={f.hint}
+            required={req(f.name) && !isEdit}
+            error={error(f.name)}
             {...register(f.name)}
           />
         )
       case 'lookup':
         return (
-          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
             <Controller
               control={control}
               name={f.name}
@@ -199,7 +299,15 @@ export function RecordForm({
           </Field>
         )
       case 'longText':
-        return <TextArea key={f.name} label={L(f.name)} hint={f.hint} {...register(f.name)} />
+        return (
+          <TextArea
+            key={f.name}
+            label={L(f.name)}
+            hint={f.hint}
+            error={error(f.name)}
+            {...register(f.name)}
+          />
+        )
       case 'switch':
         return (
           <Controller
@@ -217,7 +325,14 @@ export function RecordForm({
         )
       case 'options':
         return (
-          <Field key={f.name} label={L(f.name)} htmlFor={f.name} hint={f.hint}>
+          <Field
+            key={f.name}
+            label={L(f.name)}
+            htmlFor={f.name}
+            hint={f.hint}
+            required={req(f.name)}
+            error={error(f.name)}
+          >
             <Controller
               control={control}
               name={f.name}
@@ -252,13 +367,14 @@ export function RecordForm({
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       {spec.sections.map((s) => (
         <FormSection key={s.title} title={s.title} description={s.description}>
-          {s.fields.map(render)}
+          {/* A field shows only when this environment's schema has it */}
+          {s.fields.filter((f) => known.has(f.name)).map(render)}
         </FormSection>
       ))}
-      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} />
+      <FormFooter cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
     </form>
   )
 }
