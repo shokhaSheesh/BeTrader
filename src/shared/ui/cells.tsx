@@ -9,6 +9,7 @@ import {
   formatNumber,
 } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
+import { htmlToText, looksLikeHtml } from '@/shared/lib/html'
 import { toneFor } from '@/shared/lib/tones'
 import { Badge } from './Badge'
 import { Tooltip } from './Tooltip'
@@ -199,6 +200,8 @@ export function FileList({ urls }: { urls: string[] }) {
 }
 
 /** Long text (MULTI_LINE) kept readable in a table cell: one line, cut with an ellipsis. */
+/** One line of a long text; HTML (from u-code's rich-text editor) shows as its plain text. */
 export function LongTextCell({ value }: { value: string | null | undefined }) {
-  return value ? <span className="block max-w-96 truncate">{value}</span> : <Dash />
+  const text = value && looksLikeHtml(value) ? htmlToText(value) : value
+  return text ? <span className="block max-w-96 truncate">{text}</span> : <Dash />
 }

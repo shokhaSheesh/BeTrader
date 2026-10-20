@@ -1,7 +1,7 @@
 import { useParams } from 'react-router'
 import { FAQ_TABLE, useFaqItemQuery } from '@/entities/faq'
 import { RECORDS } from '@/shared/config/routes'
-import { TextCell } from '@/shared/ui'
+import { RichText, TextCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
 
 export default function DetailPage() {
@@ -21,21 +21,21 @@ export default function DetailPage() {
           title: 'English',
           items: [
             { label: L('question_en'), value: <TextCell value={r.questionEn} /> },
-            { label: L('answer_en'), value: <TextCell value={r.answerEn} /> },
+            { label: L('answer_en'), value: <RichText value={r.answerEn} /> },
           ],
         },
         {
           title: 'Russian',
           items: [
             { label: L('question_ru'), value: <TextCell value={r.questionRu} /> },
-            { label: L('answer_ru'), value: <TextCell value={r.answerRu} /> },
+            { label: L('answer_ru'), value: <RichText value={r.answerRu} /> },
           ],
         },
         {
           title: 'Uzbek',
           items: [
             { label: L('question_uz'), value: <TextCell value={r.questionUz} /> },
-            { label: L('answer_uz'), value: <TextCell value={r.answerUz} /> },
+            { label: L('answer_uz'), value: <RichText value={r.answerUz} /> },
           ],
         },
       ]}

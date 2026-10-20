@@ -2,7 +2,7 @@ import { useParams } from 'react-router'
 import { NOTIFICATIONS_TABLE, useNotificationItemQuery } from '@/entities/notification'
 import { useTableFields } from '@/shared/api/useTableFields'
 import { RECORDS } from '@/shared/config/routes'
-import { Badge, DateTimeCell, ImageCell, OptionsCell, TextCell } from '@/shared/ui'
+import { Badge, DateTimeCell, ImageCell, OptionsCell, RichText, TextCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
 
 export default function DetailPage() {
@@ -44,21 +44,21 @@ export default function DetailPage() {
           title: 'English',
           items: [
             { label: L('title_en'), value: <TextCell value={r.titleEn} /> },
-            { label: L('content_en'), value: <TextCell value={r.contentEn} /> },
+            { label: L('content_en'), value: <RichText value={r.contentEn} /> },
           ],
         },
         {
           title: 'Russian',
           items: [
             { label: L('title_ru'), value: <TextCell value={r.titleRu} /> },
-            { label: L('content_ru'), value: <TextCell value={r.contentRu} /> },
+            { label: L('content_ru'), value: <RichText value={r.contentRu} /> },
           ],
         },
         {
           title: 'Uzbek',
           items: [
             { label: L('title_uz'), value: <TextCell value={r.titleUz} /> },
-            { label: L('content_uz'), value: <TextCell value={r.contentUz} /> },
+            { label: L('content_uz'), value: <RichText value={r.contentUz} /> },
           ],
         },
       ]}

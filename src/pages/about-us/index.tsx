@@ -1,6 +1,6 @@
 import { ABOUT_US_TABLE, useAboutUsItemsQuery } from '@/entities/about-us'
 import { RECORDS } from '@/shared/config/routes'
-import { FileList, TextCell } from '@/shared/ui'
+import { FileList, RichText } from '@/shared/ui'
 import { SingletonDetail } from '@/widgets/record-detail'
 
 /** Single-record settings page: the table holds one row, so no list, create or delete. */
@@ -18,9 +18,9 @@ export default function Page() {
         {
           title: 'Text',
           items: [
-            { label: L('text_en'), value: <TextCell value={r.textEn} /> },
-            { label: L('text_ru'), value: <TextCell value={r.textRu} /> },
-            { label: L('text_uz'), value: <TextCell value={r.textUz} /> },
+            { label: L('text_en'), value: <RichText value={r.textEn} /> },
+            { label: L('text_ru'), value: <RichText value={r.textRu} /> },
+            { label: L('text_uz'), value: <RichText value={r.textUz} /> },
           ],
         },
         { title: 'Files', items: [{ label: L('files'), value: <FileList urls={r.files} /> }] },

@@ -58,3 +58,4 @@ export {
 } from './cells'
 export { TextArea } from './TextArea'
 export { TabPanel, Tabs } from './Tabs'
+export { RichText } from './RichText'
