@@ -222,7 +222,9 @@ export async function uploadFile(file: File, folder?: string): Promise<string> {
     // Large images on a slow line take longer than a regular request
     timeout: 120_000,
   })
-  return `https://cdn.u-code.io/${data.data.link}`
+  const { link } = data.data
+  // Demo mode answers with a local preview address, already complete
+  return /^(blob:|https?:)/.test(link) ? link : `https://cdn.u-code.io/${link}`
 }
 
 export interface AggregationRequest {

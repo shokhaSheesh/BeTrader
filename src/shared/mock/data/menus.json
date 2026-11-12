@@ -1,0 +1,299 @@
+{
+  "c57eedc3-a954-4262-a0af-376c65b5a284": [
+    { "id": "c57eedc3-a954-4262-a0af-376c65b5a282", "type": "FOLDER", "label": "Content" },
+    { "id": "c57eedc3-a954-4262-a0af-376c65b5a280", "type": "FOLDER", "label": "Settings" },
+    {
+      "id": "0ee1c323-a290-4616-a0db-c343a5bff302",
+      "type": "LINK",
+      "label": null,
+      "attributes": { "label_en": "Dashboard" }
+    },
+    { "id": "8a6f913a-e3d4-4b73-9fc0-c942f343d0b9", "type": "FOLDER", "label": "Files" },
+    {
+      "id": "604c042d-687f-449b-9d94-48de0df4aa65",
+      "type": "FOLDER",
+      "label": "Project Details",
+      "attributes": { "label_en": "Project Details" }
+    },
+    { "id": "9e988322-cffd-484c-9ed6-460d8701551b", "type": "FOLDER", "label": "Users" },
+    {
+      "id": "cde70628-49b8-453c-9df0-eb90b4a8eb41",
+      "type": "FOLDER",
+      "label": "Investor Details",
+      "attributes": { "label_en": "Investor Details" }
+    },
+    {
+      "id": "b713d58e-23e8-492a-abe0-93bec3a433c4",
+      "type": "FOLDER",
+      "label": "Finance",
+      "attributes": { "label_en": "Finance" }
+    },
+    {
+      "id": "3b0268d6-90bb-4b2d-9da0-db450188eae0",
+      "type": "TABLE",
+      "label": "Investor score",
+      "attributes": { "label_en": "Investor score" },
+      "data": { "table": { "slug": "investor_score" } }
+    },
+    {
+      "id": "07c47b4e-d342-46e6-bdf6-f854cfa89bc1",
+      "type": "TABLE",
+      "label": "documents",
+      "attributes": { "label_en": "documents" },
+      "data": { "table": { "slug": "documents" } }
+    },
+    {
+      "id": "d0f0371f-1552-4731-89fa-f60a9821eda4",
+      "type": "FOLDER",
+      "label": "Directory",
+      "attributes": { "label_en": "Directory" }
+    },
+    {
+      "id": "36be269d-9eec-4f25-97d7-48020d629df5",
+      "type": "FOLDER",
+      "label": "Referral Links",
+      "attributes": { "label_en": "Referral Links" }
+    },
+    {
+      "id": "83041fd2-cc9d-413d-b642-558c1c8a25a7",
+      "type": "TABLE",
+      "label": "public_offer",
+      "attributes": { "label_en": "public_offer" },
+      "data": { "table": { "slug": "public_offer" } }
+    }
+  ],
+  "c57eedc3-a954-4262-a0af-376c65b5a280": [
+    { "id": "d1b3b349-4200-4ba9-8d06-70299795d5e6", "type": "FOLDER", "label": "Data" },
+    { "id": "f7d1fa7d-b857-4a24-a18c-402345f65df8", "type": "FOLDER", "label": "Code" }
+  ],
+  "8a6f913a-e3d4-4b73-9fc0-c942f343d0b9": [
+    { "id": "f4089a64-4f6f-4604-a57a-b1c99f4d16a8", "type": "MINIO_FOLDER", "label": "Media" }
+  ],
+  "604c042d-687f-449b-9d94-48de0df4aa65": [
+    {
+      "id": "97b7029f-d812-4147-a187-43261ae4cdf4",
+      "type": "TABLE",
+      "label": "Projects",
+      "attributes": { "label_en": "Projects" },
+      "data": { "table": { "slug": "projects" } }
+    },
+    {
+      "id": "edabaa5b-82fe-458a-80a5-f480f20a9b8b",
+      "type": "TABLE",
+      "label": "Project Types",
+      "attributes": { "label_en": "Project Types" },
+      "data": { "table": { "slug": "project_types" } }
+    },
+    {
+      "id": "bc95fbb2-3283-44b7-af51-09360a9c2cc1",
+      "type": "TABLE",
+      "label": "Project Investors",
+      "attributes": { "label_en": "Project Investors" },
+      "data": { "table": { "slug": "project_investors" } }
+    }
+  ],
+  "cde70628-49b8-453c-9df0-eb90b4a8eb41": [
+    {
+      "id": "973354dd-0f8b-4f3b-9d6c-0462f4837fa0",
+      "type": "TABLE",
+      "label": "Investors",
+      "attributes": { "label_en": "Investors" },
+      "data": { "table": { "slug": "investors" } }
+    },
+    {
+      "id": "497deb25-e2b6-4dd0-9d86-86ff035e99d3",
+      "type": "TABLE",
+      "label": "Accounts",
+      "attributes": { "label_en": "Accounts" },
+      "data": { "table": { "slug": "account" } }
+    },
+    {
+      "id": "b969899e-149e-4bc4-9e1a-5532715c8c1c",
+      "type": "TABLE",
+      "label": "Investor cards",
+      "attributes": { "label_en": "Investor cards" },
+      "data": { "table": { "slug": "investor_cards" } }
+    },
+    {
+      "id": "8b811183-9709-4a96-8151-467c56e629aa",
+      "type": "TABLE",
+      "label": " Backlist Aml",
+      "attributes": { "label_en": " Backlist AML" },
+      "data": { "table": { "slug": "black_list" } }
+    }
+  ],
+  "b713d58e-23e8-492a-abe0-93bec3a433c4": [
+    {
+      "id": "4b9e7875-6b1c-41f9-b6bd-19206eba2ffb",
+      "type": "TABLE",
+      "label": "Orders",
+      "attributes": { "label_en": "Orders" },
+      "data": { "table": { "slug": "orders" } }
+    },
+    {
+      "id": "268a0a2f-891d-4bf7-9ed4-d6f81971e93a",
+      "type": "TABLE",
+      "label": "Transactions",
+      "attributes": { "label_en": "Transactions" },
+      "data": { "table": { "slug": "transactions" } }
+    },
+    {
+      "id": "487a1e07-003c-4562-9c32-46e1b3cf1639",
+      "type": "TABLE",
+      "label": "Dividend",
+      "attributes": { "label_en": "Interest income" },
+      "data": { "table": { "slug": "dividend" } }
+    },
+    {
+      "id": "3a7ffdec-360d-4d5f-85a3-375355e1b4b4",
+      "type": "TABLE",
+      "label": "Currency rates",
+      "attributes": { "label_en": "Currency rates" },
+      "data": { "table": { "slug": "currency_rates" } }
+    },
+    {
+      "id": "0ab805b5-15d5-4982-a141-b464dc1adc0e",
+      "type": "TABLE",
+      "label": "Currency percent",
+      "attributes": { "label_en": "Currency percent" },
+      "data": { "table": { "slug": "currency_percent" } }
+    },
+    {
+      "id": "18bfd0c5-95a7-4497-b7a2-e752a9cb5c6f",
+      "type": "TABLE",
+      "label": "Transaction policy",
+      "attributes": { "label_en": "Transaction policy" },
+      "data": { "table": { "slug": "transaction_policy" } }
+    },
+    {
+      "id": "50caf10a-6856-4a5e-a198-21f6d1a891a7",
+      "type": "TABLE",
+      "label": "RBA matrix",
+      "attributes": { "label_en": "RBA matrix" },
+      "data": { "table": { "slug": "rba_matrix" } }
+    },
+    {
+      "id": "9e7084d5-2bb1-45a1-8617-6c36b9f830d5",
+      "type": "TABLE",
+      "label": "Financial Modeling",
+      "attributes": { "label_en": "Financial Modeling" },
+      "data": { "table": { "slug": "financial_modeling" } }
+    }
+  ],
+  "d0f0371f-1552-4731-89fa-f60a9821eda4": [
+    {
+      "id": "0891251b-40b5-40c5-af6f-ff0e030d4a45",
+      "type": "TABLE",
+      "label": "Employee",
+      "attributes": { "label_en": "Employee" },
+      "data": { "table": { "slug": "employee" } }
+    },
+    {
+      "id": "a819c835-07b4-4496-9cb6-5c93f4e9ade0",
+      "type": "TABLE",
+      "label": "Maintenance work",
+      "attributes": { "label_en": "Maintenance work" },
+      "data": { "table": { "slug": "maintenance_works" } }
+    },
+    {
+      "id": "a654f05d-1ce2-4107-9596-3516f302b9f5",
+      "type": "TABLE",
+      "label": "Notification",
+      "attributes": { "label_en": "Notification" },
+      "data": { "table": { "slug": "notification" } }
+    },
+    {
+      "id": "2225b41e-c43a-4a0f-80b6-6d8a15c677a7",
+      "type": "TABLE",
+      "label": "News",
+      "attributes": { "label_en": "News" },
+      "data": { "table": { "slug": "news" } }
+    },
+    {
+      "id": "c2cb0696-3fc1-4247-b5e1-5bdc7f2a254d",
+      "type": "TABLE",
+      "label": "FAQ",
+      "attributes": { "label_en": "FAQ" },
+      "data": { "table": { "slug": "faq" } }
+    },
+    {
+      "id": "674e1623-d09b-462b-9681-e685d852f531",
+      "type": "TABLE",
+      "label": "Documents",
+      "attributes": { "label_en": "Documents" },
+      "data": { "table": { "slug": "documents" } }
+    },
+    {
+      "id": "99d61271-9574-4c1f-b1f8-bbdac2ce38cd",
+      "type": "TABLE",
+      "label": "STR/SAR",
+      "attributes": { "label_en": "STR/SAR" },
+      "data": { "table": { "slug": "str_sar" } }
+    },
+    {
+      "id": "e44131b9-8a3c-4ee3-8f63-1b7e1df5ed53",
+      "type": "TABLE",
+      "label": "Policy Type",
+      "attributes": { "label_en": "Policy Type" },
+      "data": { "table": { "slug": "policy_Type" } }
+    },
+    {
+      "id": "efb8a4eb-b26d-425e-8b44-1baecbad0264",
+      "type": "TABLE",
+      "label": "SMS Template",
+      "attributes": { "label_en": "SMS Template" },
+      "data": { "table": { "slug": "sms_template" } }
+    },
+    {
+      "id": "6db98ea3-9c14-4fa1-ac14-21db4184847a",
+      "type": "TABLE",
+      "label": "About Us",
+      "attributes": { "label_en": "About Us" },
+      "data": { "table": { "slug": "about_us" } }
+    },
+    {
+      "id": "e3b6c313-0677-4c16-a912-9ef211b68c0a",
+      "type": "TABLE",
+      "label": "Контактные инфо",
+      "attributes": { "label_en": "Contact Information" },
+      "data": { "table": { "slug": "contact_info" } }
+    },
+    {
+      "id": "87e497ec-056f-46cc-a817-017f054db4a9",
+      "type": "TABLE",
+      "label": "notification_read",
+      "attributes": { "label_en": "notification_read" },
+      "data": { "table": { "slug": "notification_read" } }
+    }
+  ],
+  "36be269d-9eec-4f25-97d7-48020d629df5": [
+    {
+      "id": "a2912338-0854-4c3d-bccf-0ee3a1cbf847",
+      "type": "TABLE",
+      "label": "Referral links",
+      "attributes": { "label_en": "Referral links" },
+      "data": { "table": { "slug": "referral_links" } }
+    },
+    {
+      "id": "2e888f6d-0094-477e-9706-6809ca3f618c",
+      "type": "TABLE",
+      "label": "Link Settings",
+      "attributes": { "label_en": "Link Settings" },
+      "data": { "table": { "slug": "link_settings" } }
+    },
+    {
+      "id": "dc269b84-93e7-40b5-ba89-811e4d40b74f",
+      "type": "TABLE",
+      "label": "pending_referral",
+      "attributes": { "label_en": "pending_referral" },
+      "data": { "table": { "slug": "pending_referral" } }
+    },
+    {
+      "id": "7eca7ec6-785e-4422-8ca1-1d578fb939cc",
+      "type": "TABLE",
+      "label": "social_settings",
+      "attributes": { "label_en": "social_settings" },
+      "data": { "table": { "slug": "social_settings" } }
+    }
+  ]
+}

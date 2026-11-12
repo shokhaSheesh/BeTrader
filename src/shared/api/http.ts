@@ -1,5 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 import { env } from '@/shared/config/env'
+import { MOCK_MODE } from '@/shared/config/mock'
+import { installMockBackend } from '@/shared/mock'
 import { isExpiringSoon, refreshSession } from '@/shared/session/refresh'
 import { useSessionStore } from '@/shared/session/store'
 
@@ -15,6 +17,9 @@ export const authHttp = axios.create({
 })
 
 for (const client of [http, authHttp]) attachSession(client)
+
+// Demo mode: the mock backend answers every request in the browser (shared/config/mock.ts)
+if (MOCK_MODE) installMockBackend(http, authHttp)
 
 function attachSession(client: typeof http) {
   client.interceptors.request.use(async (config) => {

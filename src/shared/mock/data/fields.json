@@ -1,0 +1,1574 @@
+{
+  "about_us": [
+    {
+      "slug": "files",
+      "type": "MULTI_FILE",
+      "label": "files",
+      "attributes": { "label_en": "files" }
+    },
+    {
+      "slug": "text_uz",
+      "type": "MULTI_LINE",
+      "label": "Text",
+      "attributes": { "label_en": "Text uz" }
+    },
+    {
+      "slug": "text_ru",
+      "type": "MULTI_LINE",
+      "label": "Text",
+      "attributes": { "label_en": "Text ru" }
+    },
+    {
+      "slug": "text_en",
+      "type": "MULTI_LINE",
+      "label": "Text",
+      "attributes": { "label_en": "Text en" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "account": [
+    {
+      "slug": "tranzit",
+      "type": "FLOAT",
+      "label": "Tranzit",
+      "attributes": { "label_en": "Tranzit (UZS)" }
+    },
+    {
+      "slug": "full_name",
+      "type": "SINGLE_LINE",
+      "label": "Full Name",
+      "attributes": { "label_en": "Full Name" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM account TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    {
+      "slug": "dividend",
+      "type": "FLOAT",
+      "label": "Dividend",
+      "attributes": { "label_en": "Interest income (USD)" }
+    },
+    {
+      "slug": "invest",
+      "type": "FLOAT",
+      "label": "Investment",
+      "attributes": { "label_en": "Investment (USD)" }
+    },
+    {
+      "slug": "deposit",
+      "type": "FLOAT",
+      "label": "Deposit",
+      "attributes": { "label_en": "Deposit (UZS)" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "black_list": [
+    {
+      "slug": "surname",
+      "type": "SINGLE_LINE",
+      "label": "surname",
+      "attributes": { "label_en": "Surname" }
+    },
+    {
+      "slug": "name",
+      "type": "SINGLE_LINE",
+      "label": "name",
+      "attributes": { "label_en": "Name" }
+    },
+    {
+      "slug": "passport",
+      "type": "SINGLE_LINE",
+      "label": "passport",
+      "attributes": { "label_en": "Passport" }
+    },
+    { "slug": "pin", "type": "SINGLE_LINE", "label": " Pin", "attributes": { "label_en": " Pin" } },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "contact_info": [
+    {
+      "slug": "telegram",
+      "type": "SINGLE_LINE",
+      "label": "telegram",
+      "attributes": { "label_en": "telegram" }
+    },
+    {
+      "slug": "phone",
+      "type": "INTERNATION_PHONE",
+      "label": "phone",
+      "attributes": { "label_en": "phone" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "currency_percent": [
+    {
+      "slug": "type",
+      "type": "MULTISELECT",
+      "label": "Type",
+      "attributes": {
+        "label_en": "Type",
+        "options": [
+          { "value": "currency", "label": "Currency" },
+          { "value": "transaction", "label": "Transaction" },
+          { "value": "insurance", "label": "Insurance" }
+        ]
+      }
+    },
+    {
+      "slug": "percent",
+      "type": "FLOAT",
+      "label": "Percent",
+      "attributes": { "label_en": "Percent" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "currency_rates": [
+    {
+      "slug": "percent",
+      "type": "FLOAT",
+      "label": "Percent",
+      "attributes": { "label_en": "Percent" }
+    },
+    {
+      "slug": "amount_with_percent",
+      "type": "FLOAT",
+      "label": "Amount with percent",
+      "attributes": { "label_en": "Amount with percent" }
+    },
+    { "slug": "date", "type": "DATE", "label": "Date", "attributes": { "label_en": "Date" } },
+    {
+      "slug": "amount",
+      "type": "FLOAT",
+      "label": "Amount",
+      "attributes": { "label_en": "Amount" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "dividend": [
+    {
+      "slug": "remaining_amount_usd",
+      "type": "FLOAT",
+      "label": "remaining_amount_usd",
+      "attributes": { "label_en": "Not distributed, $" }
+    },
+    {
+      "slug": "nominal_amount_usd",
+      "type": "FLOAT",
+      "label": "nominal_amount_usd",
+      "attributes": { "label_en": "Declared profit, $" }
+    },
+    {
+      "slug": "order_amount",
+      "type": "FLOAT",
+      "label": "Order amount",
+      "attributes": { "label_en": "Order amount" }
+    },
+    {
+      "slug": "period_days",
+      "type": "NUMBER",
+      "label": "Period days",
+      "attributes": { "label_en": "Period days" }
+    },
+    { "slug": "days", "type": "NUMBER", "label": "Days", "attributes": { "label_en": "Days" } },
+    {
+      "slug": "type",
+      "type": "MULTISELECT",
+      "label": "Type",
+      "attributes": {
+        "label_en": "Type",
+        "options": [
+          { "value": "debit", "label": "Debit" },
+          { "value": "profit", "label": "Profit" }
+        ]
+      }
+    },
+    {
+      "slug": "percent",
+      "type": "FLOAT",
+      "label": "Percent",
+      "attributes": { "label_en": "Percent" }
+    },
+    {
+      "slug": "amount_uzs",
+      "type": "FLOAT",
+      "label": "Amount (Uzs)",
+      "attributes": { "label_en": "Amount (Uzs)" }
+    },
+    {
+      "slug": "amount_usd",
+      "type": "FLOAT",
+      "label": "Amount (USD)",
+      "attributes": { "label_en": "Amount (Usd)" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM dividend TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    {
+      "slug": "projects_id",
+      "type": "LOOKUP",
+      "label": "FROM dividend TO projects",
+      "attributes": { "label_en": "Project" }
+    },
+    { "slug": "to_date", "type": "DATE_TIME", "label": "To", "attributes": { "label_en": "To" } },
+    {
+      "slug": "from_date",
+      "type": "DATE_TIME",
+      "label": "From",
+      "attributes": { "label_en": "From" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "documents": [
+    {
+      "slug": "file_en",
+      "type": "FILE",
+      "label": "file_en",
+      "attributes": { "label_en": "file_en" }
+    },
+    {
+      "slug": "file_uz",
+      "type": "FILE",
+      "label": "file_uz",
+      "attributes": { "label_en": "file_uz" }
+    },
+    {
+      "slug": "title_uz",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (Uz)" }
+    },
+    {
+      "slug": "title_ru",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (Ru)" }
+    },
+    {
+      "slug": "title_en",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (En)" }
+    },
+    { "slug": "file", "type": "FILE", "label": "File", "attributes": { "label_en": "File" } },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM documents TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "employee": [
+    {
+      "slug": "photo",
+      "type": "PHOTO",
+      "label": "Photo",
+      "attributes": { "label_en": "Photo", "path": "Media" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" },
+    { "slug": "password", "type": "PASSWORD", "label": "Password" },
+    {
+      "slug": "role_id",
+      "type": "LOOKUP",
+      "label": "FROM employee TO role",
+      "attributes": { "label_en": "Role" }
+    },
+    { "slug": "login", "type": "SINGLE_LINE", "label": "Login" },
+    {
+      "slug": "user_id_auth",
+      "type": "UUID",
+      "label": "User ID Auth",
+      "attributes": { "label_en": "UserIdAuth" }
+    },
+    {
+      "slug": "client_type_id",
+      "type": "LOOKUP",
+      "label": "FROM employee TO client_type",
+      "attributes": { "label_en": "Client Type" }
+    }
+  ],
+  "faq": [
+    {
+      "slug": "answer_uz",
+      "type": "MULTI_LINE",
+      "label": "Answer",
+      "attributes": { "label_en": "Answer" }
+    },
+    {
+      "slug": "answer_ru",
+      "type": "MULTI_LINE",
+      "label": "Answer",
+      "attributes": { "label_en": "Answer" }
+    },
+    {
+      "slug": "answer_en",
+      "type": "MULTI_LINE",
+      "label": "Answer",
+      "attributes": { "label_en": "Answer" }
+    },
+    {
+      "slug": "question_uz",
+      "type": "SINGLE_LINE",
+      "label": "Question",
+      "attributes": { "label_en": "Question" }
+    },
+    {
+      "slug": "question_ru",
+      "type": "SINGLE_LINE",
+      "label": "Question",
+      "attributes": { "label_en": "Question" }
+    },
+    {
+      "slug": "question_en",
+      "type": "SINGLE_LINE",
+      "label": "Question",
+      "attributes": { "label_en": "Question" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "financial_modeling": [
+    { "slug": "price", "type": "FLOAT", "label": "Price", "attributes": { "label_en": "Price" } },
+    { "slug": "date", "type": "DATE", "label": "Date", "attributes": { "label_en": "Date" } },
+    {
+      "slug": "project_key_name",
+      "type": "SINGLE_LINE",
+      "label": "Project Key Name",
+      "attributes": { "label_en": "Project Key Name" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "investor_cards": [
+    {
+      "slug": "type",
+      "type": "SINGLE_LINE",
+      "label": "Type",
+      "attributes": { "label_en": "Type" }
+    },
+    {
+      "slug": "card_name",
+      "type": "SINGLE_LINE",
+      "label": "Card_Name",
+      "attributes": { "label_en": "Card Name" }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created time",
+      "attributes": { "label_en": "Created time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "card_token",
+      "type": "SINGLE_LINE",
+      "label": "Card Token",
+      "attributes": { "label_en": "Card Token" }
+    },
+    {
+      "slug": "expiry_date",
+      "type": "DATE",
+      "label": "Expiry date",
+      "attributes": { "label_en": "Expiry date" }
+    },
+    {
+      "slug": "masked_pan",
+      "type": "SINGLE_LINE",
+      "label": "Card number",
+      "attributes": { "label_en": "Card number" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM investor_cards TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "investor_score": [
+    { "slug": "score", "type": "FLOAT", "label": "Score", "attributes": { "label_en": "Score" } },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM investor_score TO investors",
+      "attributes": { "label_en": "Investors" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "investors": [
+    {
+      "slug": "is_identified",
+      "type": "CHECKBOX",
+      "label": "is_identified",
+      "attributes": { "label_en": "is_identified" }
+    },
+    {
+      "slug": "social_sub_type",
+      "type": "SINGLE_LINE",
+      "label": "social_sub_type",
+      "attributes": { "label_en": "social_sub_type" }
+    },
+    {
+      "slug": "social_type",
+      "type": "SINGLE_LINE",
+      "label": "social_type",
+      "attributes": { "label_en": "social_type" }
+    },
+    {
+      "slug": "pin_code",
+      "type": "SINGLE_LINE",
+      "label": "pin_code",
+      "attributes": { "label_en": "pin_code" }
+    },
+    { "slug": "score", "type": "FLOAT", "label": "score", "attributes": { "label_en": "Score" } },
+    {
+      "slug": "mode",
+      "type": "SINGLE_LINE",
+      "label": "Mode",
+      "attributes": { "label_en": "Mode", "options": [{ "value": "dark", "label": "Dark" }] }
+    },
+    {
+      "slug": "birth_date",
+      "type": "SINGLE_LINE",
+      "label": "Birth date",
+      "attributes": { "label_en": "Birth date" }
+    },
+    {
+      "slug": "lang",
+      "type": "MULTISELECT",
+      "label": "Language",
+      "attributes": {
+        "label_en": "Language",
+        "options": [
+          { "value": "uz", "label": "Uz" },
+          { "value": "ru", "label": "Ru" },
+          { "value": "en", "label": "En" }
+        ]
+      }
+    },
+    {
+      "slug": "tg_caht_id",
+      "type": "NUMBER",
+      "label": "Tg Chat ID",
+      "attributes": { "label_en": "Tg Chat ID" }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created Time",
+      "attributes": { "label_en": "Created Time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "platform_type",
+      "type": "MULTISELECT",
+      "label": "Platform type",
+      "attributes": {
+        "label_en": "Platform type",
+        "options": [
+          { "value": "ios", "label": "IOS" },
+          { "value": "android", "label": "Android" },
+          { "value": "web", "label": "Web" }
+        ]
+      }
+    },
+    {
+      "slug": "image",
+      "type": "PHOTO",
+      "label": "Image",
+      "attributes": { "label_en": "Image", "path": "Media" }
+    },
+    {
+      "slug": "fmc_token",
+      "type": "SINGLE_LINE",
+      "label": "FCM token",
+      "attributes": { "label_en": "FCM token" }
+    },
+    {
+      "slug": "street",
+      "type": "SINGLE_LINE",
+      "label": "Street",
+      "attributes": { "label_en": "Street" }
+    },
+    {
+      "slug": "district",
+      "type": "SINGLE_LINE",
+      "label": "District",
+      "attributes": { "label_en": "District" }
+    },
+    {
+      "slug": "city",
+      "type": "SINGLE_LINE",
+      "label": "City",
+      "attributes": { "label_en": "City" }
+    },
+    {
+      "slug": "citizenship",
+      "type": "SINGLE_LINE",
+      "label": "Citizenship",
+      "attributes": { "label_en": "Citizenship" }
+    },
+    {
+      "slug": "country_name",
+      "type": "SINGLE_LINE",
+      "label": "Country name",
+      "attributes": { "label_en": "Country name" }
+    },
+    {
+      "slug": "issued_by",
+      "type": "SINGLE_LINE",
+      "label": "Issued by",
+      "attributes": { "label_en": "Issued by" }
+    },
+    {
+      "slug": "issued_date",
+      "type": "SINGLE_LINE",
+      "label": "Issued date",
+      "attributes": { "label_en": "Issued date" }
+    },
+    {
+      "slug": "passport",
+      "type": "SINGLE_LINE",
+      "label": "Passport",
+      "attributes": { "label_en": "Passport" }
+    },
+    {
+      "slug": "pinfl",
+      "type": "SINGLE_LINE",
+      "label": "Pinfl",
+      "attributes": { "label_en": "Pinfl" }
+    },
+    {
+      "slug": "birth_place",
+      "type": "SINGLE_LINE",
+      "label": "Birth place",
+      "attributes": { "label_en": "Birth place" }
+    },
+    {
+      "slug": "gender",
+      "type": "MULTISELECT",
+      "label": "Gender",
+      "attributes": {
+        "label_en": "Gender",
+        "options": [
+          { "value": "male", "label": "Male" },
+          { "value": "female", "label": "Female" },
+          { "value": "other", "label": "Other" }
+        ]
+      }
+    },
+    {
+      "slug": "full_name",
+      "type": "SINGLE_LINE",
+      "label": "Full name",
+      "attributes": { "label_en": "Full name" }
+    },
+    {
+      "slug": "patronymic",
+      "type": "SINGLE_LINE",
+      "label": "Patronymic",
+      "attributes": { "label_en": "Patronymic" }
+    },
+    {
+      "slug": "surname",
+      "type": "SINGLE_LINE",
+      "label": "Surname",
+      "attributes": { "label_en": "Surname" }
+    },
+    {
+      "slug": "name",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name" }
+    },
+    {
+      "slug": "user_id_auth",
+      "type": "UUID",
+      "label": "User ID Auth",
+      "attributes": { "label_en": "UserIdAuth" }
+    },
+    {
+      "slug": "client_type_id",
+      "type": "LOOKUP",
+      "label": "FROM investors TO client_type",
+      "attributes": { "label_en": "Client Type" }
+    },
+    {
+      "slug": "role_id",
+      "type": "LOOKUP",
+      "label": "FROM investors TO role",
+      "attributes": { "label_en": "Role" }
+    },
+    { "slug": "phone", "type": "INTERNATION_PHONE", "label": "Phone" },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "link_settings": [
+    {
+      "slug": "sender_percentage",
+      "type": "FLOAT",
+      "label": "Sender Percent",
+      "attributes": { "label_en": "Sender Percent" }
+    },
+    {
+      "slug": "base_url",
+      "type": "SINGLE_LINE",
+      "label": "Base URL",
+      "attributes": { "label_en": "Base URL" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "maintenance_works": [
+    {
+      "slug": "maintenance_works",
+      "type": "SWITCH",
+      "label": "maintenance_works",
+      "attributes": { "label_en": "Maintenance works" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "news": [
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Create time",
+      "attributes": { "label_en": "Create time" }
+    },
+    { "slug": "photo", "type": "PHOTO", "label": "Photo", "attributes": { "label_en": "Photo" } },
+    {
+      "slug": "description_uz",
+      "type": "MULTI_LINE",
+      "label": "Descibtion",
+      "attributes": { "label_en": "Descibtion (Uz)" }
+    },
+    {
+      "slug": "description_ru",
+      "type": "MULTI_LINE",
+      "label": "Descibtion",
+      "attributes": { "label_en": "Descibtion (Ru)" }
+    },
+    {
+      "slug": "description_en",
+      "type": "MULTI_LINE",
+      "label": "Descibtion",
+      "attributes": { "label_en": "Descibtion (En)" }
+    },
+    {
+      "slug": "title_uz",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (Uz)" }
+    },
+    {
+      "slug": "title_ru",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (Ru)" }
+    },
+    {
+      "slug": "title_en",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title (En)" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "notification": [
+    { "slug": "image", "type": "PHOTO", "label": "image" },
+    {
+      "slug": "type",
+      "type": "MULTISELECT",
+      "label": "Type",
+      "attributes": {
+        "label_en": "Type",
+        "options": [
+          { "value": "info", "label": "Info", "color": "#00D717" },
+          { "value": "warning", "label": "Warning", "color": "#FCB410" }
+        ]
+      }
+    },
+    {
+      "slug": "title_uz",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title" }
+    },
+    {
+      "slug": "title_ru",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title" }
+    },
+    {
+      "slug": "title_en",
+      "type": "SINGLE_LINE",
+      "label": "Title",
+      "attributes": { "label_en": "Title" }
+    },
+    {
+      "slug": "link",
+      "type": "SINGLE_LINE",
+      "label": "Link",
+      "attributes": { "label_en": "Link" }
+    },
+    {
+      "slug": "send_at",
+      "type": "DATE_TIME",
+      "label": "Send at",
+      "attributes": { "label_en": "Send at", "defaultValue": "now()" }
+    },
+    {
+      "slug": "is_sent",
+      "type": "CHECKBOX",
+      "label": "Is read",
+      "attributes": { "label_en": "Is Sent" }
+    },
+    {
+      "slug": "content_uz",
+      "type": "MULTI_LINE",
+      "label": "Content",
+      "attributes": { "label_en": "Content" }
+    },
+    {
+      "slug": "content_ru",
+      "type": "MULTI_LINE",
+      "label": "Content",
+      "attributes": { "label_en": "Content" }
+    },
+    {
+      "slug": "content_en",
+      "type": "MULTI_LINE",
+      "label": "Content",
+      "attributes": { "label_en": "Content" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "orders": [
+    { "slug": "otp", "type": "SINGLE_LINE", "label": "OTP", "attributes": { "label_en": "OTP" } },
+    {
+      "slug": "deposit_maturity_date",
+      "type": "DATE_TIME",
+      "label": "Deposit Maturity Date",
+      "attributes": { "label_en": "Deposit Maturity Date" }
+    },
+    {
+      "slug": "transaction_id",
+      "type": "SINGLE_LINE",
+      "label": "Tranasction Id",
+      "attributes": { "label_en": "Tranasction Id" }
+    },
+    {
+      "slug": "to_account",
+      "type": "MULTISELECT",
+      "label": "To account",
+      "attributes": {
+        "label_en": "To account",
+        "options": [
+          { "value": "investment", "label": "Investment", "color": "#F31D2F" },
+          { "value": "deposit", "label": "Deposit", "color": "#00D717" }
+        ]
+      }
+    },
+    {
+      "slug": "from_account",
+      "type": "MULTISELECT",
+      "label": "From account",
+      "attributes": {
+        "label_en": "From account",
+        "options": [
+          { "value": "deposit", "label": "Deposit", "color": "#00D717" },
+          { "value": "dividend", "label": "Dividend", "color": "#0918EC" },
+          { "value": "investment", "label": "Investment", "color": "#F31D2F" }
+        ]
+      }
+    },
+    {
+      "slug": "updated_time",
+      "type": "DATE_TIME",
+      "label": "Updated time",
+      "attributes": { "label_en": "Updated time" }
+    },
+    {
+      "slug": "is_insurance",
+      "type": "SWITCH",
+      "label": "Is insurance",
+      "attributes": { "label_en": "Is insurance" }
+    },
+    {
+      "slug": "amount_usd_with_fee",
+      "type": "FLOAT",
+      "label": "Amount with fee (USD)",
+      "attributes": { "label_en": "Amount with fee (USD)" }
+    },
+    {
+      "slug": "amount_uzs_with_fee",
+      "type": "FLOAT",
+      "label": "Amount with fee (UZS)",
+      "attributes": { "label_en": "Amount with fee (UZS)" }
+    },
+    {
+      "slug": "amount_uzs",
+      "type": "FLOAT",
+      "label": "Amount (UZS)",
+      "attributes": { "label_en": "Amount (UZS)" }
+    },
+    {
+      "slug": "insurance",
+      "type": "FLOAT",
+      "label": "Insurance",
+      "attributes": { "label_en": "Insurance" }
+    },
+    {
+      "slug": "transaction_fee",
+      "type": "FLOAT",
+      "label": "Transaction fee",
+      "attributes": { "label_en": "Transaction fee" }
+    },
+    {
+      "slug": "amount_usd",
+      "type": "FLOAT",
+      "label": "Amount (USD)",
+      "attributes": { "label_en": "Amount (USD)" }
+    },
+    {
+      "slug": "account_id",
+      "type": "LOOKUP",
+      "label": "FROM orders TO account",
+      "attributes": { "label_en": "Account" }
+    },
+    {
+      "slug": "type",
+      "type": "MULTISELECT",
+      "label": "Type",
+      "attributes": {
+        "label_en": "Type",
+        "defaultValue": ["buy"],
+        "options": [
+          { "value": "buy", "label": "Buy", "color": "#0918EC" },
+          { "value": "sell", "label": "Sell", "color": "#F31D2F" }
+        ]
+      }
+    },
+    {
+      "slug": "status",
+      "type": "MULTISELECT",
+      "label": "Status",
+      "attributes": {
+        "label_en": "Status",
+        "defaultValue": ["pending"],
+        "options": [
+          { "value": "pending", "label": "Pending", "color": "#FCB410" },
+          { "value": "confirmed", "label": "Confirmed", "color": "#00D717" },
+          { "value": "canceled", "label": "Canceled", "color": "#F31D2F" }
+        ]
+      }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created time",
+      "attributes": { "label_en": "Created time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "currency_rate",
+      "type": "FLOAT",
+      "label": "Currency rate",
+      "attributes": { "label_en": "Currency rate" }
+    },
+    {
+      "slug": "currency",
+      "type": "MULTISELECT",
+      "label": "Currency",
+      "attributes": {
+        "label_en": "Currency",
+        "options": [
+          { "value": "UZS", "label": "UZS" },
+          { "value": "USD", "label": "USD" }
+        ]
+      }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM orders TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    {
+      "slug": "projects_id",
+      "type": "LOOKUP",
+      "label": "FROM orders TO projects",
+      "attributes": { "label_en": "Project" }
+    },
+    {
+      "slug": "external_order_id",
+      "type": "INCREMENT_ID",
+      "label": "Order id",
+      "attributes": { "label_en": "Order id" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "policy_Type": [
+    {
+      "slug": "label_uz",
+      "type": "SINGLE_LINE",
+      "label": "Этикетка",
+      "attributes": { "label_en": "Yorliq" }
+    },
+    {
+      "slug": "label_ru",
+      "type": "SINGLE_LINE",
+      "label": "Этикетка",
+      "attributes": { "label_en": "Laber" }
+    },
+    {
+      "slug": "label_en",
+      "type": "SINGLE_LINE",
+      "label": "Этикетка",
+      "attributes": { "label_en": "Label" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "project_investors": [
+    {
+      "slug": "dividend_uzs",
+      "type": "FLOAT",
+      "label": "dividend_uzs",
+      "attributes": { "label_en": "dividend_uzs" }
+    },
+    {
+      "slug": "investment_uzs",
+      "type": "FLOAT",
+      "label": "investment_uzs",
+      "attributes": { "label_en": "investment_uzs" }
+    },
+    {
+      "slug": "closing_date",
+      "type": "DATE_TIME",
+      "label": "closing_date",
+      "attributes": { "label_en": "closing_date" }
+    },
+    {
+      "slug": "status",
+      "type": "SINGLE_LINE",
+      "label": "status",
+      "attributes": { "label_en": "status" }
+    },
+    {
+      "slug": "updated_time",
+      "type": "DATE_TIME",
+      "label": "Updated time",
+      "attributes": { "label_en": "Updated time" }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created time",
+      "attributes": { "label_en": "Created time" }
+    },
+    {
+      "slug": "dividend",
+      "type": "FLOAT",
+      "label": "Dividend",
+      "attributes": { "label_en": "Interest income" }
+    },
+    {
+      "slug": "investment",
+      "type": "FLOAT",
+      "label": "Investment",
+      "attributes": { "label_en": "Investment" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM project_investors TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    {
+      "slug": "projects_id",
+      "type": "LOOKUP",
+      "label": "FROM project_investors TO projects",
+      "attributes": { "label_en": "Project" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "project_types": [
+    {
+      "slug": "calculate_dividend",
+      "type": "MULTISELECT",
+      "label": "Calculate dividend",
+      "required": true,
+      "attributes": {
+        "label_en": "Calculate dividend",
+        "options": [
+          { "value": "percent", "label": "Percent" },
+          { "value": "amount", "label": "Amount" }
+        ]
+      }
+    },
+    { "slug": "to_percent", "type": "FLOAT", "label": "To", "attributes": { "label_en": "To %" } },
+    {
+      "slug": "from_percent",
+      "type": "FLOAT",
+      "label": "From percent",
+      "attributes": { "label_en": "From %" }
+    },
+    {
+      "slug": "name_uz",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (Uz)" }
+    },
+    {
+      "slug": "name_ru",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (Ru)" }
+    },
+    {
+      "slug": "name_en",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (En)" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "projects": [
+    {
+      "slug": "sale",
+      "type": "SWITCH",
+      "label": "Sale",
+      "attributes": { "label_en": "Hold while selling" }
+    },
+    {
+      "slug": "insurance",
+      "type": "SWITCH",
+      "label": "Insurance",
+      "attributes": { "label_en": "Insurance" }
+    },
+    {
+      "slug": "investment",
+      "type": "SWITCH",
+      "label": "Investment",
+      "attributes": { "label_en": "Hold on investment" }
+    },
+    {
+      "slug": "end_time",
+      "type": "DATE",
+      "label": "End_time",
+      "attributes": { "label_en": "End time" }
+    },
+    { "slug": "board_order", "type": "NUMBER", "label": "BOARD ORDER" },
+    {
+      "slug": "insurance_amount",
+      "type": "FLOAT",
+      "label": "Insurance Amount (USD)",
+      "attributes": { "label_en": "Insurance Amount (USD)" }
+    },
+    {
+      "slug": "dividend_period",
+      "type": "NUMBER",
+      "label": "Dividend accrual period",
+      "attributes": { "label_en": "Dividend accrual period" }
+    },
+    {
+      "slug": "deposit_maturity_month",
+      "type": "NUMBER",
+      "label": "deposit_maturity_month",
+      "attributes": { "label_en": "Maturity Month" }
+    },
+    {
+      "slug": "minimal_amount",
+      "type": "FLOAT",
+      "label": "Minimal amount",
+      "attributes": { "label_en": "Minimal amount (USD)" }
+    },
+    {
+      "slug": "project_types_id",
+      "type": "LOOKUP",
+      "label": "FROM projects TO project_types",
+      "attributes": { "label_en": "Project Type" }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created time",
+      "attributes": { "label_en": "Created time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "ticker",
+      "type": "SINGLE_LINE",
+      "label": "Ticker",
+      "attributes": { "label_en": "Ticker" }
+    },
+    {
+      "slug": "currency",
+      "type": "MULTISELECT",
+      "label": "Currency",
+      "attributes": {
+        "label_en": "Currency",
+        "defaultValue": ["USD"],
+        "options": [
+          { "value": "USD", "label": "USD" },
+          { "value": "UZS", "label": "UZS" }
+        ]
+      }
+    },
+    {
+      "slug": "image",
+      "type": "PHOTO",
+      "label": "Image",
+      "attributes": { "label_en": "Image", "path": "Media" }
+    },
+    {
+      "slug": "status",
+      "type": "MULTISELECT",
+      "label": "Status",
+      "attributes": {
+        "label_en": "Status",
+        "options": [
+          { "value": "invest", "label": "Investment" },
+          { "value": "closed", "label": "Closed" },
+          { "value": "test", "label": "Testing" }
+        ]
+      }
+    },
+    {
+      "slug": "name_uz",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (Uz)" }
+    },
+    {
+      "slug": "name_ru",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (Ru)" }
+    },
+    {
+      "slug": "name_en",
+      "type": "SINGLE_LINE",
+      "label": "Name",
+      "attributes": { "label_en": "Name (En)" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "rba_matrix": [
+    { "slug": "score", "type": "FLOAT", "label": "Score", "attributes": { "label_en": "Score" } },
+    {
+      "slug": "amount_to",
+      "type": "FLOAT",
+      "label": "Amount to",
+      "attributes": { "label_en": "Amount to" }
+    },
+    {
+      "slug": "amount_from",
+      "type": "FLOAT",
+      "label": "Amount from",
+      "attributes": { "label_en": "Amount from" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "referral_links": [
+    {
+      "slug": "device_id",
+      "type": "SINGLE_LINE",
+      "label": "device_id",
+      "attributes": { "label_en": "device_id" }
+    },
+    {
+      "slug": "send_investor_u_id",
+      "type": "SINGLE_LINE",
+      "label": "Send Investor Unique ID",
+      "attributes": { "label_en": "Send Investor Unique ID" }
+    },
+    {
+      "slug": "entered_phone_number",
+      "type": "INTERNATION_PHONE",
+      "label": "Entered Investor Phone",
+      "attributes": { "label_en": "Entered Investor Phone" }
+    },
+    {
+      "slug": "send_phone_number",
+      "type": "INTERNATION_PHONE",
+      "label": "Send Investor Phone",
+      "attributes": { "label_en": "Send Investor Phone" }
+    },
+    {
+      "slug": "transactions_id_2",
+      "type": "LOOKUP",
+      "label": "FROM referral_links TO transactions",
+      "attributes": { "label_en": "1-st investment transaction ID" }
+    },
+    {
+      "slug": "transactions_id",
+      "type": "LOOKUP",
+      "label": "FROM referral_links TO transactions",
+      "attributes": { "label_en": "Bonus transaction ID" }
+    },
+    {
+      "slug": "is_active",
+      "type": "SWITCH",
+      "label": "Is Active",
+      "attributes": { "label_en": "Is Active" }
+    },
+    {
+      "slug": "register_date",
+      "type": "DATE_TIME",
+      "label": "Register date",
+      "attributes": { "label_en": "Register date" }
+    },
+    {
+      "slug": "investors_id_2",
+      "type": "LOOKUP",
+      "label": "FROM referral_links TO investors",
+      "attributes": { "label_en": "Entered Investor" }
+    },
+    {
+      "slug": "send_at",
+      "type": "DATE_TIME",
+      "label": "Send at",
+      "attributes": { "label_en": "Send at" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM referral_links TO investors",
+      "attributes": { "label_en": "Send Investor" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "sms_template": [
+    { "slug": "uz", "type": "SINGLE_LINE", "label": "Uz", "attributes": { "label_en": "Uz" } },
+    { "slug": "en", "type": "SINGLE_LINE", "label": "En", "attributes": { "label_en": "En" } },
+    { "slug": "ru", "type": "SINGLE_LINE", "label": "Ru", "attributes": { "label_en": "Ru" } },
+    { "slug": "guid", "type": "UUID", "label": "ID" },
+    { "slug": "text", "type": "SINGLE_LINE", "label": "Text" }
+  ],
+  "str_sar": [
+    {
+      "slug": "investors_id_2",
+      "type": "LOOKUP",
+      "label": "FROM str_sar TO investors",
+      "attributes": { "label_en": "Passport" }
+    },
+    {
+      "slug": "last_transaction_amount",
+      "type": "FLOAT",
+      "label": "Last transaction amount",
+      "attributes": { "label_en": "Last transaction amount" }
+    },
+    {
+      "slug": "date",
+      "type": "DATE_TIME",
+      "label": "STR Date",
+      "attributes": { "label_en": "STR Date" }
+    },
+    {
+      "slug": "policy_Type_id",
+      "type": "LOOKUP",
+      "label": "FROM str_sar TO policy_Type",
+      "attributes": { "label_en": "Policy Type (cause)" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM str_sar TO investors",
+      "attributes": { "label_en": "Investors" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "transaction_policy": [
+    {
+      "slug": "policy_Type_id",
+      "type": "LOOKUP",
+      "label": "FROM transaction_policy TO policy_Type",
+      "attributes": { "label_en": "Policy Type" }
+    },
+    {
+      "slug": "amount",
+      "type": "FLOAT",
+      "label": "Amount",
+      "attributes": { "label_en": "Amount (USD)" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "transactions": [
+    {
+      "slug": "score",
+      "type": "FLOAT",
+      "label": "Transaction score",
+      "attributes": { "label_en": "Transaction score" }
+    },
+    {
+      "slug": "to_account",
+      "type": "MULTISELECT",
+      "label": "to_account",
+      "attributes": {
+        "label_en": "To account",
+        "options": [
+          { "value": "card", "label": "card" },
+          { "value": "deposit", "label": "Deposit" },
+          { "value": "bonus", "label": "Bonus" },
+          { "value": "investment", "label": "Investment" },
+          { "value": "dividend", "label": "Dividend" }
+        ]
+      }
+    },
+    {
+      "slug": "from_account",
+      "type": "MULTISELECT",
+      "label": "from_account",
+      "attributes": {
+        "label_en": "From account",
+        "options": [
+          { "value": "dividend", "label": "Dividend" },
+          { "value": "investment", "label": "Investment" },
+          { "value": "deposit", "label": "Deposit" },
+          { "value": "card", "label": "Card" },
+          { "value": "bonus", "label": "Bonus" }
+        ]
+      }
+    },
+    { "slug": "otp", "type": "SINGLE_LINE", "label": "Otp", "attributes": { "label_en": "Otp" } },
+    {
+      "slug": "type",
+      "type": "SINGLE_LINE",
+      "label": "Type",
+      "attributes": { "label_en": "Type" }
+    },
+    {
+      "slug": "account",
+      "type": "MULTISELECT",
+      "label": "Account",
+      "attributes": {
+        "label_en": "Account",
+        "options": [
+          { "value": "dividend", "label": "Dividend" },
+          { "value": "investment", "label": "Investment" },
+          { "value": "Bonus", "label": "Bonus" },
+          { "value": "card", "label": "Card" },
+          { "value": "deposit", "label": "Deposit" }
+        ]
+      }
+    },
+    {
+      "slug": "external_id",
+      "type": "SINGLE_LINE",
+      "label": "Transaction Id",
+      "attributes": { "label_en": "Transaction Id" }
+    },
+    {
+      "slug": "is_insurance",
+      "type": "SWITCH",
+      "label": "Is insurance",
+      "attributes": { "label_en": "Is insurance" }
+    },
+    {
+      "slug": "amount_usd_with_fee",
+      "type": "FLOAT",
+      "label": "Amount with fee (USD)",
+      "attributes": { "label_en": "Amount with fee (USD)" }
+    },
+    {
+      "slug": "amount_uzs_with_fee",
+      "type": "FLOAT",
+      "label": "Amount with fee (UZS)",
+      "attributes": { "label_en": "Amount with fee (UZS)" }
+    },
+    {
+      "slug": "transaction_fee",
+      "type": "FLOAT",
+      "label": "Transaction fee",
+      "attributes": { "label_en": "Transaction fee" }
+    },
+    {
+      "slug": "insurance",
+      "type": "FLOAT",
+      "label": "Insurance",
+      "attributes": { "label_en": "Insurance" }
+    },
+    {
+      "slug": "amount_uzs",
+      "type": "FLOAT",
+      "label": "Amount (UZS)",
+      "attributes": { "label_en": "Amount (UZS)" }
+    },
+    {
+      "slug": "amount_usd",
+      "type": "FLOAT",
+      "label": "Amount (USD)",
+      "attributes": { "label_en": "Amount (USD)" }
+    },
+    {
+      "slug": "account_id",
+      "type": "LOOKUP",
+      "label": "FROM transactions TO account",
+      "attributes": { "label_en": "Account" }
+    },
+    {
+      "slug": "currency_rate",
+      "type": "FLOAT",
+      "label": "Currency rate",
+      "attributes": { "label_en": "Currency rate" }
+    },
+    {
+      "slug": "updated_time",
+      "type": "DATE_TIME",
+      "label": "Updated time",
+      "attributes": { "label_en": "Updated time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "created_time",
+      "type": "DATE_TIME",
+      "label": "Created time",
+      "attributes": { "label_en": "Created time", "defaultValue": "NOW" }
+    },
+    {
+      "slug": "payment_type",
+      "type": "MULTISELECT",
+      "label": "Payment type",
+      "attributes": {
+        "label_en": "Payment type",
+        "options": [
+          { "value": "card", "label": "Card" },
+          { "value": "account", "label": "Account" }
+        ]
+      }
+    },
+    {
+      "slug": "currency",
+      "type": "MULTISELECT",
+      "label": "Currency",
+      "attributes": {
+        "label_en": "Currency",
+        "options": [
+          { "value": "UZS", "label": "UZS" },
+          { "value": "USD", "label": "USD" }
+        ]
+      }
+    },
+    {
+      "slug": "operation",
+      "type": "MULTISELECT",
+      "label": "Operation",
+      "attributes": {
+        "label_en": "Operation",
+        "options": [
+          { "value": "buy", "label": "Buy", "color": "#199EC7" },
+          { "value": "topup", "label": "Top up", "color": "#00D717" },
+          { "value": "withdraw", "label": "Withdraw", "color": "#F31D2F" },
+          { "value": "dividend", "label": "Dividend", "color": "#0918EC" },
+          { "value": "transfer", "label": "Transfer", "color": "#FF8600" },
+          { "value": "sell", "label": "sell", "color": "#EC555C" }
+        ]
+      }
+    },
+    {
+      "slug": "status",
+      "type": "MULTISELECT",
+      "label": "Status",
+      "attributes": {
+        "label_en": "Status",
+        "options": [
+          { "value": "pending", "label": "Pending", "color": "#FCB410" },
+          { "value": "confirmed", "label": "Confirmed", "color": "#00D717" },
+          { "value": "canceled", "label": "Canceled", "color": "#F31D2F" }
+        ]
+      }
+    },
+    {
+      "slug": "investor_cards_id",
+      "type": "LOOKUP",
+      "label": "FROM transactions TO investor_cards",
+      "attributes": { "label_en": "Investor card" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "FROM transactions TO investors",
+      "attributes": { "label_en": "Investor" }
+    },
+    {
+      "slug": "projects_id",
+      "type": "LOOKUP",
+      "label": "FROM transactions TO projects",
+      "attributes": { "label_en": "Project" }
+    },
+    {
+      "slug": "orders_id",
+      "type": "LOOKUP",
+      "label": "FROM transactions TO orders",
+      "attributes": { "label_en": "Order" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "ID" }
+  ],
+  "bitrix_leads": [
+    {
+      "slug": "status",
+      "type": "SINGLE_LINE",
+      "label": "Status",
+      "attributes": { "label_en": "Status" }
+    },
+    {
+      "slug": "lead_type",
+      "type": "SINGLE_LINE",
+      "label": "Lead type",
+      "attributes": { "label_en": "Lead type" }
+    },
+    {
+      "slug": "bitrix_method",
+      "type": "SINGLE_LINE",
+      "label": "Bitrix method",
+      "attributes": { "label_en": "Bitrix method" }
+    },
+    {
+      "slug": "http_status",
+      "type": "NUMBER",
+      "label": "HTTP status",
+      "attributes": { "label_en": "HTTP status" }
+    },
+    {
+      "slug": "bitrix_lead_id",
+      "type": "SINGLE_LINE",
+      "label": "Bitrix lead ID",
+      "attributes": { "label_en": "Bitrix lead ID" }
+    },
+    {
+      "slug": "phone",
+      "type": "INTERNATION_PHONE",
+      "label": "Phone",
+      "attributes": { "label_en": "Phone" }
+    },
+    {
+      "slug": "error",
+      "type": "MULTI_LINE",
+      "label": "Error",
+      "attributes": { "label_en": "Error" }
+    },
+    {
+      "slug": "request_body",
+      "type": "MULTI_LINE",
+      "label": "Request body",
+      "attributes": { "label_en": "Request body" }
+    },
+    {
+      "slug": "response_body",
+      "type": "MULTI_LINE",
+      "label": "Response body",
+      "attributes": { "label_en": "Response body" }
+    },
+    {
+      "slug": "deposit_synced",
+      "type": "SWITCH",
+      "label": "Deposit synced",
+      "attributes": { "label_en": "Deposit synced" }
+    },
+    {
+      "slug": "investors_id",
+      "type": "LOOKUP",
+      "label": "Investor",
+      "attributes": { "label_en": "Investor" }
+    },
+    { "slug": "guid", "type": "UUID", "label": "guid" }
+  ]
+}

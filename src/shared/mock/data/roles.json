@@ -1,0 +1,51 @@
+[
+  {
+    "guid": "551017fb-43c5-4540-a266-9f8fd8a06f53",
+    "name": "Director",
+    "client_type_id": "66f033f8-b369-438b-aa60-26cd84c88be2",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "5aeb5107-fc68-4ecf-b190-1551a588b596",
+    "name": "OctoBank",
+    "client_type_id": "66f033f8-b369-438b-aa60-26cd84c88be2",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "4a29d2e9-50a2-40d7-af25-c2191e508197",
+    "name": "Marketing Manager",
+    "client_type_id": "66f033f8-b369-438b-aa60-26cd84c88be2",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "56cfb2b8-cde0-4019-9921-449bbed6518b",
+    "name": "Finance",
+    "client_type_id": "66f033f8-b369-438b-aa60-26cd84c88be2",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "f1abba4c-de79-479e-a6de-11f14085b8d7",
+    "name": "Admin",
+    "client_type_id": "66f033f8-b369-438b-aa60-26cd84c88be2",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "71bb65fb-6529-4d8b-8421-d695d836a3ea",
+    "name": "Investor",
+    "client_type_id": "fd0736f2-4e48-4670-8fc2-327e985b1f8d",
+    "is_system": false,
+    "status": true
+  },
+  {
+    "guid": "4740700c-8263-4982-b19c-d0a46af1ea4a",
+    "name": "DEFAULT ADMIN",
+    "client_type_id": "228534ef-bb3a-4a60-a3b0-b99d23214bc7",
+    "is_system": false,
+    "status": true
+  }
+]

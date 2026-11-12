@@ -18,6 +18,17 @@ npm run dev        # http://localhost:3000
 | `npm run lint`      | oxlint                       |
 | `npm run format`    | Prettier on `src/`           |
 
+## Demo mode (on by default)
+
+The admin currently runs on **made-up data, in the browser**: no request reaches u-code.
+
+- **Login:** any login and password signs in as a full admin.
+- **Data:** generated, realistic demo records for every page (`src/shared/mock/seed.ts`). No real person's data.
+- **Create / edit / delete / upload** work on that data and show up across pages; **a page refresh resets everything** to the original demo data.
+- **The Dashboard and Dividends analytics embeds** stay as they are (public DataLens / Metabase pages hosted elsewhere).
+- **How it works:** a mock backend (`src/shared/mock/`) is plugged in as axios' adapter and answers the same endpoints u-code does. All the real API code is untouched.
+- **Back to the real backend:** build with `VITE_MOCK=false` (e.g. in Vercel's environment variables). Nothing else changes.
+
 ## Deploying (Vercel)
 
 - **No environment variables are required.** The app defaults to u-code's public API hosts (`shared/config/env.ts`). Set `VITE_API_URL` / `VITE_AUTH_URL` only to use a different backend.
