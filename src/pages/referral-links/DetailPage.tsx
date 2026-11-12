@@ -48,6 +48,7 @@ export default function DetailPage() {
               value: <CodeCell value={r.sendPhoneNumber && formatPhone(r.sendPhoneNumber)} />,
             },
             { label: L('send_investor_u_id'), value: <CodeCell value={r.sendInvestorUId} /> },
+            { label: L('device_id'), value: <CodeCell value={r.deviceId} /> },
             { label: L('send_at'), value: <DateTimeCell value={r.sendAt} /> },
           ],
         },

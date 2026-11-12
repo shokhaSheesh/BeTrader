@@ -7,6 +7,8 @@ export interface ReferralLinkDto {
   guid: string
   /** "Send Investor Unique ID" */
   send_investor_u_id: string | null
+  /** The device the link was opened on */
+  device_id: string | null
   /** "Send Investor Phone" */
   send_phone_number: string | null
   /** "Entered Investor Phone" */
@@ -34,6 +36,7 @@ export interface ReferralLinkDto {
 export interface ReferralLink {
   id: string
   sendInvestorUId: string | null
+  deviceId: string | null
   sendPhoneNumber: string | null
   enteredPhoneNumber: string | null
   isActive: boolean | null
@@ -52,6 +55,7 @@ export interface ReferralLink {
 export const toReferralLink = (d: ReferralLinkDto): ReferralLink => ({
   id: d.guid,
   sendInvestorUId: d.send_investor_u_id || null,
+  deviceId: d.device_id || null,
   sendPhoneNumber: d.send_phone_number || null,
   enteredPhoneNumber: d.entered_phone_number || null,
   isActive: d.is_active,

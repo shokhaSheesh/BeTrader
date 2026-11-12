@@ -325,3 +325,19 @@ The Russian interface shows u-code's own field names (`attributes.label_ru`). Th
 - `str_sar.date` (STR Date)
 - `transaction_policy.amount` (Amount (USD))
 - `transactions.score` (Transaction score)
+
+## Detail pages (tabs and the Divident button)
+
+u-code's detail page for a record is its table's **SECTION view** plus the table views tied to it: `GET /v3/menus/{menuId}/views` (each `TABLE` view with a `relation_table_slug` is a tab). The field layout of the section is `GET /v2/collections/{table}/layout/{menuId}`; custom buttons are `GET /v2/collections/{table}/automation` (rows named AFTER/BEFORE … are backend hooks, the rest are buttons). Read 2026-11-12, identical in Test and Production:
+
+| Page | Tabs | Button |
+| --- | --- | --- |
+| Projects | Project investors · Dividends | Divident |
+| Project types | Projects | — |
+| Investors | Accounts · Project investors · Transactions | — |
+
+Every other table's detail page is one section of fields, all of which our detail pages show. Our tabs: `widgets/related-records` (each tab lists the linked table filtered by the open record, with u-code's view columns; the investor's `pin_code` and other joined login fields are left out).
+
+**Divident** opens u-code's `betrader_test_divident` microfrontend ("Create Dividend": a period and the total amount). On submit it calls `POST /v2/invoke_function/betrader-gateway` with `{ data: { method: 'create', table: 'dividends', object_data: { from, to, projects_id, profit } } }` (`from`/`to` ISO timestamps), and the gateway works out each investor's share. Ours is `features/project-dividend`: **demo mode only for now**; with the real backend it's refused before sending.
+
+> **Open with the backend team:** that microfrontend calls the gateway with an **API key written into its public JavaScript bundle** (anyone who opens the page can read it). We don't use or copy it.

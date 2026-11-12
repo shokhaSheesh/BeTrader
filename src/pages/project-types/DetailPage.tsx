@@ -9,6 +9,7 @@ import { Can } from '@/shared/permissions'
 import { formatDateTime, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
 import { useT } from '@/shared/i18n'
+import { DetailTabs, ProjectsList } from '@/widgets/related-records'
 
 const dash = <span className="text-fg-subtle">—</span>
 const percent = (v: number | null) =>
@@ -48,49 +49,69 @@ export default function ProjectTypeDetailPage() {
                 </>
               }
             />
-            <div className="flex flex-col gap-6">
-              <DetailSection
-                title={t('Names')}
-                items={[
-                  { label: L('name_en'), value: pt.name || dash },
-                  { label: L('name_ru'), value: pt.nameRu || dash },
-                  { label: L('name_uz'), value: pt.nameUz || dash },
-                ]}
-              />
-              <DetailSection
-                title={t('Yield and dividends')}
-                items={[
-                  { label: L('from_percent'), value: percent(pt.fromPercent) },
-                  { label: L('to_percent'), value: percent(pt.toPercent) },
-                  {
-                    label: L('calculate_dividend'),
-                    value: pt.dividendCalculation.length ? (
-                      <div className="flex gap-1.5">
-                        {pt.dividendCalculation.map((v) => (
-                          <Badge key={v}>{fields.optionLabel('calculate_dividend', v)}</Badge>
-                        ))}
-                      </div>
-                    ) : (
-                      dash
-                    ),
-                  },
-                ]}
-              />
-              <DetailSection
-                title={t('Record')}
-                items={[
-                  {
-                    label: t('Created'),
-                    value: <span className="num">{formatDateTime(pt.createdAt)}</span>,
-                  },
-                  {
-                    label: t('Last updated'),
-                    value: <span className="num">{formatDateTime(pt.updatedAt)}</span>,
-                  },
-                  { label: L('guid'), value: <span className="num text-fg-muted">{pt.id}</span> },
-                ]}
-              />
-            </div>
+            <DetailTabs
+              tabs={[
+                {
+                  value: 'details',
+                  label: t('Details', { context: 'tab' }),
+                  content: (
+                    <div className="flex flex-col gap-6">
+                      <DetailSection
+                        title={t('Names')}
+                        items={[
+                          { label: L('name_en'), value: pt.name || dash },
+                          { label: L('name_ru'), value: pt.nameRu || dash },
+                          { label: L('name_uz'), value: pt.nameUz || dash },
+                        ]}
+                      />
+                      <DetailSection
+                        title={t('Yield and dividends')}
+                        items={[
+                          { label: L('from_percent'), value: percent(pt.fromPercent) },
+                          { label: L('to_percent'), value: percent(pt.toPercent) },
+                          {
+                            label: L('calculate_dividend'),
+                            value: pt.dividendCalculation.length ? (
+                              <div className="flex gap-1.5">
+                                {pt.dividendCalculation.map((v) => (
+                                  <Badge key={v}>
+                                    {fields.optionLabel('calculate_dividend', v)}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              dash
+                            ),
+                          },
+                        ]}
+                      />
+                      <DetailSection
+                        title={t('Record')}
+                        items={[
+                          {
+                            label: t('Created'),
+                            value: <span className="num">{formatDateTime(pt.createdAt)}</span>,
+                          },
+                          {
+                            label: t('Last updated'),
+                            value: <span className="num">{formatDateTime(pt.updatedAt)}</span>,
+                          },
+                          {
+                            label: L('guid'),
+                            value: <span className="num text-fg-muted">{pt.id}</span>,
+                          },
+                        ]}
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  value: 'projects',
+                  label: t('Projects'),
+                  content: <ProjectsList filters={{ project_types_id: pt.id }} />,
+                },
+              ]}
+            />
             <DeleteRecordDialog
               noun="project type"
               table={PROJECT_TYPES_TABLE}
