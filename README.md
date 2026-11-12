@@ -26,7 +26,7 @@ The admin currently runs on **made-up data, in the browser**: no request reaches
 - **Data:** generated, realistic demo records for every page (`src/shared/mock/seed.ts`). No real person's data.
 - **Create / edit / delete / upload** work on that data and show up across pages; **a page refresh resets everything** to the original demo data.
 - **The Dashboard** is drawn natively from the mock backend (`GET /v1/analytics/dashboard`, the endpoint we need from the backend team). With the real backend it shows the DataLens embed.
-- **Dividends analytics** still embeds the public Metabase page.
+- **Dividends analytics** is drawn natively too (`GET /v1/analytics/dividends`); with the real backend it shows the Metabase embed. In demo mode nothing loads from outside the app.
 - **How it works:** a mock backend (`src/shared/mock/`) is plugged in as axios' adapter and answers the same endpoints u-code does. All the real API code is untouched.
 - **Back to the real backend:** build with `VITE_MOCK=false` (e.g. in Vercel's environment variables). Nothing else changes.
 

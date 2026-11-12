@@ -14,7 +14,7 @@
 >
 > **Open with the backend team:** the dividends dashboard is reachable without logging in and lists every investor's full name, PINFL, income and tax withheld.
 
-> **Demo mode** (2026-11-12): the Dashboard is drawn natively (`pages/dashboard/NativeDashboard.tsx`) from one response, `GET /v1/analytics/dashboard?from=&to=` (shape: `entities/dashboard/model/types.ts`). That's the endpoint to ask the backend team for; until it exists, only the mock backend answers it, and the real-backend build keeps the DataLens embed.
+> **Demo mode** (2026-11-12): the Dashboard is drawn natively (`pages/dashboard/NativeDashboard.tsx`) from one response, `GET /v1/analytics/dashboard?from=&to=` (shape: `entities/dashboard/model/types.ts`). That's the endpoint to ask the backend team for; until it exists, only the mock backend answers it, and the real-backend build keeps the DataLens embed. **Dividends analytics** likewise: `GET /v1/analytics/dividends?from=&to=&offset=&limit=` (`entities/dividend-analytics`), the Metabase report's five columns and nothing else; the real-backend build keeps the Metabase embed.
 
 We draw every chart ourselves (see DESIGN.md), but the **data must match** the dashboards the u-code admin currently embeds. This file lists every widget on those dashboards and what it shows, captured on 2026-09-22.
 

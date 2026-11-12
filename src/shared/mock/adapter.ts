@@ -9,6 +9,7 @@ import { TARGET_ENVIRONMENT } from '@/shared/config/environments'
 import { UCODE_ROOT_MENU_ID } from '@/shared/config/ucode'
 import { runMockAggregation } from './aggregation'
 import { mockDashboard } from './dashboard'
+import { mockDividendAnalytics } from './dividend-analytics'
 import menusFixture from './data/menus.json'
 import permissionTables from './data/permission-tables.json'
 import { FIELDS, createRow, db, deleteRow, getRow, listRows, updateRow } from './db'
@@ -216,6 +217,7 @@ const AUTH: [string, RegExp, Handler][] = [
 ]
 
 const ADMIN: [string, RegExp, Handler][] = [
+  ['GET', /^\/v1\/analytics\/dividends$/, ({ params }) => ok(mockDividendAnalytics(params))],
   [
     'GET',
     /^\/v1\/analytics\/dashboard$/,

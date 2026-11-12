@@ -176,9 +176,11 @@ export function seed(): Tables {
 
   // ── Orders, dividends, transactions ─────────────────────────────────────────
   const openProjects = t.projects.filter((x) => (x.status as string[])[0] === 'invest')
+  // Only identified investors can invest
+  const identified = t.investors.filter((i) => i.is_identified)
   let orderNo = 1000
   t.orders = Array.from({ length: 1400 }, () => {
-    const inv = r.pick(t.investors)
+    const inv = r.pick(identified)
     const project = r.chance(0.85) ? r.pick(openProjects) : r.pick(t.projects)
     const buy = r.chance(0.76)
     // An order comes after its investor signed up
