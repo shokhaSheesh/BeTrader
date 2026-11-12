@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { loginErrorMessage, useLoginMutation } from '@/features/auth/api/login'
 import { useT } from '@/shared/i18n'
 import { Button, NiyatMark, TextField } from '@/shared/ui'
+import { LanguageMenu } from '@/widgets/layout/LanguageMenu'
 
 // Messages are translated when shown (below), so a language switch reaches them too.
 const schema = z.object({
@@ -23,7 +24,10 @@ export default function LoginPage() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   return (
-    <div className="flex h-full items-center justify-center bg-brand-deep p-4">
+    <div className="relative flex h-full items-center justify-center bg-brand-deep p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageMenu onDark />
+      </div>
       <form
         noValidate
         onSubmit={handleSubmit((values) => loginMutation.mutate(values))}

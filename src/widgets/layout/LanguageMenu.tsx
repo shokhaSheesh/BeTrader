@@ -13,7 +13,8 @@ const LANGUAGES: { code: Language; label: string; ready: boolean }[] = [
   { code: 'uz', label: 'O‘zbek', ready: false },
 ]
 
-export function LanguageMenu() {
+/** `onDark`: on the login screen's deep green background */
+export function LanguageMenu({ onDark = false }: { onDark?: boolean }) {
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
   const t = useT()
@@ -22,7 +23,12 @@ export function LanguageMenu() {
     <D.Root modal={false}>
       <D.Trigger
         aria-label={t('Language')}
-        className="flex h-10 items-center gap-2 rounded-full px-3 font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[state=open]:bg-surface-muted data-[state=open]:text-fg"
+        className={cn(
+          'flex h-10 items-center gap-2 rounded-full px-3 font-medium transition-colors',
+          onDark
+            ? 'text-on-inverse/80 hover:bg-on-inverse/10 hover:text-on-inverse data-[state=open]:bg-on-inverse/10 data-[state=open]:text-on-inverse'
+            : 'text-fg-muted hover:bg-surface-muted hover:text-fg data-[state=open]:bg-surface-muted data-[state=open]:text-fg',
+        )}
       >
         <Globe size={18} strokeWidth={1.75} />
         <span className="uppercase">{language}</span>
