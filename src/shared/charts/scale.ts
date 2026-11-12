@@ -1,3 +1,5 @@
+import { MONTHS_SHORT } from '@/shared/i18n'
+import { useUiStore } from '@/shared/lib/ui-store'
 // Small scale helpers for the SVG charts (no chart library: marks follow DESIGN.md §5 "Charts" exactly).
 
 /** Round a max up to a clean number and return evenly spaced ticks from `min`. */
@@ -16,14 +18,15 @@ export function niceTicks(min: number, max: number, count = 4) {
 /** 12 400 → "12.4K", 1 250 000 → "1.25M", 4 800 000 000 → "4.8B" (axis ticks only; values elsewhere use format.ts). */
 export function compact(value: number) {
   const abs = Math.abs(value)
-  if (abs >= 1e9) return `${Number((value / 1e9).toFixed(2))}B`
-  if (abs >= 1e6) return `${Number((value / 1e6).toFixed(2))}M`
-  if (abs >= 1e3) return `${Number((value / 1e3).toFixed(1))}K`
+  const [k, m, b] =
+    useUiStore.getState().language === 'ru'
+      ? ['\u00a0тыс', '\u00a0млн', '\u00a0млрд']
+      : ['K', 'M', 'B']
+  if (abs >= 1e9) return `${Number((value / 1e9).toFixed(2))}${b}`
+  if (abs >= 1e6) return `${Number((value / 1e6).toFixed(2))}${m}`
+  if (abs >= 1e3) return `${Number((value / 1e3).toFixed(1))}${k}`
   return String(Number(value.toFixed(2)))
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-/** "2026-08-01" → "Aug ’26" */
 export const monthLabel = (iso: string) =>
-  `${MONTHS[Number(iso.slice(5, 7)) - 1]} ’${iso.slice(2, 4)}`
+  `${MONTHS_SHORT[useUiStore.getState().language][Number(iso.slice(5, 7)) - 1]} ’${iso.slice(2, 4)}`

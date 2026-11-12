@@ -4,9 +4,11 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useMaintenanceQuery(id)
   // A settings record: saving returns to the page that shows it
   const update = useUpdateRecord(
@@ -21,18 +23,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="maintenance works"
-      back={{ to: RECORDS.maintenance.list, label: 'Maintenance works' }}
+      back={{ to: RECORDS.maintenance.list, label: t('Maintenance works') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.maintenance.list, label: 'Maintenance works' }}
-            title="Edit maintenance works"
+            back={{ to: RECORDS.maintenance.list, label: t('Maintenance works') }}
+            title={t('Edit maintenance works')}
           />
           <RecordForm
             spec={FORM_SPECS.maintenance}
             defaults={{ maintenance_works: r.maintenanceWorks ?? false }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.maintenance.list}
             submitting={update.submitting}
             onSubmit={update.submit}

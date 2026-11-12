@@ -6,8 +6,10 @@ import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
 import { formatDate } from '@/shared/lib/format'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
+  const t = useT()
   const { id } = useParams()
   const query = useFinancialModelQuery(id)
   const update = useUpdateRecord(
@@ -18,16 +20,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="price"
-      back={{ to: RECORDS.financialModeling.list, label: 'Financial modeling' }}
+      back={{ to: RECORDS.financialModeling.list, label: t('Financial modeling') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.financialModeling.detail(r.id), label: 'Financial modeling' }}
+            back={{ to: RECORDS.financialModeling.detail(r.id), label: t('Financial modeling') }}
             title={
               r.date
-                ? `Edit ${r.projectKeyName ?? 'price'} for ${formatDate(r.date)}`
-                : 'Edit price'
+                ? t('Edit {name} for {date}', {
+                    name: r.projectKeyName ?? t('price'),
+                    date: formatDate(r.date),
+                  })
+                : t('Edit price')
             }
           />
           <RecordForm
@@ -38,7 +43,7 @@ export default function EditPage() {
               price: numberToText(r.price),
             }}
 
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
             cancelTo={RECORDS.financialModeling.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

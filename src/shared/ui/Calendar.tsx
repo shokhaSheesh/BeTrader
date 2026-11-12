@@ -2,22 +2,7 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { parseIsoDate, toIsoDate } from '@/shared/lib/date'
-
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] // Monday first, as in Uzbekistan
+import { MONTHS as MONTH_NAMES, WEEKDAYS as WEEKDAY_NAMES, useLanguage, useT } from '@/shared/i18n'
 
 type View = 'days' | 'months' | 'years'
 
@@ -31,6 +16,9 @@ interface CalendarProps {
 
 /** Three-step calendar: days → click the title → months → click again → years. */
 export function Calendar({ value = null, range, onChange }: CalendarProps) {
+  const language = useLanguage()
+  const t = useT()
+  const MONTHS = MONTH_NAMES[language]
   const now = new Date()
   const today = { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() }
   const selected = parseIsoDate(range ? range.from : value)
@@ -62,7 +50,7 @@ export function Calendar({ value = null, range, onChange }: CalendarProps) {
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
-          aria-label="Previous"
+          aria-label={t('Previous')}
           onClick={() => step(-1)}
           className="grid size-8 place-items-center rounded-full text-fg-muted hover:bg-surface-muted"
         >
@@ -78,7 +66,7 @@ export function Calendar({ value = null, range, onChange }: CalendarProps) {
         </button>
         <button
           type="button"
-          aria-label="Next"
+          aria-label={t('Next')}
           onClick={() => step(1)}
           className="grid size-8 place-items-center rounded-full text-fg-muted hover:bg-surface-muted"
         >
@@ -163,6 +151,7 @@ function DaysGrid({
   cell: string
   selectedCell: string
 }) {
+  const WEEKDAYS = WEEKDAY_NAMES[useLanguage()]
   const offset = (new Date(cursor.y, cursor.m, 1).getDay() + 6) % 7 // Monday = 0
   const days = new Date(cursor.y, cursor.m + 1, 0).getDate()
   const same = (a: { y: number; m: number; d: number } | null, d: number) =>

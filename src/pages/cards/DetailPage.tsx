@@ -19,14 +19,16 @@ import {
   RecordBoundary,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function CardDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useInvestorCardQuery(id)
   const fields = useTableFields(CARDS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.cards.list, label: 'Cards' }
+  const back = { to: RECORDS.cards.list, label: t('Cards') }
 
   return (
     <RecordBoundary query={query} noun="card" back={back} alsoPending={fields.isPending}>
@@ -36,18 +38,18 @@ export default function CardDetailPage() {
           <>
             <PageHeader
               back={back}
-              title={<span className="num">{c.maskedPan ?? 'Card'}</span>}
+              title={<span className="num">{c.maskedPan ?? t('Card')}</span>}
               description={[c.type, c.cardName].filter(Boolean).join(' · ') || undefined}
               actions={
                 <>
                   <Can table={CARDS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={CARDS_TABLE} action="update">
                     <ButtonLink to={RECORDS.cards.edit(c.id)} icon={Pencil}>
-                      Edit card
+                      {t('Edit card')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -55,7 +57,7 @@ export default function CardDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Card"
+                title={t('Card')}
                 items={[
                   { label: L('masked_pan'), value: <CodeCell value={c.maskedPan} /> },
                   { label: L('card_name'), value: <TextCell value={c.cardName} /> },
@@ -64,7 +66,7 @@ export default function CardDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Owner"
+                title={t('Owner')}
                 items={[
                   {
                     label: L('investors_id'),
@@ -82,10 +84,10 @@ export default function CardDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   { label: L('created_time'), value: <DateTimeCell value={c.createdTime} /> },
-                  { label: 'Last updated', value: <DateTimeCell value={c.updatedAt} /> },
+                  { label: t('Last updated'), value: <DateTimeCell value={c.updatedAt} /> },
                   { label: L('guid'), value: <CodeCell value={c.id} /> },
                 ]}
               />
@@ -93,7 +95,7 @@ export default function CardDetailPage() {
             <DeleteRecordDialog
               noun="card"
               table={CARDS_TABLE}
-              target={deleting ? { id: c.id, name: c.maskedPan ?? 'This card' } : null}
+              target={deleting ? { id: c.id, name: c.maskedPan ?? t('This card') } : null}
               onClose={() => setDeleting(false)}
               onDeleted={() => navigate(RECORDS.cards.list, { replace: true })}
             />

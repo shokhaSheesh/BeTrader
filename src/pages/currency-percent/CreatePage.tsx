@@ -3,8 +3,10 @@ import { CurrencyPercentForm } from '@/features/currency-percent-editor'
 import { useCreateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function CreatePage() {
+  const t = useT()
   const create = useCreateRecord({
     table: CURRENCY_PERCENT_TABLE,
     noun: 'percent',
@@ -14,11 +16,11 @@ export default function CreatePage() {
   return (
     <>
       <PageHeader
-        back={{ to: RECORDS.currencyPercent.list, label: 'Currency percent' }}
-        title="Add percent"
+        back={{ to: RECORDS.currencyPercent.list, label: t('Currency percent') }}
+        title={t('Add percent')}
       />
       <CurrencyPercentForm
-        submitLabel="Add percent"
+        submitLabel={t('Add percent')}
         cancelTo={RECORDS.currencyPercent.list}
         submitting={create.submitting}
         onSubmit={create.submit}

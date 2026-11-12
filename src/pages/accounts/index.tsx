@@ -24,6 +24,7 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['investor', 'from', 'to'] as const
 
@@ -31,7 +32,10 @@ const FILTER_KEYS = ['investor', 'from', 'to'] as const
 const money = (value: number | null, currency: 'UZS' | 'USD') =>
   value != null ? formatMoney(value, currency) : <Dash />
 
-function buildColumns(label: (f: string) => string): Column<Account>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<Account>[] {
   return [
     {
       id: 'investor',
@@ -45,7 +49,7 @@ function buildColumns(label: (f: string) => string): Column<Account>[] {
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (a) => <CodeCell value={a.investorPhone && formatPhone(a.investorPhone)} />,
     },
@@ -71,14 +75,14 @@ function buildColumns(label: (f: string) => string): Column<Account>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (a) => <DateTimeCell value={a.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (a) => <DateTimeCell value={a.updatedAt} />,
@@ -87,6 +91,7 @@ function buildColumns(label: (f: string) => string): Column<Account>[] {
 }
 
 export default function AccountsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(ACCOUNTS_TABLE)
   const navigate = useNavigate()
@@ -106,12 +111,14 @@ export default function AccountsPage() {
   return (
     <>
       <PageHeader
-        title="Accounts"
-        description="Each investor's balances: deposit, investment, interest income and transit."
+        title={t('Accounts')}
+        description={t(
+          "Each investor's balances: deposit, investment, interest income and transit.",
+        )}
         actions={
           <Can table={ACCOUNTS_TABLE} action="create">
             <ButtonLink to={RECORDS.accounts.create} icon={Plus}>
-              Create account
+              {t('Create account')}
             </ButtonLink>
           </Can>
         }
@@ -123,7 +130,7 @@ export default function AccountsPage() {
           onChange={(v) => list.setFilters({ investor: v })}
         />
         <DateRangeFilter
-          label="Created"
+          label={t('Created')}
           from={list.filter('from')}
           to={list.filter('to')}
           onChange={({ from, to }) => list.setFilters({ from, to })}
@@ -132,7 +139,7 @@ export default function AccountsPage() {
 
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<Account>({
             table: ACCOUNTS_TABLE,
             onView: (a) => navigate(RECORDS.accounts.detail(a.id)),
@@ -145,7 +152,7 @@ export default function AccountsPage() {
         onRowClick={(a) => navigate(RECORDS.accounts.detail(a.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading accounts"
+        loadingLabel={t('Loading accounts')}
         emptyState={
           <ListEmptyState
             noun="accounts"
@@ -175,7 +182,9 @@ export default function AccountsPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: `The account of ${investorLabel(toDelete.investorName, toDelete.investorPhone)}`,
+            name: t('The account of {owner}', {
+              owner: investorLabel(toDelete.investorName, toDelete.investorPhone),
+            }),
           }
         }
         onClose={() => setToDelete(null)}

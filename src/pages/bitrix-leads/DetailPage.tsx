@@ -4,6 +4,7 @@ import { RECORDS } from '@/shared/config/routes'
 import { toneFor } from '@/shared/lib/tones'
 import { Badge, CodeCell, Dash, RecordLink, TextCell, YesNoCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
+import { useT } from '@/shared/i18n'
 
 /** Pretty-prints JSON bodies; anything else is shown as sent. */
 function Body({ value }: { value: string | null }) {
@@ -24,25 +25,26 @@ function Body({ value }: { value: string | null }) {
 /** Read-only: a log entry of the Bitrix CRM integration. */
 export default function DetailPage() {
   const { id } = useParams()
+  const t = useT()
   return (
     <RecordDetail
       table={BITRIX_LEADS_TABLE}
       noun="Bitrix lead"
       query={useBitrixLeadQuery(id)}
-      back={{ to: RECORDS.bitrixLeads.list, label: 'Bitrix leads' }}
-      title={(r) => r.investorName ?? 'Bitrix lead'}
+      back={{ to: RECORDS.bitrixLeads.list, label: t('Bitrix leads') }}
+      title={(r) => r.investorName ?? t('Bitrix lead')}
       description={(r) =>
         r.status ? <Badge tone={toneFor('status', r.status)}>{r.status}</Badge> : undefined
       }
       sections={(r, L) => [
         {
-          title: 'Sync',
+          title: t('Sync'),
           items: [
             {
               label: L('investors_id'),
               value: r.investorsId ? (
                 <RecordLink to={RECORDS.investors.detail(r.investorsId)}>
-                  {r.investorName ?? 'Open investor'}
+                  {r.investorName ?? t('Open investor')}
                 </RecordLink>
               ) : (
                 <Dash />
@@ -59,7 +61,8 @@ export default function DetailPage() {
         },
         { title: L('error'), items: [{ label: L('error'), value: <Body value={r.error} /> }] },
         {
-          title: 'Request and response',
+          title: t('Request and response'),
+
           items: [
             { label: L('request_body'), value: <Body value={r.requestBody} /> },
             { label: L('response_body'), value: <Body value={r.responseBody} /> },

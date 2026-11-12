@@ -26,8 +26,12 @@ import {
   Pagination,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<StrReport>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<StrReport>[] {
   return [
     {
       id: 'date',
@@ -64,14 +68,14 @@ function buildColumns(label: (f: string) => string): Column<StrReport>[] {
     },
     {
       id: 'created_at',
-      header: 'Filed',
+      header: t('Filed'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -80,6 +84,7 @@ function buildColumns(label: (f: string) => string): Column<StrReport>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams(['cause', 'from', 'to'])
   const fields = useTableFields(STR_SAR_TABLE)
   const navigate = useNavigate()
@@ -99,11 +104,11 @@ export default function Page() {
     <>
       <PageHeader
         title="STR/SAR"
-        description="Suspicious transaction and activity reports."
+        description={t('Suspicious transaction and activity reports.')}
         actions={
           <Can table={STR_SAR_TABLE} action="create">
             <ButtonLink to={RECORDS.strSar.create} icon={Plus}>
-              File report
+              {t('File report')}
             </ButtonLink>
           </Can>
         }
@@ -124,7 +129,7 @@ export default function Page() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<StrReport>({
             table: STR_SAR_TABLE,
             onView: (r) => navigate(RECORDS.strSar.detail(r.id)),
@@ -137,7 +142,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.strSar.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading reports"
+        loadingLabel={t('Loading reports')}
         emptyState={
           <ListEmptyState
             noun="reports"
@@ -167,7 +172,9 @@ export default function Page() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: toDelete.cause ? `The report "${toDelete.cause}"` : 'This report',
+            name: toDelete.cause
+              ? t('The report "{name}"', { name: toDelete.cause })
+              : t('This report'),
           }
         }
         onClose={() => setToDelete(null)}

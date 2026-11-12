@@ -3,6 +3,7 @@ import { useMinimumLoading } from '@/shared/hooks/useMinimumLoading'
 import { cn } from '@/shared/lib/cn'
 import { Loader } from './Loader'
 import { Skeleton } from './Skeleton'
+import { useT } from '@/shared/i18n'
 
 export interface Column<T> {
   id: string
@@ -83,6 +84,7 @@ export function DataTable<T>({
   onRowClick,
   loadingLabel,
 }: DataTableProps<T>) {
+  const t = useT()
   const showSkeleton = useMinimumLoading(loading)
   const [scrollRef, overflows] = useHorizontalOverflow()
   const showFetching = useMinimumLoading(fetching && !loading)
@@ -94,7 +96,7 @@ export function DataTable<T>({
         <div
           className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden"
           role="progressbar"
-          aria-label="Loading"
+          aria-label={t('Loading')}
         >
           <div className="h-full w-1/3 animate-indeterminate bg-brand-deep" />
         </div>

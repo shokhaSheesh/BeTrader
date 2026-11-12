@@ -9,9 +9,10 @@ import { Can } from '@/shared/permissions'
 import { toneFor } from '@/shared/lib/tones'
 import { formatDate, formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
+import { translate, useT } from '@/shared/i18n'
 
 const dash = <span className="text-fg-subtle">—</span>
-const yesNo = (v: boolean) => (v ? 'Yes' : 'No')
+const yesNo = (v: boolean) => translate(v ? 'Yes' : 'No')
 const badges = (values: string[], label: (v: string) => string, field?: string) =>
   values.length ? (
     <div className="flex flex-wrap gap-1.5">
@@ -26,12 +27,13 @@ const badges = (values: string[], label: (v: string) => string, field?: string) 
   )
 
 export default function ProjectDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useProjectQuery(id)
   const fields = useTableFields(PROJECTS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.projects.list, label: 'Projects' }
+  const back = { to: RECORDS.projects.list, label: t('Projects') }
 
   return (
     <RecordBoundary query={query} noun="project" back={back} alsoPending={fields.isPending}>
@@ -59,12 +61,12 @@ export default function ProjectDetailPage() {
                 <>
                   <Can table={PROJECTS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={PROJECTS_TABLE} action="update">
                     <ButtonLink to={RECORDS.projects.edit(p.id)} icon={Pencil}>
-                      Edit project
+                      {t('Edit project')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -72,7 +74,7 @@ export default function ProjectDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Names"
+                title={t('Names')}
                 items={[
                   { label: L('name_en'), value: p.name || dash },
                   { label: L('name_ru'), value: p.nameRu || dash },
@@ -81,7 +83,7 @@ export default function ProjectDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Investment terms"
+                title={t('Investment terms')}
                 items={[
                   { label: L('project_types_id'), value: p.typeName ?? dash },
                   { label: L('currency'), value: badges(p.currencies, status('currency')) },
@@ -119,7 +121,7 @@ export default function ProjectDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Status and insurance"
+                title={t('Status and insurance')}
                 items={[
                   { label: L('status'), value: badges(p.statuses, status('status'), 'status') },
                   { label: L('sale'), value: yesNo(p.holdWhileSelling) },
@@ -137,7 +139,7 @@ export default function ProjectDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   {
                     label: L('created_time'),
@@ -155,7 +157,7 @@ export default function ProjectDetailPage() {
                       ),
                   },
                   {
-                    label: 'Last updated',
+                    label: t('Last updated'),
                     value: <span className="num">{formatDateTime(p.updatedAt)}</span>,
                   },
                   { label: L('guid'), value: <span className="num text-fg-muted">{p.id}</span> },

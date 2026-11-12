@@ -24,6 +24,7 @@ import {
   Select,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({
   investors_id: z.string(),
@@ -101,9 +102,10 @@ interface DividendFormProps {
 }
 
 export function DividendForm(props: DividendFormProps) {
+  const t = useT()
   const fields = useTableFields(DIVIDENDS_TABLE)
   // The form follows the schema (which fields exist, defaults, required), so it waits for it
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <DividendFormBody {...props} fields={fields} />
 }
 
@@ -115,6 +117,7 @@ function DividendFormBody({
   submitting,
   fields,
 }: DividendFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const known = new Set(schemaFields.map((f) => f.slug))
   const projects = useProjectOptions()
@@ -137,7 +140,7 @@ function DividendFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof DividendFormValues, { message: 'Required' })
+        setError(slug as keyof DividendFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -153,7 +156,7 @@ function DividendFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Who and what">
+      <FormSection title={t('Who and what')}>
         <Controller
           control={control}
           name="investors_id"
@@ -202,7 +205,7 @@ function DividendFormBody({
           />
         </Field>
       </FormSection>
-      <FormSection title="Period">
+      <FormSection title={t('Period')}>
         {(['from_date', 'to_date'] as const).map((name) => (
           <Field
             key={name}
@@ -221,7 +224,7 @@ function DividendFormBody({
           </Field>
         ))}
       </FormSection>
-      <FormSection title="Amounts">
+      <FormSection title={t('Amounts')}>
         {NUMBERS.filter((name) => known.has(name)).map((name) => (
           <TextField
             key={name}

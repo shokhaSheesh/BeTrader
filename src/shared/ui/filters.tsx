@@ -10,6 +10,7 @@ import { CheckboxBox } from './Checkbox'
 import { Skeleton } from './Skeleton'
 import type { SelectOption } from './Select'
 import { filterTrigger, menuItem, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 const ALL = '__all__'
 
@@ -35,6 +36,7 @@ interface FilterSelectProps {
 
 /** One-of filter with an "All" option, e.g. "Identification: Identified". */
 export function FilterSelect({ label, value, onChange, options }: FilterSelectProps) {
+  const t = useT()
   const current = options.find((o) => o.value === value)
   return (
     <S.Root
@@ -48,7 +50,7 @@ export function FilterSelect({ label, value, onChange, options }: FilterSelectPr
       <S.Portal>
         <S.Content position="popper" sideOffset={4} className={cn(popoverSurface, 'min-w-44')}>
           <S.Viewport>
-            {[{ value: ALL, label: 'All' }, ...options].map((o) => (
+            {[{ value: ALL, label: t('All') }, ...options].map((o) => (
               <S.Item key={o.value} value={o.value} className={cn(menuItem, 'justify-between')}>
                 <S.ItemText>{o.label}</S.ItemText>
                 <S.ItemIndicator>
@@ -123,6 +125,7 @@ function presets() {
 
 /** Date range: pick a start day, then an end day. The backend does the filtering. */
 export function DateRangeFilter({ label, from, to, onChange }: DateRangeFilterProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   // A range being picked: start chosen, end not yet.
   const [draft, setDraft] = useState<{ from: string; to: string | null } | null>(null)
@@ -173,7 +176,7 @@ export function DateRangeFilter({ label, from, to, onChange }: DateRangeFilterPr
                   from === p.from && to === p.to && 'font-medium',
                 )}
               >
-                {p.label}
+                {t(p.label)}
               </button>
             ))}
             {value && (
@@ -188,14 +191,14 @@ export function DateRangeFilter({ label, from, to, onChange }: DateRangeFilterPr
                   'mt-auto w-full text-left text-fg-muted hover:bg-surface-muted',
                 )}
               >
-                Clear dates
+                {t('Clear dates')}
               </button>
             )}
           </div>
           <div>
             <Calendar range={{ from: shown.from, to: shown.to }} onChange={pick} />
             <p className="px-4 pb-3 text-xs text-fg-muted">
-              {draft ? 'Now pick the end date' : 'Pick the start date'}
+              {draft ? t('Now pick the end date') : t('Pick the start date')}
             </p>
           </div>
         </Popover.Content>
@@ -229,9 +232,10 @@ export function FilterSearchSelect({
   search,
   onSearchChange,
   loading,
-  placeholder = 'Search',
+  placeholder,
   paging,
 }: FilterSearchSelectProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
@@ -245,7 +249,7 @@ export function FilterSearchSelect({
             autoFocus
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={placeholder}
+            placeholder={placeholder ?? t('Search')}
             className="h-10 w-full border-b border-line bg-transparent px-3 outline-none placeholder:text-fg-subtle"
           />
           <div className="max-h-64 overflow-y-auto p-1">
@@ -258,12 +262,12 @@ export function FilterSearchSelect({
                 }}
                 className={cn(menuItem, 'w-full text-left text-fg-muted hover:bg-surface-muted')}
               >
-                All
+                {t('All')}
               </button>
             )}
             {options.length === 0 ? (
               <p className="px-3 py-6 text-center text-fg-muted">
-                {loading ? 'Searching…' : 'Nothing found'}
+                {loading ? t('Searching…') : t('Nothing found')}
               </p>
             ) : (
               options.map((o) => (

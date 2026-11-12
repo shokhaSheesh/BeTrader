@@ -17,6 +17,7 @@ import {
   SearchSelect,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // `card_token` is not editable here: it's a payment token issued by the processor, never handled by the admin.
 const schema = z.object({
@@ -59,9 +60,10 @@ interface CardFormProps {
 }
 
 export function CardForm(props: CardFormProps) {
+  const t = useT()
   const fields = useTableFields(CARDS_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <CardFormBody {...props} fields={fields} />
 }
 
@@ -73,6 +75,7 @@ function CardFormBody({
   submitting,
   fields,
 }: CardFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const [search, setSearch] = useState('')
   const investors = useInvestorOptions(useDebouncedValue(search, 350))
@@ -97,7 +100,7 @@ function CardFormBody({
     // Fields the backend requires, checked here so the user sees which one is missing
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
-      for (const slug of missing) setError(slug as keyof CardFormValues, { message: 'Required' })
+      for (const slug of missing) setError(slug as keyof CardFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -113,7 +116,7 @@ function CardFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Card">
+      <FormSection title={t('Card')}>
         <TextField
           label={L('masked_pan')}
           required={req('masked_pan')}
@@ -130,7 +133,7 @@ function CardFormBody({
         <TextField
           label={L('type')}
           required={req('type')}
-          hint="Free text in the backend, e.g. Humo or Uzcard"
+          hint={t('Free text in the backend, e.g. Humo or Uzcard')}
           error={errors.type?.message}
           {...register('type')}
         />
@@ -149,7 +152,7 @@ function CardFormBody({
           />
         </Field>
       </FormSection>
-      <FormSection title="Owner">
+      <FormSection title={t('Owner')}>
         <Field
           label={L('investors_id')}
           htmlFor="investors_id"
@@ -173,7 +176,7 @@ function CardFormBody({
                 onSearchChange={setSearch}
                 loading={investors.isFetching}
                 paging={investors.paging}
-                placeholder="Search by name or phone"
+                placeholder={t('Search by name or phone')}
               />
             )}
           />

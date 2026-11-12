@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { backendMessage } from '@/shared/api/errors'
 import { useDeleteItemMutation } from '@/shared/api/queries'
 import { toast } from '@/shared/lib/toast'
+import { translate, useT } from '@/shared/i18n'
 import { ConfirmDialog } from '@/shared/ui'
 import { notWired } from './notWired'
 
@@ -30,6 +31,7 @@ export function DeleteRecordDialog({
   onDeleted,
   remove: removeOther,
 }: DeleteRecordDialogProps) {
+  const t = useT()
   const removeItem = useDeleteItemMutation(table ?? '')
   const removeCustom = useMutation({ mutationFn: (id: string) => removeOther!(id) })
   const pending = removeItem.isPending || removeCustom.isPending
@@ -42,13 +44,19 @@ export function DeleteRecordDialog({
     }
     const handlers = {
       onSuccess: () => {
-        toast.success(`${capitalize(noun)} deleted`, `${target.name} is gone.`)
+        toast.success(
+          translate('{Noun} deleted', { Noun: capitalize(noun) }),
+          translate('{name} is gone.', { name: target.name }),
+        )
         onClose()
         onDeleted?.()
       },
       // The dialog stays open, so the user can retry or cancel
       onError: (error: unknown) =>
-        toast.error(`Couldn't delete the ${noun}`, backendMessage(error) ?? 'Please try again.'),
+        toast.error(
+          translate("Couldn't delete the {noun}", { noun }),
+          backendMessage(error) ?? translate('Please try again.'),
+        ),
     }
     // Through the promise, not mutate()'s callbacks: refreshing the data can unmount this dialog
     // (the deleted record's page swaps to "not found"), and then those callbacks never run.
@@ -62,14 +70,14 @@ export function DeleteRecordDialog({
     <ConfirmDialog
       open={target !== null}
       onOpenChange={(open) => !open && onClose()}
-      title={`Delete this ${noun}?`}
+      title={t('Delete this {noun}?', { noun })}
       description={
         <>
-          <span className="font-medium text-fg">{target?.name}</span> will be permanently deleted.
-          This can't be undone.
+          <span className="font-medium text-fg">{target?.name}</span>{' '}
+          {t("will be permanently deleted. This can't be undone.")}
         </>
       }
-      confirmLabel={`Delete ${noun}`}
+      confirmLabel={t('Delete {noun}', { noun })}
       danger
       loading={pending}
       onConfirm={confirm}

@@ -19,6 +19,7 @@ import {
   Pagination,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 function buildColumns(label: (f: string) => string): Column<NewsItem>[] {
   return [
@@ -53,6 +54,7 @@ function buildColumns(label: (f: string) => string): Column<NewsItem>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(NEWS_TABLE)
   const navigate = useNavigate()
@@ -66,12 +68,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="News"
-        description="Articles shown in the Niyat app."
+        title={t('News')}
+        description={t('Articles shown in the Niyat app.')}
         actions={
           <Can table={NEWS_TABLE} action="create">
             <ButtonLink to={RECORDS.news.create} icon={Plus}>
-              Create news
+              {t('Create news')}
             </ButtonLink>
           </Can>
         }
@@ -91,7 +93,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.news.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading news"
+        loadingLabel={t('Loading news')}
         emptyState={
           <ListEmptyState
             noun="news"
@@ -118,7 +120,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="news item"
         table={NEWS_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? 'This news item' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? t('This news item') }}
         onClose={() => setToDelete(null)}
       />
     </>

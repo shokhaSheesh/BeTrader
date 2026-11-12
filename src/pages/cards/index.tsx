@@ -29,12 +29,16 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['investor', 'exp_from', 'exp_to'] as const
 
 // `card_token` is never shown: it's a payment token (see entities/investor-card).
 // Investor first (who owns it), then the card. `card_token` is never shown (see entities/investor-card).
-function buildColumns(label: (f: string) => string): Column<InvestorCard>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<InvestorCard>[] {
   return [
     {
       id: 'investor',
@@ -48,7 +52,7 @@ function buildColumns(label: (f: string) => string): Column<InvestorCard>[] {
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (c) => <CodeCell value={c.investorPhone && formatPhone(c.investorPhone)} />,
     },
@@ -80,7 +84,7 @@ function buildColumns(label: (f: string) => string): Column<InvestorCard>[] {
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (c) => <DateTimeCell value={c.updatedAt} />,
@@ -93,6 +97,7 @@ const TODAY = toIsoDate(now.getFullYear(), now.getMonth(), now.getDate())
 const IN_30_DAYS = toIsoDate(now.getFullYear(), now.getMonth(), now.getDate() + 29)
 
 export default function CardsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(CARDS_TABLE)
   const navigate = useNavigate()
@@ -117,33 +122,33 @@ export default function CardsPage() {
   return (
     <>
       <PageHeader
-        title="Cards"
-        description="Payment cards investors have linked in the app."
+        title={t('Cards')}
+        description={t('Payment cards investors have linked in the app.')}
         actions={
           <Can table={CARDS_TABLE} action="create">
             <ButtonLink to={RECORDS.cards.create} icon={Plus}>
-              Add card
+              {t('Add card')}
             </ButtonLink>
           </Can>
         }
       />
 
       <KpiGrid>
-        <KpiCard label="Total cards" icon={CreditCard} tone="accent" value={total.data} />
+        <KpiCard label={t('Total cards')} icon={CreditCard} tone="accent" value={total.data} />
         <KpiCard
-          label="Expiring in 30 days"
+          label={t('Expiring in 30 days')}
           icon={CalendarClock}
           tone="warning"
           value={expiringSoon.data}
         />
-        <KpiCard label="Expired" icon={CalendarX} tone="danger" value={expired.data} />
+        <KpiCard label={t('Expired')} icon={CalendarX} tone="danger" value={expired.data} />
       </KpiGrid>
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Card number or name"
+          placeholder={t('Card number or name')}
         />
         <InvestorFilter
           value={list.filter('investor')}
@@ -159,7 +164,7 @@ export default function CardsPage() {
 
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<InvestorCard>({
             table: CARDS_TABLE,
             onView: (c) => navigate(RECORDS.cards.detail(c.id)),
@@ -172,7 +177,7 @@ export default function CardsPage() {
         onRowClick={(c) => navigate(RECORDS.cards.detail(c.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading cards"
+        loadingLabel={t('Loading cards')}
         emptyState={
           <ListEmptyState
             noun="cards"
@@ -199,7 +204,7 @@ export default function CardsPage() {
       <DeleteRecordDialog
         noun="card"
         table={CARDS_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.maskedPan ?? 'This card' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.maskedPan ?? t('This card') }}
         onClose={() => setToDelete(null)}
       />
     </>

@@ -3,22 +3,25 @@ import { BLACKLIST_TABLE, useBlacklistEntryQuery } from '@/entities/blacklist-en
 import { RECORDS } from '@/shared/config/routes'
 import { CodeCell, TextCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
+import { useT } from '@/shared/i18n'
 
 export default function DetailPage() {
   const { id } = useParams()
+  const t = useT()
   return (
     <RecordDetail
       table={BLACKLIST_TABLE}
       noun="entry"
       query={useBlacklistEntryQuery(id)}
-      back={{ to: RECORDS.amlBlacklist.list, label: 'AML blacklist' }}
-      title={(r) => r.name ?? r.passport ?? 'Blacklist entry'}
+      back={{ to: RECORDS.amlBlacklist.list, label: t('AML blacklist') }}
+      title={(r) => r.name ?? r.passport ?? t('Blacklist entry')}
       editTo={(r) => RECORDS.amlBlacklist.edit(r.id)}
       wired
-      deleteName={(r) => r.name ?? r.passport ?? 'This entry'}
+      deleteName={(r) => r.name ?? r.passport ?? t('This entry')}
       sections={(r, L) => [
         {
-          title: 'Person',
+          title: t('Person'),
+
           items: [
             { label: L('name'), value: <TextCell value={r.name} /> },
             { label: L('surname'), value: <TextCell value={r.surname} /> },

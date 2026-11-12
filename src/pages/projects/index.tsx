@@ -29,12 +29,14 @@ import {
   SearchInput,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // Headers follow the backend's field labels; values are shown as the backend sends them.
 // Every field of the `projects` table; headers are the backend's labels.
 function buildColumns(
   label: (f: string) => string,
   optionLabel: (field: string, value: string) => string,
+  t: (text: string) => string,
 ): Column<Project>[] {
   const opt = (field: string) => (v: string) => optionLabel(field, v)
   return [
@@ -142,7 +144,7 @@ function buildColumns(
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (p) => <DateTimeCell value={p.updatedAt} />,
@@ -151,6 +153,7 @@ function buildColumns(
 }
 
 export default function ProjectsPage() {
+  const t = useT()
   const list = useListParams(['status'])
   const query = useProjectsQuery({
     page: list.page,
@@ -163,7 +166,7 @@ export default function ProjectsPage() {
   const [toDelete, setToDelete] = useState<Project | null>(null)
 
   const columns = [
-    ...buildColumns(fields.fieldLabel, fields.optionLabel),
+    ...buildColumns(fields.fieldLabel, fields.optionLabel, t),
     actionsColumn<Project>({
       table: PROJECTS_TABLE,
       onView: (p) => navigate(RECORDS.projects.detail(p.id)),
@@ -175,12 +178,12 @@ export default function ProjectsPage() {
   return (
     <>
       <PageHeader
-        title="Projects"
-        description="Investment products available to investors."
+        title={t('Projects')}
+        description={t('Investment products available to investors.')}
         actions={
           <Can table={PROJECTS_TABLE} action="create">
             <ButtonLink to={RECORDS.projects.create} icon={Plus}>
-              Create project
+              {t('Create project')}
             </ButtonLink>
           </Can>
         }
@@ -190,7 +193,7 @@ export default function ProjectsPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search projects"
+          placeholder={t('Search projects')}
         />
         <FilterMultiSelect
           label={fields.fieldLabel('status')}
@@ -205,7 +208,7 @@ export default function ProjectsPage() {
         rows={query.data?.items}
         getRowId={(p) => p.id}
         onRowClick={(p) => navigate(RECORDS.projects.detail(p.id))}
-        loadingLabel="Loading projects"
+        loadingLabel={t('Loading projects')}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}

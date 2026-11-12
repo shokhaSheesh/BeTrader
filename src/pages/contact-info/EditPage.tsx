@@ -4,9 +4,11 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useContactInfoQuery(id)
   // A settings record: saving returns to the page that shows it
   const update = useUpdateRecord(
@@ -21,18 +23,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="contact info"
-      back={{ to: RECORDS.contactInfo.list, label: 'Contact info' }}
+      back={{ to: RECORDS.contactInfo.list, label: t('Contact info') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.contactInfo.list, label: 'Contact info' }}
-            title="Edit contact info"
+            back={{ to: RECORDS.contactInfo.list, label: t('Contact info') }}
+            title={t('Edit contact info')}
           />
           <RecordForm
             spec={FORM_SPECS.contactInfo}
             defaults={{ phone: r.phone, telegram: r.telegram }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.contactInfo.list}
             submitting={update.submitting}
             onSubmit={update.submit}

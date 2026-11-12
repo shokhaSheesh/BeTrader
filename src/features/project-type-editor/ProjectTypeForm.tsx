@@ -12,6 +12,7 @@ import {
   updateBody,
 } from '@/shared/lib/form'
 import { Field, FormActions, FormSection, MultiSelect, PageLoader, TextField } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({
   name_en: z.string().trim(),
@@ -58,9 +59,10 @@ interface ProjectTypeFormProps {
 }
 
 export function ProjectTypeForm(props: ProjectTypeFormProps) {
+  const t = useT()
   const fields = useTableFields(PROJECT_TYPES_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <ProjectTypeFormBody {...props} fields={fields} />
 }
 
@@ -72,6 +74,7 @@ function ProjectTypeFormBody({
   submitting,
   fields,
 }: ProjectTypeFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const {
     register,
@@ -92,7 +95,7 @@ function ProjectTypeFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof ProjectTypeFormValues, { message: 'Required' })
+        setError(slug as keyof ProjectTypeFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -108,7 +111,7 @@ function ProjectTypeFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Names">
+      <FormSection title={t('Names')}>
         <TextField
           label={label('name_en')}
           required={required('name_en')}
@@ -128,7 +131,7 @@ function ProjectTypeFormBody({
           {...register('name_uz')}
         />
       </FormSection>
-      <FormSection title="Yield and dividends">
+      <FormSection title={t('Yield and dividends')}>
         <TextField
           label={label('from_percent')}
           required={required('from_percent')}

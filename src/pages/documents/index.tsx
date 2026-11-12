@@ -24,8 +24,12 @@ import {
   SearchInput,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<DocumentItem>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<DocumentItem>[] {
   return [
     {
       id: 'investor',
@@ -39,7 +43,7 @@ function buildColumns(label: (f: string) => string): Column<DocumentItem>[] {
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (r) => <CodeCell value={r.investorPhone && formatPhone(r.investorPhone)} />,
     },
@@ -61,14 +65,14 @@ function buildColumns(label: (f: string) => string): Column<DocumentItem>[] {
     { id: 'title_uz', header: label('title_uz'), cell: (r) => <TextCell value={r.titleUz} /> },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -77,6 +81,7 @@ function buildColumns(label: (f: string) => string): Column<DocumentItem>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams(['investor'])
   const fields = useTableFields(DOCUMENTS_TABLE)
   const navigate = useNavigate()
@@ -91,12 +96,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Documents"
-        description="Agreements each investor accepted, with their PDFs."
+        title={t('Documents')}
+        description={t('Agreements each investor accepted, with their PDFs.')}
         actions={
           <Can table={DOCUMENTS_TABLE} action="create">
             <ButtonLink to={RECORDS.documents.create} icon={Plus}>
-              Add document
+              {t('Add document')}
             </ButtonLink>
           </Can>
         }
@@ -105,7 +110,7 @@ export default function Page() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Document title"
+          placeholder={t('Document title')}
         />
         <InvestorFilter
           value={list.filter('investor')}
@@ -114,7 +119,7 @@ export default function Page() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<DocumentItem>({
             table: DOCUMENTS_TABLE,
             onView: (r) => navigate(RECORDS.documents.detail(r.id)),
@@ -127,7 +132,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.documents.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading documents"
+        loadingLabel={t('Loading documents')}
         emptyState={
           <ListEmptyState
             noun="documents"
@@ -154,7 +159,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="document"
         table={DOCUMENTS_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? 'This document' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? t('This document') }}
         onClose={() => setToDelete(null)}
       />
     </>

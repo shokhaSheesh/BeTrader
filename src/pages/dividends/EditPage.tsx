@@ -4,8 +4,10 @@ import { DividendForm } from '@/features/dividend-editor'
 import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
+  const t = useT()
   const { id } = useParams()
   const query = useDividendQuery(id)
   const update = useUpdateRecord(
@@ -16,19 +18,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="dividend"
-      back={{ to: RECORDS.dividends.list, label: 'Dividends' }}
+      back={{ to: RECORDS.dividends.list, label: t('Dividends') }}
     >
       {(o) => {
-        const title = o.investorName ?? 'Dividend'
+        const title = o.investorName ?? t('Dividend')
         return (
           <>
             <PageHeader
               back={{ to: RECORDS.dividends.detail(o.id), label: title }}
-              title={'Edit dividend'}
+              title={t('Edit dividend')}
             />
             <DividendForm
               dividend={o}
-              submitLabel="Save changes"
+              submitLabel={t('Save changes')}
               cancelTo={RECORDS.dividends.detail(o.id)}
               submitting={update.submitting}
               onSubmit={update.submit}

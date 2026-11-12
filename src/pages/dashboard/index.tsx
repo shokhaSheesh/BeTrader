@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react'
 import { DASHBOARDS } from '@/shared/config/dashboards'
 import { MOCK_MODE } from '@/shared/config/mock'
+import { useT } from '@/shared/i18n'
 import { Button, PageHeader } from '@/shared/ui'
 import { EmbeddedDashboard } from '@/widgets/embedded-dashboard'
 import { NativeDashboard } from './NativeDashboard'
@@ -18,22 +19,29 @@ export default function DashboardPage() {
 }
 
 function DataLensDashboard() {
+  const t = useT()
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        description="Investors, deposits, investments and dividends. Pick the period and tab inside the dashboard."
+        title={t('Dashboard')}
+        description={t(
+          'Investors, deposits, investments and dividends. Pick the period and tab inside the dashboard.',
+        )}
         actions={
           <Button
             variant="secondary"
             icon={ExternalLink}
             onClick={() => window.open(DASHBOARDS.overview, '_blank', 'noopener,noreferrer')}
           >
-            Open full screen
+            {t('Open full screen')}
           </Button>
         }
       />
-      <EmbeddedDashboard src={DASHBOARDS.overview} title="Niyat overview dashboard" noFilters />
+      <EmbeddedDashboard
+        src={DASHBOARDS.overview}
+        title={t('Niyat overview dashboard')}
+        noFilters
+      />
     </>
   )
 }

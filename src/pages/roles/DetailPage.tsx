@@ -8,26 +8,28 @@ import { NAVIGATION } from '@/shared/config/navigation'
 import { RECORDS } from '@/shared/config/routes'
 import { Can, useRoleAccess } from '@/shared/permissions'
 import { Badge, Button, ButtonLink, EmptyState, PageHeader, PageLoader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function RoleDetailPage() {
   const { id } = useParams()
+  const t = useT()
   const navigate = useNavigate()
   const deleteRole = useDeleteRoleMutation()
   const roles = useRolesQuery()
   const access = useRoleAccess(id)
   const [deleting, setDeleting] = useState(false)
   const role = roles.data?.find((r) => r.id === id)
-  const back = { to: RECORDS.roles.list, label: 'Roles & permissions' }
+  const back = { to: RECORDS.roles.list, label: t('Roles & permissions') }
 
-  if (roles.isPending || access.isPending) return <PageLoader label="Loading role" />
+  if (roles.isPending || access.isPending) return <PageLoader label={t('Loading role')} />
   if (!role || access.isError) {
     return (
       <>
-        <PageHeader back={back} title="Role" />
+        <PageHeader back={back} title={t('Role')} />
         <div className="rounded-md border border-line bg-surface">
           <EmptyState
             variant={access.isError ? 'error' : 'no-results'}
-            title={access.isError ? "Couldn't load this role" : "This role doesn't exist"}
+            title={access.isError ? t("Couldn't load this role") : t("This role doesn't exist")}
           />
         </div>
       </>
@@ -38,7 +40,7 @@ export default function RoleDetailPage() {
   const sections = NAVIGATION.flatMap((e) => {
     const leaves = e.kind === 'link' ? [e] : e.items
     const visible = leaves.filter((l) => access.canSee(l.resource))
-    return visible.length ? [{ title: e.label, pages: visible.map((l) => l.label) }] : []
+    return visible.length ? [{ title: t(e.label), pages: visible.map((l) => t(l.label)) }] : []
   })
 
   return (
@@ -48,20 +50,24 @@ export default function RoleDetailPage() {
         title={
           <span className="flex items-center gap-3">
             {role.name}
-            {role.isSystem && <Badge>System</Badge>}
-            {role.isActive ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>}
+            {role.isSystem && <Badge>{t('System')}</Badge>}
+            {role.isActive ? (
+              <Badge tone="success">{t('Active')}</Badge>
+            ) : (
+              <Badge>{t('Inactive')}</Badge>
+            )}
           </span>
         }
         actions={
           <>
             <Can table={ROLES_TABLE} action="delete">
               <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                Delete
+                {t('Delete')}
               </Button>
             </Can>
             <Can table={ROLES_TABLE} action="update">
               <ButtonLink to={RECORDS.roles.edit(role.id)} icon={Pencil}>
-                Edit permissions
+                {t('Edit permissions')}
               </ButtonLink>
             </Can>
           </>
@@ -69,7 +75,7 @@ export default function RoleDetailPage() {
       />
       <div className="flex flex-col gap-6">
         <section className="rounded-md border border-line bg-surface">
-          <h2 className="border-b border-line px-6 py-4 text-base font-semibold">Sidebar</h2>
+          <h2 className="border-b border-line px-6 py-4 text-base font-semibold">{t('Sidebar')}</h2>
           <div className="p-6">
             {sections.length ? (
               <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
@@ -81,12 +87,13 @@ export default function RoleDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-fg-muted">This role sees no pages.</p>
+              <p className="text-fg-muted">{t('This role sees no pages.')}</p>
             )}
           </div>
         </section>
         <section className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold">Table permissions</h2>
+          <h2 className="text-base font-semibold">{t('Table permissions')}</h2>
+
           {access.tables && <PermissionMatrix tables={access.tables} />}
         </section>
       </div>

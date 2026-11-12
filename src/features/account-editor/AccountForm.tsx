@@ -16,6 +16,7 @@ import {
 } from '@/shared/lib/form'
 import { investorLabel } from '@/shared/lib/format'
 import { Field, FormActions, FormSection, PageLoader, SearchSelect, TextField } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({
   investors_id: z.string(),
@@ -69,9 +70,10 @@ interface AccountFormProps {
 }
 
 export function AccountForm(props: AccountFormProps) {
+  const t = useT()
   const fields = useTableFields(ACCOUNTS_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <AccountFormBody {...props} fields={fields} />
 }
 
@@ -83,6 +85,7 @@ function AccountFormBody({
   submitting,
   fields,
 }: AccountFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const [search, setSearch] = useState('')
   const investors = useInvestorOptions(useDebouncedValue(search, 350))
@@ -107,7 +110,8 @@ function AccountFormBody({
     // Fields the backend requires, checked here so the user sees which one is missing
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
-      for (const slug of missing) setError(slug as keyof AccountFormValues, { message: 'Required' })
+      for (const slug of missing)
+        setError(slug as keyof AccountFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -123,7 +127,7 @@ function AccountFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Owner">
+      <FormSection title={t('Owner')}>
         <Field
           label={L('investors_id')}
           htmlFor="investors_id"
@@ -147,7 +151,7 @@ function AccountFormBody({
                 onSearchChange={setSearch}
                 loading={investors.isFetching}
                 paging={investors.paging}
-                placeholder="Search by name or phone"
+                placeholder={t('Search by name or phone')}
               />
             )}
           />
@@ -162,7 +166,7 @@ function AccountFormBody({
           />
         )}
       </FormSection>
-      <FormSection title="Balances">
+      <FormSection title={t('Balances')}>
         {BALANCES.map((name) => (
           <TextField
             key={name}

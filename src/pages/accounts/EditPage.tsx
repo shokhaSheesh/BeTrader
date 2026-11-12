@@ -4,8 +4,10 @@ import { AccountForm } from '@/features/account-editor'
 import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function AccountEditPage() {
+  const t = useT()
   const { id } = useParams()
   const query = useAccountQuery(id)
   const update = useUpdateRecord(
@@ -17,17 +19,17 @@ export default function AccountEditPage() {
     <RecordBoundary
       query={query}
       noun="account"
-      back={{ to: RECORDS.accounts.list, label: 'Accounts' }}
+      back={{ to: RECORDS.accounts.list, label: t('Accounts') }}
     >
       {(a) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.accounts.detail(a.id), label: a.investorName ?? 'Account' }}
-            title="Edit account"
+            back={{ to: RECORDS.accounts.detail(a.id), label: a.investorName ?? t('Account') }}
+            title={t('Edit account')}
           />
           <AccountForm
             account={a}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
             cancelTo={RECORDS.accounts.detail(a.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

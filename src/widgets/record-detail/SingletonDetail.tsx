@@ -13,6 +13,7 @@ import {
   DetailSection,
   type DetailItem,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 interface SingletonDetailProps<T extends { id: string }> {
   /** Backend table slug: field labels come from its schema */
@@ -40,6 +41,7 @@ export function SingletonDetail<T extends { id: string }>({
   sections,
   lead,
 }: SingletonDetailProps<T>) {
+  const t = useT()
   const fields = useTableFields(table)
   const { can } = usePermissions()
   const record = query.data?.items[0]
@@ -52,11 +54,15 @@ export function SingletonDetail<T extends { id: string }>({
         <div className="rounded-md border border-line bg-surface">
           <EmptyState
             variant={query.isError ? 'error' : 'empty'}
-            title={query.isError ? `Couldn't load ${title.toLowerCase()}` : 'Nothing set up yet'}
+            title={
+              query.isError
+                ? t("Couldn't load {noun}", { noun: title.toLowerCase() })
+                : t('Nothing set up yet')
+            }
             description={
               query.isError
-                ? 'The connection dropped or the server failed.'
-                : 'The backend has no record for this yet.'
+                ? t('The connection dropped or the server failed.')
+                : t('The backend has no record for this yet.')
             }
             action={
               query.isError ? (
@@ -65,7 +71,7 @@ export function SingletonDetail<T extends { id: string }>({
                   loading={query.isFetching}
                   onClick={() => query.refetch()}
                 >
-                  Try again
+                  {t('Try again')}
                 </Button>
               ) : undefined
             }
@@ -83,7 +89,7 @@ export function SingletonDetail<T extends { id: string }>({
         actions={
           can(table, 'update') && (
             <ButtonLink to={editTo(record)} icon={Pencil}>
-              Edit
+              {t('Edit')}
             </ButtonLink>
           )
         }

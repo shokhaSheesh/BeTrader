@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChartTooltip } from './ChartTooltip'
 import { compact, monthLabel, niceTicks } from './scale'
 import { useElementWidth } from './useElementWidth'
+import { useT } from '@/shared/i18n'
 
 export interface ColumnDatum {
   /** ISO date */
@@ -30,6 +31,7 @@ export function ColumnChart({
   formatDate,
   height = 260,
 }: ColumnChartProps) {
+  const t = useT()
   const [ref, width] = useElementWidth()
   const [hover, setHover] = useState<{ i: number; px: number; py: number } | null>(null)
   const plotW = Math.max(width - M.left - M.right, 0)
@@ -49,7 +51,7 @@ export function ColumnChart({
           width={width}
           height={height}
           role="img"
-          aria-label={`${label}, by day`}
+          aria-label={t('{label}, by day', { label })}
           onPointerLeave={() => setHover(null)}
           onPointerMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect()
@@ -58,24 +60,24 @@ export function ColumnChart({
             setHover(i >= 0 && i < data.length ? { i, px, py: e.clientY - rect.top } : null)
           }}
         >
-          {ticks.map((t) => (
-            <g key={t}>
+          {ticks.map((tick) => (
+            <g key={tick}>
               <line
                 x1={M.left}
                 x2={width - M.right}
-                y1={y(t)}
-                y2={y(t)}
+                y1={y(tick)}
+                y2={y(tick)}
                 stroke="var(--color-chart-grid)"
                 strokeWidth={1}
               />
               <text
                 x={M.left - 8}
-                y={y(t)}
+                y={y(tick)}
                 dy="0.32em"
                 textAnchor="end"
                 className="num fill-fg-muted text-xs"
               >
-                {compact(t)}
+                {compact(tick)}
               </text>
             </g>
           ))}

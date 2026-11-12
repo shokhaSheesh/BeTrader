@@ -13,6 +13,7 @@ import { htmlToText, looksLikeHtml } from '@/shared/lib/html'
 import { toneFor } from '@/shared/lib/tones'
 import { Badge } from './Badge'
 import { Tooltip } from './Tooltip'
+import { useT } from '@/shared/i18n'
 
 // Cell renderers shared by every table and detail page, so "—", badges and dates look the same everywhere.
 
@@ -40,7 +41,8 @@ export function NumberCell({ value }: { value: number | null | undefined }) {
 }
 
 export function YesNoCell({ value }: { value: boolean | null | undefined }) {
-  return value == null ? <Dash /> : <>{value ? 'Yes' : 'No'}</>
+  const t = useT()
+  return value == null ? <Dash /> : <>{value ? t('Yes') : t('No')}</>
 }
 
 /**
@@ -147,10 +149,11 @@ export function RecordLink({
 
 /** Money direction ("+" in / "-" out, sent as text by the backend): green arrow up, red arrow down (DESIGN.md §5). */
 export function DirectionCell({ value }: { value: string | null | undefined }) {
+  const t = useT()
   if (value !== '+' && value !== '-') return value ? <CodeCell value={value} /> : <Dash />
   const incoming = value === '+'
   const Icon = incoming ? TrendingUp : TrendingDown
-  const label = incoming ? 'In (+)' : 'Out (−)'
+  const label = incoming ? t('In (+)') : t('Out (−)')
   return (
     <Tooltip content={label} side="top">
       <span

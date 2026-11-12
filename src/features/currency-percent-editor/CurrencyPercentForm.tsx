@@ -12,6 +12,7 @@ import {
   updateBody,
 } from '@/shared/lib/form'
 import { Field, FormActions, FormSection, MultiSelect, PageLoader, TextField } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({ type: z.array(z.string()), percent: numericText })
 
@@ -48,9 +49,10 @@ interface CurrencyPercentFormProps {
 }
 
 export function CurrencyPercentForm(props: CurrencyPercentFormProps) {
+  const t = useT()
   const fields = useTableFields(CURRENCY_PERCENT_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <CurrencyPercentFormBody {...props} fields={fields} />
 }
 
@@ -62,6 +64,7 @@ function CurrencyPercentFormBody({
   submitting,
   fields,
 }: CurrencyPercentFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const {
     register,
@@ -82,7 +85,7 @@ function CurrencyPercentFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof CurrencyPercentFormValues, { message: 'Required' })
+        setError(slug as keyof CurrencyPercentFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -98,7 +101,7 @@ function CurrencyPercentFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Percent">
+      <FormSection title={t('Percent')}>
         <Field label={L('type')} htmlFor="type" required={req('type')} error={errors.type?.message}>
           <Controller
             control={control}

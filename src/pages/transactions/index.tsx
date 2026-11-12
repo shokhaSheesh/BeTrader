@@ -40,6 +40,7 @@ import {
   YesNoCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = [
   'investor',
@@ -59,147 +60,150 @@ const FILTER_KEYS = [
 function buildColumns(
   label: (f: string) => string,
   opt: (f: string) => (v: string) => string,
+  t: (text: string) => string,
 ): Column<Transaction>[] {
   return [
     {
       id: 'investor',
       header: label('investors_id'),
       skeleton: 'w-44',
-      cell: (t) => (
+      cell: (tx) => (
         <span className="font-medium">
-          <TextCell value={t.investorName} />
+          <TextCell value={tx.investorName} />
         </span>
       ),
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
-      cell: (t) => <CodeCell value={t.investorPhone && formatPhone(t.investorPhone)} />,
+      cell: (tx) => <CodeCell value={tx.investorPhone && formatPhone(tx.investorPhone)} />,
     },
     {
       id: 'external_id',
       header: label('external_id'),
       skeleton: 'w-40',
-      cell: (t) => <CodeCell value={t.transactionId} />,
+      cell: (tx) => <CodeCell value={tx.transactionId} />,
     },
     {
       id: 'operation',
       header: label('operation'),
       skeleton: 'w-16',
-      cell: (t) => <OptionsCell values={t.operation} label={opt('operation')} field="operation" />,
+      cell: (tx) => (
+        <OptionsCell values={tx.operation} label={opt('operation')} field="operation" />
+      ),
     },
     {
       id: 'status',
       header: label('status'),
       skeleton: 'w-20',
-      cell: (t) => <OptionsCell values={t.status} label={opt('status')} field="status" />,
+      cell: (tx) => <OptionsCell values={tx.status} label={opt('status')} field="status" />,
     },
     {
       id: 'type',
       header: label('type'),
       skeleton: 'w-7',
-      cell: (t) => <DirectionCell value={t.direction} />,
+      cell: (tx) => <DirectionCell value={tx.direction} />,
     },
     {
       id: 'payment_type',
       header: label('payment_type'),
-      cell: (t) => <OptionsCell values={t.paymentType} label={opt('payment_type')} />,
+      cell: (tx) => <OptionsCell values={tx.paymentType} label={opt('payment_type')} />,
     },
     {
       id: 'currency',
       header: label('currency'),
       skeleton: 'w-12',
-      cell: (t) => <OptionsCell values={t.currency} label={opt('currency')} />,
+      cell: (tx) => <OptionsCell values={tx.currency} label={opt('currency')} />,
     },
     {
       id: 'account',
       header: label('account'),
-      cell: (t) => <OptionsCell values={t.account} label={opt('account')} />,
+      cell: (tx) => <OptionsCell values={tx.account} label={opt('account')} />,
     },
     {
       id: 'from_account',
       header: label('from_account'),
-      cell: (t) => <OptionsCell values={t.fromAccount} label={opt('from_account')} />,
+      cell: (tx) => <OptionsCell values={tx.fromAccount} label={opt('from_account')} />,
     },
     {
       id: 'to_account',
       header: label('to_account'),
-      cell: (t) => <OptionsCell values={t.toAccount} label={opt('to_account')} />,
+      cell: (tx) => <OptionsCell values={tx.toAccount} label={opt('to_account')} />,
     },
     {
       id: 'amount_uzs',
       header: label('amount_uzs'),
       align: 'right',
-      cell: (t) => <MoneyCell value={t.amountUzs} currency="UZS" />,
+      cell: (tx) => <MoneyCell value={tx.amountUzs} currency="UZS" />,
     },
     {
       id: 'amount_usd',
       header: label('amount_usd'),
       align: 'right',
-      cell: (t) => <MoneyCell value={t.amountUsd} currency="USD" />,
+      cell: (tx) => <MoneyCell value={tx.amountUsd} currency="USD" />,
     },
     {
       id: 'amount_uzs_with_fee',
       header: label('amount_uzs_with_fee'),
       align: 'right',
-      cell: (t) => <MoneyCell value={t.amountUzsWithFee} currency="UZS" />,
+      cell: (tx) => <MoneyCell value={tx.amountUzsWithFee} currency="UZS" />,
     },
     {
       id: 'amount_usd_with_fee',
       header: label('amount_usd_with_fee'),
       align: 'right',
-      cell: (t) => <MoneyCell value={t.amountUsdWithFee} currency="USD" />,
+      cell: (tx) => <MoneyCell value={tx.amountUsdWithFee} currency="USD" />,
     },
     {
       id: 'transaction_fee',
       header: label('transaction_fee'),
       align: 'right',
-      cell: (t) => <AmountCell value={t.transactionFee} />,
+      cell: (tx) => <AmountCell value={tx.transactionFee} />,
     },
     {
       id: 'insurance',
       header: label('insurance'),
       align: 'right',
-      cell: (t) => <AmountCell value={t.insurance} />,
+      cell: (tx) => <AmountCell value={tx.insurance} />,
     },
     {
       id: 'is_insurance',
       header: label('is_insurance'),
       skeleton: 'w-8',
-      cell: (t) => <YesNoCell value={t.isInsurance} />,
+      cell: (tx) => <YesNoCell value={tx.isInsurance} />,
     },
     {
       id: 'currency_rate',
       header: label('currency_rate'),
       align: 'right',
-      cell: (t) => <NumberCell value={t.currencyRate} />,
+      cell: (tx) => <NumberCell value={tx.currencyRate} />,
     },
     {
       id: 'project',
       header: label('projects_id'),
-      cell: (t) => <TextCell value={t.projectName} />,
+      cell: (tx) => <TextCell value={tx.projectName} />,
     },
-    { id: 'order', header: label('orders_id'), cell: (t) => <CodeCell value={t.orderNumber} /> },
+    { id: 'order', header: label('orders_id'), cell: (tx) => <CodeCell value={tx.orderNumber} /> },
     {
       id: 'card',
       header: label('investor_cards_id'),
       skeleton: 'w-36',
-      cell: (t) => <CodeCell value={t.cardPan} />,
+      cell: (tx) => <CodeCell value={tx.cardPan} />,
     },
     {
       id: 'created_time',
       header: label('created_time'),
       align: 'right',
       skeleton: 'w-32',
-      cell: (t) => <DateTimeCell value={t.createdTime} />,
+      cell: (tx) => <DateTimeCell value={tx.createdTime} />,
     },
     {
       id: 'updated_time',
       header: label('updated_time'),
       align: 'right',
       skeleton: 'w-32',
-      cell: (t) => <DateTimeCell value={t.updatedTime} />,
+      cell: (tx) => <DateTimeCell value={tx.updatedTime} />,
     },
   ]
 }
@@ -218,6 +222,7 @@ function OperationKpi({ value, icon, label }: { value: string; icon: LucideIcon;
 }
 
 export default function TransactionsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(TRANSACTIONS_TABLE)
   const projects = useProjectOptions()
@@ -243,8 +248,10 @@ export default function TransactionsPage() {
   return (
     <>
       <PageHeader
-        title="Transactions"
-        description="Every money movement: top-ups, withdrawals, purchases, dividends and transfers."
+        title={t('Transactions')}
+        description={t(
+          'Every money movement: top-ups, withdrawals, purchases, dividends and transfers.',
+        )}
       />
 
       {/* The operation values are the backend's own options; each count is computed by the backend. */}
@@ -263,7 +270,7 @@ export default function TransactionsPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Transaction ID"
+          placeholder={t('Transaction ID')}
         />
         <InvestorFilter
           value={list.filter('investor')}
@@ -293,13 +300,13 @@ export default function TransactionsPage() {
       </FilterBar>
 
       <DataTable
-        columns={buildColumns(fields.fieldLabel, opt)}
+        columns={buildColumns(fields.fieldLabel, opt, t)}
         rows={query.data?.items}
-        getRowId={(t) => t.id}
-        onRowClick={(t) => navigate(RECORDS.transactions.detail(t.id))}
+        getRowId={(tx) => tx.id}
+        onRowClick={(tx) => navigate(RECORDS.transactions.detail(tx.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading transactions"
+        loadingLabel={t('Loading transactions')}
         emptyState={
           <ListEmptyState
             noun="transactions"

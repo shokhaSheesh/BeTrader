@@ -3,15 +3,17 @@ import { MOCK_MODE } from '@/shared/config/mock'
 import { Badge } from '@/shared/ui'
 import { LanguageMenu } from './LanguageMenu'
 import { UserMenu } from './UserMenu'
+import { useT } from '@/shared/i18n'
 
 export function Header() {
+  const t = useT()
   const isTest = TARGET_ENVIRONMENT.id === ENVIRONMENTS.test.id
   return (
     <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b border-line bg-surface px-6">
       {/* Test data looks exactly like real data: say which one this is */}
       {(MOCK_MODE || isTest) && (
         <span className="mr-auto">
-          <Badge tone="warning">{MOCK_MODE ? 'Demo data' : 'Test environment'}</Badge>
+          <Badge tone="warning">{MOCK_MODE ? t('Demo data') : t('Test environment')}</Badge>
         </span>
       )}
       <LanguageMenu />

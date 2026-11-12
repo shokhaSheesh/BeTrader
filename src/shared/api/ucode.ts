@@ -7,6 +7,7 @@ import {
 import { useSessionStore } from '@/shared/session/store'
 import { http } from './http'
 import type { Paginated } from '@/shared/types/api'
+import { translate } from '@/shared/i18n'
 
 // Access to u-code tables. Every admin section maps to a table slug (docs/API.md).
 
@@ -77,12 +78,16 @@ export async function getTableItem<T>(slug: string, guid: string): Promise<T> {
 export interface FieldOption {
   value: string
   label: string
+  /** The backend's Russian label, when it has one */
+  label_ru?: string
 }
 
 export interface TableField {
   slug: string
   type: string
   label: string
+  /** The backend's Russian label (`attributes.label_ru`), when it has one */
+  labelRu?: string
   options: FieldOption[]
   /** The value a new record starts with, as the backend defines it (`"NOW"` on dates) */
   defaultValue?: unknown
@@ -101,6 +106,7 @@ interface FieldsEnvelope {
       required?: boolean
       attributes?: {
         label_en?: string
+        label_ru?: string
         options?: FieldOption[]
         defaultValue?: unknown
         path?: string
@@ -116,6 +122,7 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
     slug: f.slug,
     type: f.type,
     label: f.attributes?.label_en || f.label,
+    labelRu: f.attributes?.label_ru || undefined,
     options: f.attributes?.options ?? [],
     defaultValue: f.attributes?.defaultValue,
     folder: f.attributes?.path,
@@ -128,7 +135,9 @@ export async function getTableFields(slug: string): Promise<TableField[]> {
 
 /** A write was stopped before it left the browser: this session's environment isn't writable. */
 export class WriteBlockedError extends Error {
-  constructor(message = 'Changes are switched off in this environment, so nothing was sent.') {
+  constructor(
+    message = translate('Changes are switched off in this environment, so nothing was sent.'),
+  ) {
     super(message)
     this.name = 'WriteBlockedError'
   }
@@ -143,15 +152,26 @@ const isProduction = () =>
  */
 function assertLoginSafe(slug: string, action: 'create' | 'update' | 'delete', values?: object) {
   if (!SHARED_LOGIN_TABLES.includes(slug) || isProduction()) return
-  const noun = slug === 'employee' ? 'employees' : 'investors'
+  const employees = slug === 'employee'
   if (action !== 'update')
     throw new WriteBlockedError(
-      `${action === 'create' ? 'Creating' : 'Deleting'} ${noun} is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.`,
+      translate(
+        action === 'create'
+          ? employees
+            ? 'Creating employees is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.'
+            : 'Creating investors is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.'
+          : employees
+            ? 'Deleting employees is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.'
+            : 'Deleting investors is off in the Test environment: their logins are shared with Production, so it could affect a real account. Nothing was sent.',
+      ),
     )
   const touched = (SHARED_LOGIN_FIELDS[slug] ?? []).filter((f) => values && f in values)
   if (touched.length)
     throw new WriteBlockedError(
-      `Changing ${touched.join(', ')} is off in the Test environment: it belongs to a login shared with Production. Nothing was sent.`,
+      translate(
+        'Changing {fields} is off in the Test environment: it belongs to a login shared with Production. Nothing was sent.',
+        { fields: touched.join(', ') },
+      ),
     )
 }
 

@@ -1,5 +1,7 @@
+import { useT } from '@/shared/i18n'
 /** Brand loader: a lime arc spinning on an ink disc (the app icon's colors). No text; the label is for screen readers. */
-export function Loader({ size = 40, label = 'Loading' }: { size?: number; label?: string }) {
+export function Loader({ size = 40, label }: { size?: number; label?: string }) {
+  const t = useT()
   return (
     <span
       role="status"
@@ -29,7 +31,7 @@ export function Loader({ size = 40, label = 'Loading' }: { size?: number; label?
           className="text-accent"
         />
       </svg>
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label ?? t('Loading')}</span>
     </span>
   )
 }

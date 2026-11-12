@@ -8,39 +8,41 @@ import { RECORDS } from '@/shared/config/routes'
 import { Can } from '@/shared/permissions'
 import { formatDateTime, formatNumber } from '@/shared/lib/format'
 import { Badge, Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const dash = <span className="text-fg-subtle">—</span>
 const percent = (v: number | null) =>
   v != null ? <span className="num">{formatNumber(v)}%</span> : dash
 
 export default function ProjectTypeDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useProjectTypeQuery(id)
   const fields = useTableFields(PROJECT_TYPES_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.projectTypes.list, label: 'Project types' }
+  const back = { to: RECORDS.projectTypes.list, label: t('Project types') }
 
   return (
     <RecordBoundary query={query} noun="project type" back={back} alsoPending={fields.isPending}>
-      {(t) => {
+      {(pt) => {
         const L = fields.fieldLabel
         return (
           <>
             <PageHeader
               back={back}
-              title={t.name}
-              description={t.nameRu}
+              title={pt.name}
+              description={pt.nameRu}
               actions={
                 <>
                   <Can table={PROJECT_TYPES_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={PROJECT_TYPES_TABLE} action="update">
-                    <ButtonLink to={RECORDS.projectTypes.edit(t.id)} icon={Pencil}>
-                      Edit project type
+                    <ButtonLink to={RECORDS.projectTypes.edit(pt.id)} icon={Pencil}>
+                      {t('Edit project type')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -48,23 +50,23 @@ export default function ProjectTypeDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Names"
+                title={t('Names')}
                 items={[
-                  { label: L('name_en'), value: t.name || dash },
-                  { label: L('name_ru'), value: t.nameRu || dash },
-                  { label: L('name_uz'), value: t.nameUz || dash },
+                  { label: L('name_en'), value: pt.name || dash },
+                  { label: L('name_ru'), value: pt.nameRu || dash },
+                  { label: L('name_uz'), value: pt.nameUz || dash },
                 ]}
               />
               <DetailSection
-                title="Yield and dividends"
+                title={t('Yield and dividends')}
                 items={[
-                  { label: L('from_percent'), value: percent(t.fromPercent) },
-                  { label: L('to_percent'), value: percent(t.toPercent) },
+                  { label: L('from_percent'), value: percent(pt.fromPercent) },
+                  { label: L('to_percent'), value: percent(pt.toPercent) },
                   {
                     label: L('calculate_dividend'),
-                    value: t.dividendCalculation.length ? (
+                    value: pt.dividendCalculation.length ? (
                       <div className="flex gap-1.5">
-                        {t.dividendCalculation.map((v) => (
+                        {pt.dividendCalculation.map((v) => (
                           <Badge key={v}>{fields.optionLabel('calculate_dividend', v)}</Badge>
                         ))}
                       </div>
@@ -75,24 +77,24 @@ export default function ProjectTypeDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   {
-                    label: 'Created',
-                    value: <span className="num">{formatDateTime(t.createdAt)}</span>,
+                    label: t('Created'),
+                    value: <span className="num">{formatDateTime(pt.createdAt)}</span>,
                   },
                   {
-                    label: 'Last updated',
-                    value: <span className="num">{formatDateTime(t.updatedAt)}</span>,
+                    label: t('Last updated'),
+                    value: <span className="num">{formatDateTime(pt.updatedAt)}</span>,
                   },
-                  { label: L('guid'), value: <span className="num text-fg-muted">{t.id}</span> },
+                  { label: L('guid'), value: <span className="num text-fg-muted">{pt.id}</span> },
                 ]}
               />
             </div>
             <DeleteRecordDialog
               noun="project type"
               table={PROJECT_TYPES_TABLE}
-              target={deleting ? t : null}
+              target={deleting ? pt : null}
               onClose={() => setDeleting(false)}
               onDeleted={() => navigate(RECORDS.projectTypes.list, { replace: true })}
             />

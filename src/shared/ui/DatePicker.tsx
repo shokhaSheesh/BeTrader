@@ -5,6 +5,7 @@ import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
 import { Calendar } from './Calendar'
 import { controlBase, controlSizes, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 interface DatePickerProps {
   value: string | null
@@ -15,13 +16,8 @@ interface DatePickerProps {
 }
 
 /** Custom date field. Never use <input type="date"> (DESIGN.md §3). */
-export function DatePicker({
-  value,
-  onChange,
-  placeholder = 'Pick a date',
-  id,
-  invalid,
-}: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder, id, invalid }: DatePickerProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
 
   return (
@@ -36,13 +32,13 @@ export function DatePicker({
           {value ? (
             <span className="num">{formatDate(value)}</span>
           ) : (
-            <span className="text-fg-subtle">{placeholder}</span>
+            <span className="text-fg-subtle">{placeholder ?? t('Pick a date')}</span>
           )}
         </Popover.Trigger>
         {value && (
           <button
             type="button"
-            aria-label="Clear date"
+            aria-label={t('Clear date')}
             onClick={() => onChange(null)}
             className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-fg-muted hover:bg-surface hover:text-fg"
           >

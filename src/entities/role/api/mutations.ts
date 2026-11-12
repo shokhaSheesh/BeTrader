@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { authHttp } from '@/shared/api/http'
 import { assertWritable } from '@/shared/api/ucode'
+import { translate } from '@/shared/i18n'
 import type { TablePermission } from '@/shared/permissions'
 import { useSessionStore } from '@/shared/session/store'
 
@@ -24,7 +25,7 @@ async function createRole(projectId: string, name: string, clientTypeId: string)
     { params: { 'project-id': projectId } },
   )
   const id = data.data?.guid ?? data.data?.id ?? data.data?.data?.guid
-  if (!id) throw new Error("The backend didn't return the new role's id")
+  if (!id) throw new Error(translate("The backend didn't return the new role's id"))
   return id
 }
 
@@ -93,7 +94,9 @@ export function useCreateRoleMutation() {
         // that behind: undo the create, then report the failure.
         await deleteRole(id).catch(() => undefined)
         throw new Error(
-          "The role's permissions couldn't be saved, so the role wasn't kept. Please try again.",
+          translate(
+            "The role's permissions couldn't be saved, so the role wasn't kept. Please try again.",
+          ),
           { cause: error },
         )
       }

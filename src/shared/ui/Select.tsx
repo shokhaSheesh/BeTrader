@@ -2,6 +2,7 @@ import { Select as S } from 'radix-ui'
 import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { controlBase, controlSizes, menuItem, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 export interface SelectOption {
   value: string
@@ -26,7 +27,7 @@ export function Select({
   value,
   onChange,
   options,
-  placeholder = 'Select',
+  placeholder,
   size = 'md',
   id,
   invalid,
@@ -34,6 +35,7 @@ export function Select({
   className,
   'aria-label': ariaLabel,
 }: SelectProps) {
+  const t = useT()
   return (
     // Until the current value's option has loaded, show the placeholder instead of a blank field.
     <S.Root
@@ -49,7 +51,7 @@ export function Select({
         className={cn(controlBase, controlSizes[size], 'justify-between gap-2', className)}
       >
         <span className="truncate data-[placeholder]:text-fg-subtle">
-          <S.Value placeholder={placeholder} />
+          <S.Value placeholder={placeholder ?? t('Select')} />
         </span>
         <S.Icon>
           <ChevronDown size={16} className="shrink-0 text-fg-muted" />

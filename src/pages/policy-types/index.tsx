@@ -17,8 +17,12 @@ import {
   Pagination,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<PolicyType>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<PolicyType>[] {
   return [
     {
       id: 'label_en',
@@ -44,14 +48,14 @@ function buildColumns(label: (f: string) => string): Column<PolicyType>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -60,6 +64,7 @@ function buildColumns(label: (f: string) => string): Column<PolicyType>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(POLICY_TYPES_TABLE)
   const navigate = useNavigate()
@@ -69,19 +74,19 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Policy types"
-        description="The kinds of limits used by transaction policies and STR/SAR reports."
+        title={t('Policy types')}
+        description={t('The kinds of limits used by transaction policies and STR/SAR reports.')}
         actions={
           <Can table={POLICY_TYPES_TABLE} action="create">
             <ButtonLink to={RECORDS.policyTypes.create} icon={Plus}>
-              Add policy type
+              {t('Add policy type')}
             </ButtonLink>
           </Can>
         }
       />
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<PolicyType>({
             table: POLICY_TYPES_TABLE,
             onView: (r) => navigate(RECORDS.policyTypes.detail(r.id)),
@@ -94,7 +99,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.policyTypes.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading policy types"
+        loadingLabel={t('Loading policy types')}
         emptyState={
           <ListEmptyState
             noun="policy types"
@@ -121,7 +126,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="policy type"
         table={POLICY_TYPES_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.labelEn ?? 'This policy type' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.labelEn ?? t('This policy type') }}
         onClose={() => setToDelete(null)}
       />
     </>

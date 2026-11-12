@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { Button, EmptyState, PageLoader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 interface EmbeddedDashboardProps {
   /** The published dashboard, with its filters already in the URL */
@@ -23,6 +24,7 @@ const TIMEOUT = 30_000
  */
 export function EmbeddedDashboard({ src, title, noFilters = false }: EmbeddedDashboardProps) {
   // Remounts the frame, so "Try again" really reloads it
+  const t = useT()
   const [attempt, setAttempt] = useState(0)
   const frame = `${src}-${attempt}`
   // Each frame starts loading again: tracked by frame, so a new URL resets it as it renders
@@ -46,19 +48,19 @@ export function EmbeddedDashboard({ src, title, noFilters = false }: EmbeddedDas
       {status === 'error' ? (
         <EmptyState
           variant="error"
-          title="Couldn't load the dashboard"
-          description="The dashboard didn't answer. It may be down, or the connection dropped."
+          title={t("Couldn't load the dashboard")}
+          description={t("The dashboard didn't answer. It may be down, or the connection dropped.")}
           action={
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => setAttempt((n) => n + 1)}>
-                Try again
+                {t('Try again')}
               </Button>
               <Button
                 variant="ghost"
                 icon={ExternalLink}
                 onClick={() => window.open(src, '_blank', 'noopener,noreferrer')}
               >
-                Open it directly
+                {t('Open it directly')}
               </Button>
             </div>
           }
@@ -67,7 +69,7 @@ export function EmbeddedDashboard({ src, title, noFilters = false }: EmbeddedDas
         <>
           {status === 'loading' && (
             <div className="absolute inset-0 z-[1] bg-surface">
-              <PageLoader label="Loading the dashboard" />
+              <PageLoader label={t('Loading the dashboard')} />
             </div>
           )}
           <iframe

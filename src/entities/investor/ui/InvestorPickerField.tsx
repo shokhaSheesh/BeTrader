@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useInvestorOptions } from '../api/queries'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
+import { useT } from '@/shared/i18n'
 import { Field, SearchSelect } from '@/shared/ui'
 
 interface InvestorPickerFieldProps {
@@ -18,6 +19,7 @@ export function InvestorPickerField({
   onChange,
   initialLabel,
 }: InvestorPickerFieldProps) {
+  const t = useT()
   const [search, setSearch] = useState('')
   const [selectedLabel, setSelectedLabel] = useState(initialLabel)
   const investors = useInvestorOptions(useDebouncedValue(search, 350))
@@ -36,7 +38,7 @@ export function InvestorPickerField({
         onSearchChange={setSearch}
         loading={investors.isFetching}
         paging={investors.paging}
-        placeholder="Search by name, phone or PINFL"
+        placeholder={t('Search by name, phone or PINFL')}
       />
     </Field>
   )

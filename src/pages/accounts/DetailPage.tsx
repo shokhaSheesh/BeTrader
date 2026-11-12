@@ -18,17 +18,19 @@ import {
   RecordBoundary,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const money = (value: number | null, currency: 'UZS' | 'USD') =>
   value != null ? <span className="num">{formatMoney(value, currency)}</span> : <Dash />
 
 export default function AccountDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useAccountQuery(id)
   const fields = useTableFields(ACCOUNTS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.accounts.list, label: 'Accounts' }
+  const back = { to: RECORDS.accounts.list, label: t('Accounts') }
 
   return (
     <RecordBoundary query={query} noun="account" back={back} alsoPending={fields.isPending}>
@@ -39,7 +41,7 @@ export default function AccountDetailPage() {
           <>
             <PageHeader
               back={back}
-              title={a.investorName ?? 'Account'}
+              title={a.investorName ?? t('Account')}
               description={
                 a.investorPhone ? (
                   <span className="num">{formatPhone(a.investorPhone)}</span>
@@ -49,12 +51,12 @@ export default function AccountDetailPage() {
                 <>
                   <Can table={ACCOUNTS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={ACCOUNTS_TABLE} action="update">
                     <ButtonLink to={RECORDS.accounts.edit(a.id)} icon={Pencil}>
-                      Edit account
+                      {t('Edit account')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -62,7 +64,7 @@ export default function AccountDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Balances"
+                title={t('Balances')}
                 items={[
                   { label: L('deposit'), value: money(a.deposit, 'UZS') },
                   { label: L('invest'), value: money(a.invest, 'USD') },
@@ -71,7 +73,7 @@ export default function AccountDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Owner"
+                title={t('Owner')}
                 items={[
                   {
                     label: L('investors_id'),
@@ -90,10 +92,10 @@ export default function AccountDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
-                  { label: 'Created', value: <DateTimeCell value={a.createdAt} /> },
-                  { label: 'Last updated', value: <DateTimeCell value={a.updatedAt} /> },
+                  { label: t('Created'), value: <DateTimeCell value={a.createdAt} /> },
+                  { label: t('Last updated'), value: <DateTimeCell value={a.updatedAt} /> },
                   { label: L('guid'), value: <CodeCell value={a.id} /> },
                 ]}
               />
@@ -101,7 +103,7 @@ export default function AccountDetailPage() {
             <DeleteRecordDialog
               noun="account"
               table={ACCOUNTS_TABLE}
-              target={deleting ? { id: a.id, name: `The account of ${owner}` } : null}
+              target={deleting ? { id: a.id, name: t('The account of {owner}', { owner }) } : null}
               onClose={() => setDeleting(false)}
               onDeleted={() => navigate(RECORDS.accounts.list, { replace: true })}
             />

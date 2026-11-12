@@ -1,12 +1,14 @@
 import { CircleCheck, CircleX, Info, X } from 'lucide-react'
 import { useToastStore } from '@/shared/lib/toast'
 import { cn } from '@/shared/lib/cn'
+import { useT } from '@/shared/i18n'
 
 const icons = { success: CircleCheck, error: CircleX, info: Info }
 const iconColor = { success: 'text-success', error: 'text-danger', info: 'text-info' }
 
 export function Toaster() {
   const { toasts, dismiss } = useToastStore()
+  const tr = useT()
   return (
     <div
       className="pointer-events-none fixed top-20 right-6 z-[60] flex w-96 flex-col gap-2"
@@ -27,7 +29,7 @@ export function Toaster() {
             </div>
             <button
               type="button"
-              aria-label="Dismiss"
+              aria-label={tr('Dismiss')}
               onClick={() => dismiss(t.id)}
               className="grid size-6 shrink-0 place-items-center rounded-full text-fg-muted hover:bg-surface-muted"
             >

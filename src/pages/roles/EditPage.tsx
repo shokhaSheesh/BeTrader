@@ -6,10 +6,12 @@ import { RECORDS } from '@/shared/config/routes'
 import { toast } from '@/shared/lib/toast'
 import { useRoleAccess } from '@/shared/permissions'
 import { FormActions, PageHeader, PageLoader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 /** Edits a role's table rights. Saving is PUT /v2/role-permission/detailed (auth API). */
 export default function RoleEditPage() {
   const { id } = useParams()
+  const t = useT()
   const navigate = useNavigate()
   const roles = useRolesQuery()
   const save = useSaveRolePermissionsMutation(id)
@@ -18,7 +20,7 @@ export default function RoleEditPage() {
   const draft = usePermissionDraft(access.tables)
 
   if (roles.isPending || access.isPending || !draft.tables)
-    return <PageLoader label="Loading role" />
+    return <PageLoader label={t('Loading role')} />
 
   return (
     <form
@@ -28,21 +30,22 @@ export default function RoleEditPage() {
         if (!draft.tables) return
         save.mutate(draft.tables, {
           onSuccess: () => {
-            toast.success('Permissions saved')
+            toast.success(t('Permissions saved'))
             navigate(RECORDS.roles.detail(id!), { replace: true })
           },
           onError: (error) =>
-            toast.error("Couldn't save the permissions", backendMessage(error) ?? error.message),
+            toast.error(t("Couldn't save the permissions"), backendMessage(error) ?? error.message),
         })
       }}
     >
       <PageHeader
-        back={{ to: RECORDS.roles.detail(id!), label: role?.name ?? 'Role' }}
-        title={`Edit permissions${role ? `: ${role.name}` : ''}`}
+        back={{ to: RECORDS.roles.detail(id!), label: role?.name ?? t('Role') }}
+        title={role ? t('Edit permissions: {name}', { name: role.name }) : t('Edit permissions')}
       />
       <FormActions
         cancelTo={RECORDS.roles.detail(id!)}
-        submitLabel="Save permissions"
+        submitLabel={t('Save permissions')}
+
         submitting={save.isPending}
       />
       <PermissionMatrix

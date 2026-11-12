@@ -4,6 +4,7 @@ import { useTariffAnalyticsQuery, type TariffTotals } from '@/entities/tariff-an
 import { exportTariffReport } from '@/features/tariff-export'
 import { toast } from '@/shared/lib/toast'
 import { useListParams } from '@/shared/hooks/useListParams'
+import { plural, useLanguage, useT, type Language } from '@/shared/i18n'
 import { parseIsoDate, toIsoDate } from '@/shared/lib/date'
 import { formatAmount, formatMoney, formatNumber } from '@/shared/lib/format'
 import {
@@ -18,6 +19,7 @@ import {
 } from '@/shared/ui'
 
 // Rebuilt from u-code's "Analytics by tariff" microfrontend; same SQL, our design (docs/API.md).
+// English keys, translated where they're rendered.
 const SUB_COLUMNS = [
   'Deposit date',
   'Investment (USD)',
@@ -57,11 +59,23 @@ const depositDate = (value: string | null) => {
   return m ? <span className="num">{`${m[3]}.${m[2]}.${m[1]} ${m[4]}`}</span> : <Dash />
 }
 
+/** "12 investors" / «12 инвесторов»: plural forms per language (docs/I18N.md). */
+const INVESTOR_FORMS: Partial<Record<Language, readonly string[]>> = {
+  en: ['investor', 'investors'],
+  ru: ['инвестор', 'инвестора', 'инвесторов'],
+}
+function useInvestorCount() {
+  const language = useLanguage()
+  return (n: number) =>
+    `${n} ${plural(n, INVESTOR_FORMS[language] ?? INVESTOR_FORMS.en!, language)}`
+}
+
 function TotalCells({ totals }: { totals: TariffTotals | undefined }) {
+  const investorCount = useInvestorCount()
   return (
     <>
       <td className={`${td} text-fg-muted`}>
-        {totals?.investors != null ? `${totals.investors} investors` : <Dash />}
+        {totals?.investors != null ? investorCount(totals.investors) : <Dash />}
       </td>
       <td className={`${td} text-right`}>{money(totals?.investmentUsd, 'USD')}</td>
       <td className={`${td} text-right`}>{money(totals?.investmentUzs, 'UZS')}</td>
@@ -79,6 +93,8 @@ export default function AnalyticsTariffsPage() {
   const query = useTariffAnalyticsQuery(period, list.search)
   const data = query.data
   const [exporting, setExporting] = useState(false)
+  const t = useT()
+  const investorCount = useInvestorCount()
 
   // The .xlsx is built in the browser from the rows already on screen (u-code's export does the same).
   const exportXlsx = async () => {
@@ -95,7 +111,7 @@ export default function AnalyticsTariffsPage() {
         to,
       })
     } catch {
-      toast.error("Couldn't build the Excel file", 'Please try again.')
+      toast.error(t("Couldn't build the Excel file"), t('Please try again.'))
     } finally {
       setExporting(false)
     }
@@ -104,8 +120,10 @@ export default function AnalyticsTariffsPage() {
   return (
     <>
       <PageHeader
-        title="Analytics by tariff"
-        description="Each investor's deposits per tariff, with the dividends accrued in the selected period."
+        title={t('Analytics by tariff')}
+        description={t(
+          "Each investor's deposits per tariff, with the dividends accrued in the selected period.",
+        )}
         actions={
           <Button
             variant="secondary"
@@ -123,10 +141,10 @@ export default function AnalyticsTariffsPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search by investor name"
+          placeholder={t('Search by investor name')}
         />
         <DateRangeFilter
-          label="Dividends period"
+          label={t('Dividends period')}
           from={from}
           to={to}
           onChange={({ from, to }) => list.setFilters({ from, to })}
@@ -135,35 +153,35 @@ export default function AnalyticsTariffsPage() {
 
       <div className="relative overflow-hidden rounded-md border border-line bg-surface">
         {query.isPending ? (
-          <PageLoader label="Loading analytics" />
+          <PageLoader label={t('Loading analytics')} />
         ) : query.isError ? (
           <EmptyState
             variant="error"
-            title="Couldn't load the report"
-            description="Something went wrong on our side or the connection dropped."
+            title={t("Couldn't load the report")}
+            description={t('Something went wrong on our side or the connection dropped.')}
             action={
               <Button
                 variant="secondary"
                 loading={query.isFetching}
                 onClick={() => query.refetch()}
               >
-                Try again
+                {t('Try again')}
               </Button>
             }
           />
         ) : !data || data.investors.length === 0 ? (
           <EmptyState
             variant={list.search ? 'no-results' : 'empty'}
-            title={list.search ? 'Nothing matches this search' : 'No deposits yet'}
+            title={list.search ? t('Nothing matches this search') : t('No deposits yet')}
             description={
               list.search
-                ? `No investor found for “${list.search}”.`
-                : 'Deposits appear here once investors buy into a project.'
+                ? t('No investor found for “{search}”.', { search: list.search })
+                : t('Deposits appear here once investors buy into a project.')
             }
             action={
               list.search ? (
                 <Button variant="secondary" onClick={list.resetAll}>
-                  Reset search
+                  {t('Reset search')}
                 </Button>
               ) : undefined
             }
@@ -176,10 +194,10 @@ export default function AnalyticsTariffsPage() {
               <thead>
                 <tr className="bg-surface-muted">
                   <th rowSpan={2} className={`${th} ${sticky} bg-surface-muted text-left`}>
-                    Full name
+                    {t('Full name')}
                   </th>
                   <th rowSpan={2} className={`${th} text-left`}>
-                    Percent
+                    {t('Percent')}
                   </th>
                   {data.tariffs.map((t) => (
                     <th
@@ -192,13 +210,13 @@ export default function AnalyticsTariffsPage() {
                   ))}
                 </tr>
                 <tr className="bg-surface-muted">
-                  {data.tariffs.flatMap((t) =>
+                  {data.tariffs.flatMap((tariff) =>
                     SUB_COLUMNS.map((c, i) => (
                       <th
-                        key={`${t}-${c}`}
+                        key={`${tariff}-${c}`}
                         className={`${th} ${i === 0 ? 'border-l border-line text-left' : 'text-right'}`}
                       >
-                        {c}
+                        {t(c)}
                       </th>
                     )),
                   )}
@@ -254,9 +272,9 @@ export default function AnalyticsTariffsPage() {
               </tbody>
               <tfoot>
                 <tr className="border-t border-line bg-surface-muted font-semibold">
-                  <td className={`${td} ${sticky} bg-surface-muted`}>Total</td>
+                  <td className={`${td} ${sticky} bg-surface-muted`}>{t('Total')}</td>
                   <td className={`${td} text-fg-muted`}>
-                    {data.grand?.investors != null ? `${data.grand.investors} investors` : <Dash />}
+                    {data.grand?.investors != null ? investorCount(data.grand.investors) : <Dash />}
                   </td>
                   {data.tariffs.map((t) => (
                     <TotalCells key={t} totals={data.totals.get(t)} />

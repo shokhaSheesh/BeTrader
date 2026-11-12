@@ -4,22 +4,25 @@ import { investorLabel } from '@/shared/lib/format'
 import { RECORDS } from '@/shared/config/routes'
 import { Dash, FileLink, RecordLink, TextCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
+import { useLocalized, useT } from '@/shared/i18n'
 
 export default function DetailPage() {
   const { id } = useParams()
+  const t = useT()
+  const pick = useLocalized()
   return (
     <RecordDetail
       table={DOCUMENTS_TABLE}
       noun="document"
       query={useDocumentItemQuery(id)}
-      back={{ to: RECORDS.documents.list, label: 'Documents' }}
-      title={(r) => r.titleEn ?? 'Document'}
+      back={{ to: RECORDS.documents.list, label: t('Documents') }}
+      title={(r) => pick(r.titleEn, r.titleRu) ?? t('Document')}
       editTo={(r) => RECORDS.documents.edit(r.id)}
       wired
-      deleteName={(r) => r.titleEn ?? 'This document'}
+      deleteName={(r) => pick(r.titleEn, r.titleRu) ?? t('This document')}
       sections={(r, L) => [
         {
-          title: 'Document',
+          title: t('Document'),
           items: [
             {
               label: L('investors_id'),
@@ -37,7 +40,8 @@ export default function DetailPage() {
           ],
         },
         {
-          title: 'Files',
+          title: t('Files'),
+
           items: [
             { label: L('file'), value: <FileLink url={r.file} /> },
             { label: L('file_en'), value: <FileLink url={r.fileEn} /> },

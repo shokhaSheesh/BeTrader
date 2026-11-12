@@ -20,12 +20,14 @@ import {
   Select,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 /**
  * Create a role and set its page permissions in one go. Every table starts with no rights.
  * Saving is POST /v2/role, then PUT /v2/role-permission/detailed for the new role (auth API).
  */
 export default function RoleCreatePage() {
+  const t = useT()
   const navigate = useNavigate()
   const clientTypes = useLookupOptions('client_type', 'name')
   const [name, setName] = useState('')
@@ -39,9 +41,9 @@ export default function RoleCreatePage() {
     () =>
       tables &&
       new Map(
-        [...tables].map(([slug, t]) => [
+        [...tables].map(([slug, table]) => [
           slug,
-          { label: t.label, read: false, create: false, update: false, delete: false },
+          { label: table.label, read: false, create: false, update: false, delete: false },
         ]),
       ),
     [tables],
@@ -54,8 +56,8 @@ export default function RoleCreatePage() {
       onSubmit={(e) => {
         e.preventDefault()
         const missing = {
-          name: name.trim() ? undefined : 'Required',
-          clientType: clientType ? undefined : 'Required',
+          name: name.trim() ? undefined : t('Required'),
+          clientType: clientType ? undefined : t('Required'),
         }
         setErrors(missing)
         if (missing.name || missing.clientType || !draft.tables) return
@@ -63,28 +65,28 @@ export default function RoleCreatePage() {
           { name: name.trim(), clientTypeId: clientType!, tables: draft.tables },
           {
             onSuccess: (id) => {
-              toast.success('Role created')
+              toast.success(t('Role created'))
               navigate(RECORDS.roles.detail(id), { replace: true })
             },
             onError: (error) =>
-              toast.error("Couldn't create the role", backendMessage(error) ?? error.message),
+              toast.error(t("Couldn't create the role"), backendMessage(error) ?? error.message),
           },
         )
       }}
       className="flex flex-col gap-6"
     >
       <PageHeader
-        back={{ to: RECORDS.roles.list, label: 'Roles & permissions' }}
-        title="Create role"
+        back={{ to: RECORDS.roles.list, label: t('Roles & permissions') }}
+        title={t('Create role')}
       />
       <FormActions
         cancelTo={RECORDS.roles.list}
-        submitLabel="Create role"
+        submitLabel={t('Create role')}
         submitting={create.isPending}
       />
-      <FormSection title="Role">
+      <FormSection title={t('Role')}>
         <TextField
-          label="Name"
+          label={t('Name')}
           name="name"
           autoComplete="off"
           required
@@ -92,26 +94,27 @@ export default function RoleCreatePage() {
           onChange={(e) => setName(e.target.value)}
           error={errors.name}
         />
-        <Field label="Client type" htmlFor="client_type" required error={errors.clientType}>
+        <Field label={t('Client type')} htmlFor="client_type" required error={errors.clientType}>
           <Select
             id="client_type"
             value={clientType}
             onChange={setClientType}
             options={clientTypes.options}
-            placeholder={clientTypes.isPending ? 'Loading…' : 'Select'}
+            placeholder={clientTypes.isPending ? t('Loading…') : t('Select')}
           />
         </Field>
       </FormSection>
       <section className="flex flex-col gap-3">
         <div>
-          <h2 className="text-base font-semibold">Permissions</h2>
+          <h2 className="text-base font-semibold">{t('Permissions')}</h2>
           <p className="mt-0.5 text-fg-muted">
-            What this role can do on each page. Everything starts off; use a column header to switch
-            a right on for every page.
+            {t(
+              'What this role can do on each page. Everything starts off; use a column header to switch a right on for every page.',
+            )}
           </p>
         </div>
         {isPending || !draft.tables ? (
-          <PageLoader label="Loading pages" />
+          <PageLoader label={t('Loading pages')} />
         ) : (
           <PermissionMatrix
             tables={draft.tables}

@@ -4,22 +4,24 @@ import { cn } from '@/shared/lib/cn'
 import { useUiStore, type Language } from '@/shared/lib/ui-store'
 import { Badge } from '@/shared/ui'
 import { menuItem, popoverSurface } from '@/shared/ui/styles'
+import { useT } from '@/shared/i18n'
 
 const LANGUAGES: { code: Language; label: string; ready: boolean }[] = [
   { code: 'en', label: 'English', ready: true },
-  // Listed so the switch is discoverable; enabled once their translations exist.
-  { code: 'ru', label: 'Русский', ready: false },
+  // Uzbek is listed so the switch is discoverable; enabled once its translations exist.
+  { code: 'ru', label: 'Русский', ready: true },
   { code: 'uz', label: 'O‘zbek', ready: false },
 ]
 
 export function LanguageMenu() {
   const language = useUiStore((s) => s.language)
   const setLanguage = useUiStore((s) => s.setLanguage)
+  const t = useT()
 
   return (
     <D.Root modal={false}>
       <D.Trigger
-        aria-label="Language"
+        aria-label={t('Language')}
         className="flex h-10 items-center gap-2 rounded-full px-3 font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[state=open]:bg-surface-muted data-[state=open]:text-fg"
       >
         <Globe size={18} strokeWidth={1.75} />
@@ -36,7 +38,7 @@ export function LanguageMenu() {
               className={cn(menuItem, 'justify-between')}
             >
               {l.label}
-              {l.ready ? language === l.code && <Check size={16} /> : <Badge>Soon</Badge>}
+              {l.ready ? language === l.code && <Check size={16} /> : <Badge>{t('Soon')}</Badge>}
             </D.Item>
           ))}
         </D.Content>

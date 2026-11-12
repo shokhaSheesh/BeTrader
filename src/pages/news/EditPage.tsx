@@ -4,18 +4,24 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useNewsItemQuery(id)
   const update = useUpdateRecord({ table: NEWS_TABLE, noun: 'news item', routes: RECORDS.news }, id)
   return (
-    <RecordBoundary query={query} noun="news item" back={{ to: RECORDS.news.list, label: 'News' }}>
+    <RecordBoundary
+      query={query}
+      noun="news item"
+      back={{ to: RECORDS.news.list, label: t('News') }}
+    >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.news.detail(r.id), label: 'News' }}
-            title={r.titleEn ? `Edit ${r.titleEn}` : 'Edit news'}
+            back={{ to: RECORDS.news.detail(r.id), label: t('News') }}
+            title={r.titleEn ? t('Edit {name}', { name: r.titleEn }) : t('Edit news')}
           />
           <RecordForm
             spec={FORM_SPECS.news}
@@ -29,7 +35,8 @@ export default function EditPage() {
               photo: r.photo,
             }}
 
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.news.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

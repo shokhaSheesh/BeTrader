@@ -26,6 +26,7 @@ import {
   SwitchField,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // Every editable field of `investors`. Not here on purpose:
 // - the app login's own fields: `pin_code`, `fmc_token`, `user_id_auth` (never shown or edited)
@@ -127,9 +128,10 @@ interface InvestorFormProps {
 }
 
 export function InvestorForm(props: InvestorFormProps) {
+  const t = useT()
   const fields = useTableFields(INVESTORS_TABLE)
   // The form follows the schema (which fields exist, defaults, required), so it waits for it
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <InvestorFormBody {...props} fields={fields} />
 }
 
@@ -141,6 +143,7 @@ function InvestorFormBody({
   submitting,
   fields,
 }: InvestorFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const known = new Set(schemaFields.map((f) => f.slug))
   const {
@@ -162,7 +165,7 @@ function InvestorFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof InvestorFormValues, { message: 'Required' })
+        setError(slug as keyof InvestorFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -197,7 +200,7 @@ function InvestorFormBody({
       />,
     )
   // Free-text date fields: the backend stores them as text (SINGLE_LINE), so they stay text here.
-  const textDate = { hint: 'Stored as text by the backend, e.g. 19.03.1994' }
+  const textDate = { hint: t('Stored as text by the backend, e.g. 19.03.1994') }
 
   const multi = (name: 'gender' | 'lang' | 'platform_type') =>
     when(
@@ -221,7 +224,7 @@ function InvestorFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Personal">
+      <FormSection title={t('Personal')}>
         {textField('surname')}
         {textField('name')}
         {textField('patronymic')}
@@ -232,7 +235,7 @@ function InvestorFormBody({
         {textField('citizenship')}
       </FormSection>
 
-      <FormSection title="Identity document">
+      <FormSection title={t('Identity document')}>
         {textField('passport', { className: 'num' })}
         {textField('pinfl', { className: 'num' })}
         {textField('issued_by')}
@@ -243,19 +246,23 @@ function InvestorFormBody({
             control={control}
             name="is_identified"
             render={({ field }) => (
-              <SwitchField label="Identified" checked={field.value} onChange={field.onChange} />
+              <SwitchField
+                label={t('Identified')}
+                checked={field.value}
+                onChange={field.onChange}
+              />
             )}
           />,
         )}
       </FormSection>
 
-      <FormSection title="Contact and address">
+      <FormSection title={t('Contact and address')}>
         {/* The phone is the app login: read-only, so the admin never moves a login account. */}
         {textField('phone', {
           type: 'tel',
           className: 'num',
           readOnly: true,
-          hint: "It's the investor's app login, so it can't be changed here.",
+          hint: t("It's the investor's app login, so it can't be changed here."),
         })}
         {textField('country_name')}
         {textField('city')}
@@ -263,7 +270,7 @@ function InvestorFormBody({
         {textField('street')}
       </FormSection>
 
-      <FormSection title="App and acquisition">
+      <FormSection title={t('App and acquisition')}>
         {multi('lang')}
         {multi('platform_type')}
         {when(
@@ -312,8 +319,8 @@ function InvestorFormBody({
                 }
                 onError={(error) =>
                   toast.error(
-                    "Couldn't upload the photo",
-                    backendMessage(error) ?? 'Please try again.',
+                    t("Couldn't upload the photo"),
+                    backendMessage(error) ?? t('Please try again.'),
                   )
                 }
               />

@@ -22,10 +22,12 @@ import {
   PercentCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 function buildColumns(
   label: (f: string) => string,
   opt: (v: string) => string,
+  t: (text: string) => string,
 ): Column<CurrencyPercent>[] {
   return [
     {
@@ -43,14 +45,14 @@ function buildColumns(
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (c) => <DateTimeCell value={c.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (c) => <DateTimeCell value={c.updatedAt} />,
@@ -60,6 +62,7 @@ function buildColumns(
 
 // Three rows (currency, transaction and insurance percent): no filters or search needed.
 export default function CurrencyPercentPage() {
+  const t = useT()
   const list = useListParams()
   const fields = useTableFields(CURRENCY_PERCENT_TABLE)
   const navigate = useNavigate()
@@ -69,19 +72,19 @@ export default function CurrencyPercentPage() {
   return (
     <>
       <PageHeader
-        title="Currency percent"
-        description="Percentages applied to currency conversion, transactions and insurance."
+        title={t('Currency percent')}
+        description={t('Percentages applied to currency conversion, transactions and insurance.')}
         actions={
           <Can table={CURRENCY_PERCENT_TABLE} action="create">
             <ButtonLink to={RECORDS.currencyPercent.create} icon={Plus}>
-              Add percent
+              {t('Add percent')}
             </ButtonLink>
           </Can>
         }
       />
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel, (v) => fields.optionLabel('type', v)),
+          ...buildColumns(fields.fieldLabel, (v) => fields.optionLabel('type', v), t),
           actionsColumn<CurrencyPercent>({
             table: CURRENCY_PERCENT_TABLE,
             onView: (c) => navigate(RECORDS.currencyPercent.detail(c.id)),
@@ -95,7 +98,7 @@ export default function CurrencyPercentPage() {
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}
-        loadingLabel="Loading percentages"
+        loadingLabel={t('Loading percentages')}
         emptyState={
           <ListEmptyState
             noun="percentages"
@@ -127,7 +130,8 @@ export default function CurrencyPercentPage() {
             // The backend function reads the type on delete (docs/API.md)
             data: { type: toDelete.type },
             name:
-              toDelete.type.map((t) => fields.optionLabel('type', t)).join(', ') || 'This percent',
+              toDelete.type.map((v) => fields.optionLabel('type', v)).join(', ') ||
+              t('This percent'),
           }
         }
         onClose={() => setToDelete(null)}

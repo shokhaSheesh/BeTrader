@@ -1,5 +1,6 @@
 import { Eye, Pencil, Trash2 } from 'lucide-react'
 import { usePermissions } from '@/shared/permissions'
+import { useT } from '@/shared/i18n'
 import { RowActions } from '@/shared/ui'
 import type { ActionsColumnOptions } from './actionsColumn'
 
@@ -12,15 +13,16 @@ export function PermittedRowActions<T>({
   onDelete,
 }: ActionsColumnOptions<T> & { row: T }) {
   const { can } = usePermissions()
+  const t = useT()
   return (
     <RowActions
       actions={[
-        { label: 'View', icon: Eye, onSelect: () => onView(row) },
+        { label: t('View'), icon: Eye, onSelect: () => onView(row) },
         ...(can(table, 'update')
-          ? [{ label: 'Edit', icon: Pencil, onSelect: () => onEdit(row) }]
+          ? [{ label: t('Edit'), icon: Pencil, onSelect: () => onEdit(row) }]
           : []),
         ...(onDelete && can(table, 'delete')
-          ? [{ label: 'Delete', icon: Trash2, onSelect: () => onDelete(row), danger: true }]
+          ? [{ label: t('Delete'), icon: Trash2, onSelect: () => onDelete(row), danger: true }]
           : []),
       ]}
     />

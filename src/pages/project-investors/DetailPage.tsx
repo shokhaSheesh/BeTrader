@@ -8,23 +8,28 @@ import { RECORDS } from '@/shared/config/routes'
 import { Can } from '@/shared/permissions'
 import { formatAmount, formatDateTime, formatPhone } from '@/shared/lib/format'
 import { Button, ButtonLink, DetailSection, PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const dash = <span className="text-fg-subtle">—</span>
 
 export default function ProjectInvestorDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useProjectInvestorQuery(id)
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.projectInvestors.list, label: 'Project investors' }
+  const back = { to: RECORDS.projectInvestors.list, label: t('Project investors') }
 
   return (
     <RecordBoundary query={query} noun="investment" back={back} alsoPending={fields.isPending}>
       {(r) => {
         const L = fields.fieldLabel
         const has = (slug: string) => !!fields.data?.some((f) => f.slug === slug)
-        const title = `${r.investorName ?? 'Investor'} in ${r.projectName ?? 'project'}`
+        const title = t('{investor} in {project}', {
+          investor: r.investorName ?? t('Investor'),
+          project: r.projectName ?? t('project'),
+        })
         return (
           <>
             <PageHeader
@@ -34,12 +39,12 @@ export default function ProjectInvestorDetailPage() {
                 <>
                   <Can table={PROJECT_INVESTORS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={PROJECT_INVESTORS_TABLE} action="update">
                     <ButtonLink to={RECORDS.projectInvestors.edit(r.id)} icon={Pencil}>
-                      Edit investment
+                      {t('Edit investment')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -47,7 +52,7 @@ export default function ProjectInvestorDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Investment"
+                title={t('Investment')}
                 items={[
                   {
                     label: L('investors_id'),
@@ -56,14 +61,14 @@ export default function ProjectInvestorDetailPage() {
                         to={RECORDS.investors.detail(r.investorId)}
                         className="font-medium underline-offset-4 hover:underline"
                       >
-                        {r.investorName ?? 'Open investor'}
+                        {r.investorName ?? t('Open investor')}
                       </Link>
                     ) : (
                       dash
                     ),
                   },
                   {
-                    label: 'Passport',
+                    label: t('Passport'),
                     value: r.investorPassport ? (
                       <span className="num">{r.investorPassport}</span>
                     ) : (
@@ -71,7 +76,7 @@ export default function ProjectInvestorDetailPage() {
                     ),
                   },
                   {
-                    label: 'Phone',
+                    label: t('Phone'),
                     value: r.investorPhone ? (
                       <span className="num">{formatPhone(r.investorPhone)}</span>
                     ) : (
@@ -140,7 +145,7 @@ export default function ProjectInvestorDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   {
                     label: L('created_time'),

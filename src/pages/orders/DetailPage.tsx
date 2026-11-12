@@ -23,21 +23,23 @@ import {
   RecordLink,
   YesNoCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function OrderDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useOrderQuery(id)
   const fields = useTableFields(ORDERS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.orders.list, label: 'Orders' }
+  const back = { to: RECORDS.orders.list, label: t('Orders') }
 
   return (
     <RecordBoundary query={query} noun="order" back={back} alsoPending={fields.isPending}>
       {(o) => {
         const L = fields.fieldLabel
         const opt = (f: string) => (v: string) => fields.optionLabel(f, v)
-        const title = o.orderId ? `Order ${o.orderId}` : 'Order'
+        const title = o.orderId ? t('Order {id}', { id: o.orderId }) : t('Order')
         return (
           <>
             <PageHeader
@@ -48,12 +50,12 @@ export default function OrderDetailPage() {
                 <>
                   <Can table={ORDERS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={ORDERS_TABLE} action="update">
                     <ButtonLink to={RECORDS.orders.edit(o.id)} icon={Pencil}>
-                      Edit order
+                      {t('Edit order')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -61,7 +63,7 @@ export default function OrderDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Order"
+                title={t('Order')}
                 items={[
                   { label: L('external_order_id'), value: <CodeCell value={o.orderId} /> },
                   {
@@ -92,7 +94,7 @@ export default function OrderDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Amounts"
+                title={t('Amounts')}
                 items={[
                   {
                     label: L('amount_uzs'),
@@ -117,7 +119,7 @@ export default function OrderDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Linked records"
+                title={t('Linked records')}
                 items={[
                   {
                     label: L('investors_id'),
@@ -133,7 +135,7 @@ export default function OrderDetailPage() {
                     label: L('projects_id'),
                     value: o.projectId ? (
                       <RecordLink to={RECORDS.projects.detail(o.projectId)}>
-                        {o.projectName ?? 'Open project'}
+                        {o.projectName ?? t('Open project')}
                       </RecordLink>
                     ) : (
                       <Dash />
@@ -143,7 +145,7 @@ export default function OrderDetailPage() {
                     label: L('account_id'),
                     value: o.accountId ? (
                       <RecordLink to={RECORDS.accounts.detail(o.accountId)}>
-                        Open account
+                        {t('Open account')}
                       </RecordLink>
                     ) : (
                       <Dash />
@@ -152,7 +154,7 @@ export default function OrderDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   { label: L('created_time'), value: <DateTimeCell value={o.createdTime} /> },
                   { label: L('updated_time'), value: <DateTimeCell value={o.updatedTime} /> },

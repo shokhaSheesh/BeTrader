@@ -15,8 +15,10 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function RolesPage() {
+  const t = useT()
   const query = useRolesQuery()
   const clientTypes = useLookupOptions('client_type', 'name')
   const navigate = useNavigate()
@@ -28,25 +30,26 @@ export default function RolesPage() {
   const columns: Column<Role>[] = [
     {
       id: 'name',
-      header: 'Role',
+      header: t('Role'),
       skeleton: 'w-40',
       cell: (r) => (
         <span className="flex items-center gap-2 font-medium">
           {r.name}
-          {r.isSystem && <Badge>System</Badge>}
+          {r.isSystem && <Badge>{t('System')}</Badge>}
         </span>
       ),
     },
     {
       id: 'client_type',
-      header: 'Client type',
+      header: t('Client type'),
       cell: (r) => <TextCell value={clientTypeName(r.clientTypeId)} />,
     },
     {
       id: 'status',
-      header: 'Status',
+      header: t('Status'),
       skeleton: 'w-16',
-      cell: (r) => (r.isActive ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>),
+      cell: (r) =>
+        r.isActive ? <Badge tone="success">{t('Active')}</Badge> : <Badge>{t('Inactive')}</Badge>,
     },
     actionsColumn<Role>({
       table: ROLES_TABLE,
@@ -59,12 +62,12 @@ export default function RolesPage() {
   return (
     <>
       <PageHeader
-        title="Roles & permissions"
-        description="What each role can see in the sidebar and do on each page."
+        title={t('Roles & permissions')}
+        description={t('What each role can see in the sidebar and do on each page.')}
         actions={
           <Can table={ROLES_TABLE} action="create">
             <ButtonLink to={RECORDS.roles.create} icon={Plus}>
-              Create role
+              {t('Create role')}
             </ButtonLink>
           </Can>
         }
@@ -77,7 +80,8 @@ export default function RolesPage() {
         loading={query.isPending}
         fetching={query.isFetching}
         skeletonRows={8}
-        loadingLabel="Loading roles"
+        loadingLabel={t('Loading roles')}
+
         emptyState={
           <ListEmptyState
             noun="roles"

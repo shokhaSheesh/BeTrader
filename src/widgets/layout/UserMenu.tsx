@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/cn'
 import { usePermissions } from '@/shared/permissions'
 import { useSessionStore } from '@/shared/session/store'
 import { menuItem, popoverSurface } from '@/shared/ui/styles'
+import { useT } from '@/shared/i18n'
 
 /** Avatar button: who is signed in (login and role) and Log out. */
 export function UserMenu() {
@@ -12,11 +13,12 @@ export function UserMenu() {
   const logout = useSessionStore((s) => s.logout)
   const { roleName } = usePermissions()
   const queryClient = useQueryClient()
+  const t = useT()
 
   return (
     <D.Root modal={false}>
       <D.Trigger
-        aria-label="Account"
+        aria-label={t('Your account')}
         className="grid size-10 place-items-center rounded-full bg-surface-muted text-fg transition-colors hover:bg-line data-[state=open]:bg-inverse data-[state=open]:text-on-inverse"
       >
         <User size={18} strokeWidth={1.75} />
@@ -41,7 +43,7 @@ export function UserMenu() {
             className={cn(menuItem, 'text-danger-text data-[highlighted]:bg-danger-tint')}
           >
             <LogOut size={16} strokeWidth={1.75} />
-            Log out
+            {t('Log out')}
           </D.Item>
         </D.Content>
       </D.Portal>

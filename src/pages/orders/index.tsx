@@ -36,6 +36,7 @@ import {
   YesNoCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['investor', 'project', 'type', 'status', 'currency', 'from', 'to'] as const
 
@@ -43,6 +44,7 @@ const FILTER_KEYS = ['investor', 'project', 'type', 'status', 'currency', 'from'
 function buildColumns(
   label: (f: string) => string,
   opt: (f: string) => (v: string) => string,
+  t: (text: string) => string,
 ): Column<Order>[] {
   return [
     {
@@ -57,7 +59,7 @@ function buildColumns(
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (o) => <CodeCell value={o.investorPhone && formatPhone(o.investorPhone)} />,
     },
@@ -178,6 +180,7 @@ function buildColumns(
 }
 
 export default function OrdersPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(ORDERS_TABLE)
   const projects = useProjectOptions()
@@ -209,19 +212,19 @@ export default function OrdersPage() {
   return (
     <>
       <PageHeader
-        title="Orders"
-        description="Investors' buy and sell orders on projects."
+        title={t('Orders')}
+        description={t("Investors' buy and sell orders on projects.")}
         actions={
           <Can table={ORDERS_TABLE} action="create">
             <ButtonLink to={RECORDS.orders.create} icon={Plus}>
-              Create order
+              {t('Create order')}
             </ButtonLink>
           </Can>
         }
       />
 
       <KpiGrid>
-        <KpiCard label="Total orders" icon={ClipboardList} tone="accent" value={total.data} />
+        <KpiCard label={t('Total orders')} icon={ClipboardList} tone="accent" value={total.data} />
         <KpiCard
           label={fields.optionLabel('type', 'buy')}
           icon={ArrowDownLeft}
@@ -246,7 +249,7 @@ export default function OrdersPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Order ID or transaction ID"
+          placeholder={t('Order ID or transaction ID')}
         />
         <InvestorFilter
           value={list.filter('investor')}
@@ -277,7 +280,7 @@ export default function OrdersPage() {
 
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel, opt),
+          ...buildColumns(fields.fieldLabel, opt, t),
           actionsColumn<Order>({
             table: ORDERS_TABLE,
             onView: (o) => navigate(RECORDS.orders.detail(o.id)),
@@ -290,7 +293,7 @@ export default function OrdersPage() {
         onRowClick={(o) => navigate(RECORDS.orders.detail(o.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading orders"
+        loadingLabel={t('Loading orders')}
         emptyState={
           <ListEmptyState
             noun="orders"
@@ -320,7 +323,7 @@ export default function OrdersPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: toDelete.orderId ? `Order ${toDelete.orderId}` : 'This order',
+            name: toDelete.orderId ? t('Order {id}', { id: toDelete.orderId }) : t('This order'),
           }
         }
         onClose={() => setToDelete(null)}

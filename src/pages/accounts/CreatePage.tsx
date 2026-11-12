@@ -3,8 +3,10 @@ import { AccountForm } from '@/features/account-editor'
 import { useCreateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function AccountCreatePage() {
+  const t = useT()
   const create = useCreateRecord({
     table: ACCOUNTS_TABLE,
     noun: 'account',
@@ -13,9 +15,12 @@ export default function AccountCreatePage() {
 
   return (
     <>
-      <PageHeader back={{ to: RECORDS.accounts.list, label: 'Accounts' }} title="Create account" />
+      <PageHeader
+        back={{ to: RECORDS.accounts.list, label: t('Accounts') }}
+        title={t('Create account')}
+      />
       <AccountForm
-        submitLabel="Create account"
+        submitLabel={t('Create account')}
         cancelTo={RECORDS.accounts.list}
         submitting={create.submitting}
         onSubmit={create.submit}

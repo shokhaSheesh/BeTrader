@@ -6,9 +6,11 @@ import { RECORDS } from '@/shared/config/routes'
 import { numberToText } from '@/shared/lib/form'
 import { investorLabel } from '@/shared/lib/format'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useStrReportQuery(id)
   const update = useUpdateRecord(
     { table: STR_SAR_TABLE, noun: 'report', routes: RECORDS.strSar },
@@ -24,7 +26,7 @@ export default function EditPage() {
         <>
           <PageHeader
             back={{ to: RECORDS.strSar.detail(r.id), label: 'STR/SAR' }}
-            title={'Edit report'}
+            title={t('Edit report')}
           />
           <RecordForm
             spec={FORM_SPECS.strSar}
@@ -41,7 +43,8 @@ export default function EditPage() {
                 : undefined,
               investors_id_2: r.passport ?? undefined,
             }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.strSar.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

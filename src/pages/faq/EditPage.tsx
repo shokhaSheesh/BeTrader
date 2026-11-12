@@ -4,9 +4,11 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useFaqItemQuery(id)
   const update = useUpdateRecord({ table: FAQ_TABLE, noun: 'question', routes: RECORDS.faq }, id)
   return (
@@ -15,7 +17,7 @@ export default function EditPage() {
         <>
           <PageHeader
             back={{ to: RECORDS.faq.detail(r.id), label: 'FAQ' }}
-            title={'Edit question'}
+            title={t('Edit question')}
           />
           <RecordForm
             spec={FORM_SPECS.faq}
@@ -28,7 +30,8 @@ export default function EditPage() {
               answer_uz: r.answerUz,
             }}
 
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.faq.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

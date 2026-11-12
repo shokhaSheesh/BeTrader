@@ -7,7 +7,7 @@ export type Language = 'en' | 'ru' | 'uz'
 interface UiState {
   sidebarCollapsed: boolean
   toggleSidebar: () => void
-  /** Interface language. Only English has translations so far (the others are listed as "Soon"). */
+  /** Interface language: English and Russian (Uzbek is listed as "Soon"). */
   language: Language
   setLanguage: (language: Language) => void
 }

@@ -5,9 +5,11 @@ import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { investorLabel } from '@/shared/lib/format'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useDocumentItemQuery(id)
   const update = useUpdateRecord(
     { table: DOCUMENTS_TABLE, noun: 'document', routes: RECORDS.documents },
@@ -17,13 +19,13 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="document"
-      back={{ to: RECORDS.documents.list, label: 'Documents' }}
+      back={{ to: RECORDS.documents.list, label: t('Documents') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.documents.detail(r.id), label: 'Documents' }}
-            title={'Edit document'}
+            back={{ to: RECORDS.documents.detail(r.id), label: t('Documents') }}
+            title={t('Edit document')}
           />
           <RecordForm
             spec={FORM_SPECS.documents}
@@ -41,7 +43,8 @@ export default function EditPage() {
                 ? investorLabel(r.investorName, r.investorPhone)
                 : undefined,
             }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.documents.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

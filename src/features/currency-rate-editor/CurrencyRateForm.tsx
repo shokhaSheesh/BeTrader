@@ -12,6 +12,7 @@ import {
   updateBody,
 } from '@/shared/lib/form'
 import { DatePicker, Field, FormActions, FormSection, PageLoader, TextField } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // "Amount with percent" is a stored backend field: entered as-is, never calculated here (DESIGN.md §0).
 const schema = z.object({
@@ -55,9 +56,10 @@ interface CurrencyRateFormProps {
 }
 
 export function CurrencyRateForm(props: CurrencyRateFormProps) {
+  const t = useT()
   const fields = useTableFields(CURRENCY_RATES_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <CurrencyRateFormBody {...props} fields={fields} />
 }
 
@@ -69,6 +71,7 @@ function CurrencyRateFormBody({
   submitting,
   fields,
 }: CurrencyRateFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const {
     register,
@@ -89,7 +92,7 @@ function CurrencyRateFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof CurrencyRateFormValues, { message: 'Required' })
+        setError(slug as keyof CurrencyRateFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -105,7 +108,7 @@ function CurrencyRateFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Rate">
+      <FormSection title={t('Rate')}>
         <Field label={L('date')} htmlFor="date" required={req('date')} error={errors.date?.message}>
           <Controller
             control={control}

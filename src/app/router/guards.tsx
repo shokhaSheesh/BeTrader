@@ -4,6 +4,7 @@ import { usePermissions, type Action, type Resource } from '@/shared/permissions
 import { Button, ButtonLink, EmptyState, PageLoader } from '@/shared/ui'
 import { useIsAuthenticated } from '@/shared/session/store'
 import { ROUTES } from '@/shared/config/routes'
+import { useT } from '@/shared/i18n'
 
 export function ProtectedRoute() {
   const isAuthenticated = useIsAuthenticated()
@@ -34,6 +35,7 @@ export function RequireAccess({
   action: Action
   children: ReactNode
 }) {
+  const t = useT()
   const permissions = usePermissions()
   if (permissions.isPending) return <PageLoader />
   if (permissions.isError) {
@@ -41,15 +43,15 @@ export function RequireAccess({
       <div className="rounded-md border border-line bg-surface">
         <EmptyState
           variant="error"
-          title="Couldn't load your permissions"
-          description="The connection dropped or the server failed."
+          title={t("Couldn't load your permissions")}
+          description={t('The connection dropped or the server failed.')}
           action={
             <Button
               variant="secondary"
               loading={permissions.isFetching}
               onClick={() => permissions.refetch()}
             >
-              Try again
+              {t('Try again')}
             </Button>
           }
         />
@@ -65,11 +67,23 @@ export function RequireAccess({
       <div className="rounded-md border border-line bg-surface">
         <EmptyState
           variant="no-results"
-          title="You don't have access to this page"
-          description={`Your role${permissions.roleName ? ` (${permissions.roleName})` : ''} isn't allowed to ${action === 'read' ? 'open' : action} this. Ask an administrator if you need it.`}
+          title={t("You don't have access to this page")}
+          description={
+            permissions.roleName
+              ? t(
+                  "Your role ({role}) isn't allowed to {action} this. Ask an administrator if you need it.",
+                  { role: permissions.roleName, action: action === 'read' ? 'open' : action },
+                )
+              : t(
+                  "Your role isn't allowed to {action} this. Ask an administrator if you need it.",
+                  {
+                    action: action === 'read' ? 'open' : action,
+                  },
+                )
+          }
           action={
             <ButtonLink to={ROUTES.dashboard} variant="secondary">
-              Go to dashboard
+              {t('Go to dashboard')}
             </ButtonLink>
           }
         />

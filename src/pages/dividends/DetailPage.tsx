@@ -23,14 +23,16 @@ import {
   RecordBoundary,
   RecordLink,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function DividendDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useDividendQuery(id)
   const fields = useTableFields(DIVIDENDS_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.dividends.list, label: 'Dividends' }
+  const back = { to: RECORDS.dividends.list, label: t('Dividends') }
 
   return (
     <RecordBoundary query={query} noun="dividend" back={back} alsoPending={fields.isPending}>
@@ -40,18 +42,18 @@ export default function DividendDetailPage() {
           <>
             <PageHeader
               back={back}
-              title={d.investorName ?? 'Dividend'}
+              title={d.investorName ?? t('Dividend')}
               description={d.projectName ?? undefined}
               actions={
                 <>
                   <Can table={DIVIDENDS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={DIVIDENDS_TABLE} action="update">
                     <ButtonLink to={RECORDS.dividends.edit(d.id)} icon={Pencil}>
-                      Edit dividend
+                      {t('Edit dividend')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -59,7 +61,7 @@ export default function DividendDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Dividend"
+                title={t('Dividend')}
                 items={[
                   {
                     label: L('type'),
@@ -79,7 +81,7 @@ export default function DividendDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Amounts"
+                title={t('Amounts')}
                 items={[
                   { label: L('order_amount'), value: <AmountCell value={d.orderAmount} /> },
                   {
@@ -93,7 +95,7 @@ export default function DividendDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Linked records"
+                title={t('Linked records')}
                 items={[
                   {
                     label: L('investors_id'),
@@ -109,7 +111,7 @@ export default function DividendDetailPage() {
                     label: L('projects_id'),
                     value: d.projectId ? (
                       <RecordLink to={RECORDS.projects.detail(d.projectId)}>
-                        {d.projectName ?? 'Open project'}
+                        {d.projectName ?? t('Open project')}
                       </RecordLink>
                     ) : (
                       <Dash />
@@ -118,10 +120,10 @@ export default function DividendDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
-                  { label: 'Created', value: <DateTimeCell value={d.createdAt} /> },
-                  { label: 'Last updated', value: <DateTimeCell value={d.updatedAt} /> },
+                  { label: t('Created'), value: <DateTimeCell value={d.createdAt} /> },
+                  { label: t('Last updated'), value: <DateTimeCell value={d.updatedAt} /> },
                   { label: L('guid'), value: <CodeCell value={d.id} /> },
                 ]}
               />
@@ -131,7 +133,12 @@ export default function DividendDetailPage() {
               table={DIVIDENDS_TABLE}
               target={
                 deleting
-                  ? { id: d.id, name: `The dividend of ${d.investorName ?? 'this investor'}` }
+                  ? {
+                      id: d.id,
+                      name: d.investorName
+                        ? t('The dividend of {investor}', { investor: d.investorName })
+                        : t('The dividend of this investor'),
+                    }
                   : null
               }
               onClose={() => setDeleting(false)}

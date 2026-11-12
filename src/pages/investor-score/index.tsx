@@ -27,8 +27,12 @@ import {
   Pagination,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<InvestorScore>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<InvestorScore>[] {
   return [
     {
       id: 'investor',
@@ -42,7 +46,7 @@ function buildColumns(label: (f: string) => string): Column<InvestorScore>[] {
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (r) => <CodeCell value={r.investorPhone && formatPhone(r.investorPhone)} />,
     },
@@ -55,14 +59,14 @@ function buildColumns(label: (f: string) => string): Column<InvestorScore>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -71,6 +75,7 @@ function buildColumns(label: (f: string) => string): Column<InvestorScore>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams(['investor'])
   const fields = useTableFields(INVESTOR_SCORE_TABLE)
   const navigate = useNavigate()
@@ -84,12 +89,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Investor score"
-        description="Risk scores assigned to investors."
+        title={t('Investor score')}
+        description={t('Risk scores assigned to investors.')}
         actions={
           <Can table={INVESTOR_SCORE_TABLE} action="create">
             <ButtonLink to={RECORDS.investorScore.create} icon={Plus}>
-              Add score
+              {t('Add score')}
             </ButtonLink>
           </Can>
         }
@@ -102,7 +107,7 @@ export default function Page() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<InvestorScore>({
             table: INVESTOR_SCORE_TABLE,
             onView: (r) => navigate(RECORDS.investorScore.detail(r.id)),
@@ -115,7 +120,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.investorScore.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading investor scores"
+        loadingLabel={t('Loading investor scores')}
         emptyState={
           <ListEmptyState
             noun="investor scores"
@@ -145,7 +150,9 @@ export default function Page() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: `The score of ${toDelete.investorName ?? 'this investor'}`,
+            name: toDelete.investorName
+              ? t('The score of {name}', { name: toDelete.investorName })
+              : t('The score of this investor'),
           }
         }
         onClose={() => setToDelete(null)}

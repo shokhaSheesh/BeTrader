@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/cn'
 import { Button } from './Button'
 import { Calendar } from './Calendar'
 import { controlBase, controlSizes, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 interface DateTimePickerProps {
   /** ISO date-time, as the backend stores DATE_TIME fields */
@@ -27,13 +28,8 @@ const clamp = (text: string, max: number) => {
  * Custom date + time field: our calendar, then hours and minutes (DESIGN.md §3, never
  * `<input type="datetime-local">`). The time is the viewer's local time; the value is sent in UTC.
  */
-export function DateTimePicker({
-  value,
-  onChange,
-  placeholder = 'Pick a date and time',
-  id,
-  invalid,
-}: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder, id, invalid }: DateTimePickerProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const current = value ? new Date(value) : null
   const day = current
@@ -72,13 +68,13 @@ export function DateTimePicker({
           {value ? (
             <span className="num">{formatDateTime(value)}</span>
           ) : (
-            <span className="text-fg-subtle">{placeholder}</span>
+            <span className="text-fg-subtle">{placeholder ?? t('Pick a date and time')}</span>
           )}
         </Popover.Trigger>
         {value && (
           <button
             type="button"
-            aria-label="Clear date and time"
+            aria-label={t('Clear date and time')}
             onClick={() => onChange(null)}
             className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-fg-muted hover:bg-surface hover:text-fg"
           >
@@ -91,13 +87,13 @@ export function DateTimePicker({
           <Calendar value={day} onChange={(d) => set(d, hours, minutes)} />
           <div className="flex items-center justify-between gap-3 border-t border-line p-3">
             <div className="flex items-center gap-1.5">
-              <span className="mr-1 text-fg-muted">Time</span>
-              {timeInput('Hours', hours, 23, (h) => day && set(day, h, minutes))}
+              <span className="mr-1 text-fg-muted">{t('Time')}</span>
+              {timeInput(t('Hours'), hours, 23, (h) => day && set(day, h, minutes))}
               <span className="text-fg-muted">:</span>
-              {timeInput('Minutes', minutes, 59, (m) => day && set(day, hours, m))}
+              {timeInput(t('Minutes'), minutes, 59, (m) => day && set(day, hours, m))}
             </div>
             <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
-              Done
+              {t('Done')}
             </Button>
           </div>
         </Popover.Content>

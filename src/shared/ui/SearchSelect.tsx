@@ -6,6 +6,7 @@ import { LoadMoreRow, type Paging } from './LoadMoreRow'
 import type { SelectOption } from './Select'
 import { Spinner } from './Spinner'
 import { controlBase, controlSizes, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 interface SearchSelectProps {
   value: string | null
@@ -33,11 +34,12 @@ export function SearchSelect({
   search,
   onSearchChange,
   loading,
-  placeholder = 'Select',
+  placeholder,
   id,
   invalid,
   paging,
 }: SearchSelectProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
 
@@ -64,7 +66,7 @@ export function SearchSelect({
         {value ? (
           <span className="truncate">{valueLabel ?? value}</span>
         ) : (
-          <span className="text-fg-subtle">{placeholder}</span>
+          <span className="text-fg-subtle">{placeholder ?? t('Select')}</span>
         )}
         <ChevronDown size={16} className="shrink-0 text-fg-muted" />
       </Popover.Trigger>
@@ -87,7 +89,7 @@ export function SearchSelect({
                 setActive(0)
               }}
               onKeyDown={onKeyDown}
-              placeholder="Search"
+              placeholder={t('Search')}
               role="combobox"
               aria-expanded="true"
               className="h-10 w-full bg-transparent pr-9 pl-9 outline-none placeholder:text-fg-subtle"
@@ -102,7 +104,7 @@ export function SearchSelect({
           <div role="listbox" className="max-h-64 overflow-y-auto p-1">
             {options.length === 0 ? (
               <p className="px-3 py-6 text-center text-fg-muted">
-                {loading ? 'Searching…' : 'Nothing found'}
+                {loading ? t('Searching…') : t('Nothing found')}
               </p>
             ) : (
               options.map((o, i) => (

@@ -29,6 +29,7 @@ import {
   Pagination,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['project', 'from', 'to'] as const
 
@@ -38,6 +39,7 @@ const FILTER_KEYS = ['project', 'from', 'to'] as const
 function buildColumns(
   label: (field: string) => string,
   has: (field: string) => boolean,
+  t: (text: string) => string,
 ): Column<ProjectInvestor>[] {
   const columns: (Column<ProjectInvestor> | false)[] = [
     {
@@ -52,11 +54,11 @@ function buildColumns(
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (r) => <CodeCell value={r.investorPhone && formatPhone(r.investorPhone)} />,
     },
-    { id: 'passport', header: 'Passport', cell: (r) => <CodeCell value={r.investorPassport} /> },
+    { id: 'passport', header: t('Passport'), cell: (r) => <CodeCell value={r.investorPassport} /> },
     {
       id: 'project',
       header: label('projects_id'),
@@ -117,6 +119,7 @@ function buildColumns(
 }
 
 export default function ProjectInvestorsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   // No search box: the backend ignores `search` on this table (docs/API.md, open questions).
   // Filters work and run on the backend.
@@ -136,7 +139,7 @@ export default function ProjectInvestorsPage() {
   const [toDelete, setToDelete] = useState<ProjectInvestor | null>(null)
 
   const columns = [
-    ...buildColumns(fields.fieldLabel, (slug) => !!fields.data?.some((f) => f.slug === slug)),
+    ...buildColumns(fields.fieldLabel, (slug) => !!fields.data?.some((f) => f.slug === slug), t),
     actionsColumn<ProjectInvestor>({
       table: PROJECT_INVESTORS_TABLE,
       onView: (r) => navigate(RECORDS.projectInvestors.detail(r.id)),
@@ -148,12 +151,12 @@ export default function ProjectInvestorsPage() {
   return (
     <>
       <PageHeader
-        title="Project investors"
-        description="Who invested in which project, and how much."
+        title={t('Project investors')}
+        description={t('Who invested in which project, and how much.')}
         actions={
           <Can table={PROJECT_INVESTORS_TABLE} action="create">
             <ButtonLink to={RECORDS.projectInvestors.create} icon={Plus}>
-              Add investment
+              {t('Add investment')}
             </ButtonLink>
           </Can>
         }
@@ -181,7 +184,7 @@ export default function ProjectInvestorsPage() {
         onRowClick={(r) => navigate(RECORDS.projectInvestors.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading project investors"
+        loadingLabel={t('Loading project investors')}
         emptyState={
           <ListEmptyState
             noun="project investors"
@@ -211,7 +214,10 @@ export default function ProjectInvestorsPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: `${toDelete.investorName ?? 'Investor'} in ${toDelete.projectName ?? 'project'}`,
+            name: t('{investor} in {project}', {
+              investor: toDelete.investorName ?? t('Investor'),
+              project: toDelete.projectName ?? t('project'),
+            }),
           }
         }
         onClose={() => setToDelete(null)}

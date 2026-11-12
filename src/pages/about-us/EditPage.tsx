@@ -4,9 +4,11 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useAboutUsQuery(id)
   // A settings record: saving returns to the page that shows it
   const update = useUpdateRecord(
@@ -21,18 +23,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="about us"
-      back={{ to: RECORDS.aboutUs.list, label: 'About us' }}
+      back={{ to: RECORDS.aboutUs.list, label: t('About us') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.aboutUs.list, label: 'About us' }}
-            title="Edit about us"
+            back={{ to: RECORDS.aboutUs.list, label: t('About us') }}
+            title={t('Edit about us')}
           />
           <RecordForm
             spec={FORM_SPECS.aboutUs}
             defaults={{ text_en: r.textEn, text_ru: r.textRu, text_uz: r.textUz, files: r.files }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.aboutUs.list}
             submitting={update.submitting}
             onSubmit={update.submit}

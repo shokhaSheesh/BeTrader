@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import { env } from '@/shared/config/env'
 import { TARGET_ENVIRONMENT } from '@/shared/config/environments'
+import { translate } from '@/shared/i18n'
 import { useSessionStore, type Session } from '@/shared/session/store'
 
 export interface LoginCredentials {
@@ -27,7 +28,11 @@ interface TokenResponse {
 /** Thrown when the session can't be moved into the target environment: we never fall back. */
 export class EnvironmentSwitchError extends Error {
   constructor() {
-    super(`Couldn't open the ${TARGET_ENVIRONMENT.label} environment`)
+    super(
+      translate("Couldn't open the {environment} environment", {
+        environment: TARGET_ENVIRONMENT.label,
+      }),
+    )
     this.name = 'EnvironmentSwitchError'
   }
 }
@@ -80,7 +85,8 @@ export function useLoginMutation() {
 
 /** u-code answers a wrong login with HTTP 500 "cannot get user", so any server reply means bad credentials. */
 export function loginErrorMessage(error: unknown) {
-  if (error instanceof EnvironmentSwitchError) return `${error.message}. Please try again.`
-  if (axios.isAxiosError(error) && error.response) return 'Wrong login or password'
-  return "Couldn't reach the server. Check your connection and try again."
+  if (error instanceof EnvironmentSwitchError)
+    return `${error.message}. ${translate('Please try again.')}`
+  if (axios.isAxiosError(error) && error.response) return translate('Wrong login or password')
+  return translate("Couldn't reach the server. Check your connection and try again.")
 }

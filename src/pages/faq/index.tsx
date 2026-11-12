@@ -20,8 +20,12 @@ import {
   SearchInput,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<FaqItem>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<FaqItem>[] {
   return [
     {
       id: 'question_en',
@@ -50,14 +54,14 @@ function buildColumns(label: (f: string) => string): Column<FaqItem>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -66,6 +70,7 @@ function buildColumns(label: (f: string) => string): Column<FaqItem>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(FAQ_TABLE)
   const navigate = useNavigate()
@@ -76,11 +81,11 @@ export default function Page() {
     <>
       <PageHeader
         title="FAQ"
-        description="Questions and answers shown in the app."
+        description={t('Questions and answers shown in the app.')}
         actions={
           <Can table={FAQ_TABLE} action="create">
             <ButtonLink to={RECORDS.faq.create} icon={Plus}>
-              Add question
+              {t('Add question')}
             </ButtonLink>
           </Can>
         }
@@ -89,12 +94,12 @@ export default function Page() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search questions"
+          placeholder={t('Search questions')}
         />
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<FaqItem>({
             table: FAQ_TABLE,
             onView: (r) => navigate(RECORDS.faq.detail(r.id)),
@@ -107,7 +112,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.faq.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading questions"
+        loadingLabel={t('Loading questions')}
         emptyState={
           <ListEmptyState
             noun="questions"
@@ -134,7 +139,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="question"
         table={FAQ_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.questionEn ?? 'This question' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.questionEn ?? t('This question') }}
         onClose={() => setToDelete(null)}
       />
     </>

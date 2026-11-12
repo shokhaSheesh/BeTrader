@@ -26,10 +26,12 @@ import {
   SearchInput,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 function buildColumns(
   label: (f: string) => string,
   optionLabel: (f: string, v: string) => string,
+  t: (text: string) => string,
 ): Column<NotificationItem>[] {
   return [
     {
@@ -54,7 +56,8 @@ function buildColumns(
       id: 'is_sent',
       header: label('is_sent'),
       skeleton: 'w-16',
-      cell: (r) => (r.isSent ? <Badge tone="success">Sent</Badge> : <Badge>Not sent</Badge>),
+      cell: (r) =>
+        r.isSent ? <Badge tone="success">{t('Sent')}</Badge> : <Badge>{t('Not sent')}</Badge>,
     },
     {
       id: 'send_at',
@@ -81,14 +84,14 @@ function buildColumns(
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -97,6 +100,7 @@ function buildColumns(
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(NOTIFICATIONS_TABLE)
   const navigate = useNavigate()
@@ -110,12 +114,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Notifications"
-        description="Push notifications sent to investors."
+        title={t('Notifications')}
+        description={t('Push notifications sent to investors.')}
         actions={
           <Can table={NOTIFICATIONS_TABLE} action="create">
             <ButtonLink to={RECORDS.notifications.create} icon={Plus}>
-              Create notification
+              {t('Create notification')}
             </ButtonLink>
           </Can>
         }
@@ -124,12 +128,12 @@ export default function Page() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search notifications"
+          placeholder={t('Search notifications')}
         />
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel, fields.optionLabel),
+          ...buildColumns(fields.fieldLabel, fields.optionLabel, t),
           actionsColumn<NotificationItem>({
             table: NOTIFICATIONS_TABLE,
             onView: (r) => navigate(RECORDS.notifications.detail(r.id)),
@@ -142,7 +146,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.notifications.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading notifications"
+        loadingLabel={t('Loading notifications')}
         emptyState={
           <ListEmptyState
             noun="notifications"
@@ -169,7 +173,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="notification"
         table={NOTIFICATIONS_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? 'This notification' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.titleEn ?? t('This notification') }}
         onClose={() => setToDelete(null)}
       />
     </>

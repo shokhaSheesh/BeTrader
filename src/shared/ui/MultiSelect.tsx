@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/cn'
 import { CheckboxBox } from './Checkbox'
 import type { SelectOption } from './Select'
 import { controlBase, controlSizes, menuItem, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 interface MultiSelectProps {
   value: string[]
@@ -18,10 +19,11 @@ export function MultiSelect({
   value,
   onChange,
   options,
-  placeholder = 'Select',
+  placeholder,
   id,
   invalid,
 }: MultiSelectProps) {
+  const t = useT()
   const selected = options.filter((o) => value.includes(o.value))
   const toggle = (v: string) =>
     onChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v])
@@ -45,7 +47,7 @@ export function MultiSelect({
             ))}
           </span>
         ) : (
-          <span className="text-fg-subtle">{placeholder}</span>
+          <span className="text-fg-subtle">{placeholder ?? t('Select')}</span>
         )}
         <ChevronDown size={16} className="shrink-0 text-fg-muted" />
       </D.Trigger>

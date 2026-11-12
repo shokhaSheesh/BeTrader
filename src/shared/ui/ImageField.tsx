@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { Button } from './Button'
 import { Spinner } from './Spinner'
+import { useT } from '@/shared/i18n'
 
 interface ImageFieldProps {
   id?: string
@@ -19,6 +20,7 @@ interface ImageFieldProps {
  * (DESIGN.md §3); the preview shows a loader while the file uploads (§1).
  */
 export function ImageField({ id, value, onChange, upload, onError }: ImageFieldProps) {
+  const t = useT()
   const input = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -58,11 +60,11 @@ export function ImageField({ id, value, onChange, upload, onError }: ImageFieldP
           loading={uploading}
           onClick={() => input.current?.click()}
         >
-          {value ? 'Replace image' : 'Upload image'}
+          {value ? t('Replace image') : t('Upload image')}
         </Button>
         {value && !uploading && (
           <Button type="button" variant="danger-ghost" icon={Trash2} onClick={() => onChange(null)}>
-            Remove
+            {t('Remove')}
           </Button>
         )}
       </div>

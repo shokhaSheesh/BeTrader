@@ -17,20 +17,22 @@ import {
   PercentCell,
   RecordBoundary,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function CurrencyPercentDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const query = useCurrencyPercentQuery(id)
   const fields = useTableFields(CURRENCY_PERCENT_TABLE)
   const [deleting, setDeleting] = useState(false)
-  const back = { to: RECORDS.currencyPercent.list, label: 'Currency percent' }
+  const back = { to: RECORDS.currencyPercent.list, label: t('Currency percent') }
 
   return (
     <RecordBoundary query={query} noun="percent" back={back} alsoPending={fields.isPending}>
       {(c) => {
         const L = fields.fieldLabel
-        const name = c.type.map((t) => fields.optionLabel('type', t)).join(', ') || 'Percent'
+        const name = c.type.map((v) => fields.optionLabel('type', v)).join(', ') || t('Percent')
         return (
           <>
             <PageHeader
@@ -40,12 +42,12 @@ export default function CurrencyPercentDetailPage() {
                 <>
                   <Can table={CURRENCY_PERCENT_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={CURRENCY_PERCENT_TABLE} action="update">
                     <ButtonLink to={RECORDS.currencyPercent.edit(c.id)} icon={Pencil}>
-                      Edit percent
+                      {t('Edit percent')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -53,7 +55,7 @@ export default function CurrencyPercentDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Percent"
+                title={t('Percent')}
                 items={[
                   {
                     label: L('type'),
@@ -65,10 +67,10 @@ export default function CurrencyPercentDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
-                  { label: 'Created', value: <DateTimeCell value={c.createdAt} /> },
-                  { label: 'Last updated', value: <DateTimeCell value={c.updatedAt} /> },
+                  { label: t('Created'), value: <DateTimeCell value={c.createdAt} /> },
+                  { label: t('Last updated'), value: <DateTimeCell value={c.updatedAt} /> },
                   { label: L('guid'), value: <CodeCell value={c.id} /> },
                 ]}
               />

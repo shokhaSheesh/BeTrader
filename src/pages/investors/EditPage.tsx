@@ -5,8 +5,10 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { formatPhone } from '@/shared/lib/format'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function InvestorEditPage() {
+  const t = useT()
   const { id } = useParams()
   const query = useInvestorQuery(id)
   const update = useUpdateRecord(
@@ -18,19 +20,19 @@ export default function InvestorEditPage() {
     <RecordBoundary
       query={query}
       noun="investor"
-      back={{ to: RECORDS.investors.list, label: 'Investors' }}
+      back={{ to: RECORDS.investors.list, label: t('Investors') }}
     >
       {(i) => {
-        const name = i.fullName ?? (i.phone ? formatPhone(i.phone) : 'investor')
+        const name = i.fullName ?? (i.phone ? formatPhone(i.phone) : t('Investor'))
         return (
           <>
             <PageHeader
               back={{ to: RECORDS.investors.detail(i.id), label: name }}
-              title={`Edit ${name}`}
+              title={t('Edit {name}', { name })}
             />
             <InvestorForm
               investor={i}
-              submitLabel="Save changes"
+              submitLabel={t('Save changes')}
               cancelTo={RECORDS.investors.detail(i.id)}
               submitting={update.submitting}
               onSubmit={update.submit}

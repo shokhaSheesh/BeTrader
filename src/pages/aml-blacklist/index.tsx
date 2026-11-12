@@ -24,8 +24,12 @@ import {
   SearchInput,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<BlacklistEntry>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<BlacklistEntry>[] {
   return [
     {
       id: 'name',
@@ -42,14 +46,14 @@ function buildColumns(label: (f: string) => string): Column<BlacklistEntry>[] {
     { id: 'pin', header: label('pin'), skeleton: 'w-32', cell: (r) => <CodeCell value={r.pin} /> },
     {
       id: 'created_at',
-      header: 'Added',
+      header: t('Added'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -58,6 +62,7 @@ function buildColumns(label: (f: string) => string): Column<BlacklistEntry>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(BLACKLIST_TABLE)
   const navigate = useNavigate()
@@ -71,12 +76,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="AML blacklist"
-        description="People who must not be onboarded or transacted with."
+        title={t('AML blacklist')}
+        description={t('People who must not be onboarded or transacted with.')}
         actions={
           <Can table={BLACKLIST_TABLE} action="create">
             <ButtonLink to={RECORDS.amlBlacklist.create} icon={Plus}>
-              Add to blacklist
+              {t('Add to blacklist')}
             </ButtonLink>
           </Can>
         }
@@ -85,12 +90,12 @@ export default function Page() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Name, passport or PIN"
+          placeholder={t('Name, passport or PIN')}
         />
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<BlacklistEntry>({
             table: BLACKLIST_TABLE,
             onView: (r) => navigate(RECORDS.amlBlacklist.detail(r.id)),
@@ -103,7 +108,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.amlBlacklist.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading blacklist entries"
+        loadingLabel={t('Loading blacklist entries')}
         emptyState={
           <ListEmptyState
             noun="blacklist entries"
@@ -131,7 +136,10 @@ export default function Page() {
         noun="entry"
         table={BLACKLIST_TABLE}
         target={
-          toDelete && { id: toDelete.id, name: toDelete.name ?? toDelete.passport ?? 'This entry' }
+          toDelete && {
+            id: toDelete.id,
+            name: toDelete.name ?? toDelete.passport ?? t('This entry'),
+          }
         }
         onClose={() => setToDelete(null)}
       />

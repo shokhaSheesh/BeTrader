@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { FileUp, X } from 'lucide-react'
 import { Button } from './Button'
 import { FileLink } from './cells'
+import { useT } from '@/shared/i18n'
 
 interface MultiFileFieldProps {
   id?: string
@@ -28,6 +29,7 @@ export function MultiFileField({
   onError,
   accept,
 }: MultiFileFieldProps) {
+  const t = useT()
   const input = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -50,7 +52,7 @@ export function MultiFileField({
   return (
     <div className="flex flex-col gap-2">
       {value.length === 0 ? (
-        <span className="text-fg-muted">No files</span>
+        <span className="text-fg-muted">{t('No files')}</span>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {value.map((url, i) => (
@@ -58,7 +60,7 @@ export function MultiFileField({
               <FileLink url={url} />
               <button
                 type="button"
-                aria-label="Remove file"
+                aria-label={t('Remove file')}
                 onClick={() => onChange(value.filter((_, j) => j !== i))}
                 className="grid size-7 shrink-0 place-items-center rounded-full text-fg-muted hover:bg-surface-muted hover:text-danger-text"
               >
@@ -76,7 +78,7 @@ export function MultiFileField({
           loading={uploading}
           onClick={() => input.current?.click()}
         >
-          Add files
+          {t('Add files')}
         </Button>
       </div>
       <input

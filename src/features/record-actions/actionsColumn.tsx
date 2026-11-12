@@ -1,3 +1,4 @@
+import { translate } from '@/shared/i18n'
 import type { Column } from '@/shared/ui'
 import { PermittedRowActions } from './PermittedRowActions'
 
@@ -14,7 +15,7 @@ export interface ActionsColumnOptions<T> {
 export function actionsColumn<T>(options: ActionsColumnOptions<T>): Column<T> {
   return {
     id: 'actions',
-    header: 'Actions',
+    header: translate('Actions'),
     hideHeader: true,
     align: 'right',
     width: 'w-14',

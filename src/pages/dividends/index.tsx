@@ -31,12 +31,14 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['investor', 'project', 'type', 'from', 'to'] as const
 
 function buildColumns(
   label: (f: string) => string,
   opt: (f: string) => (v: string) => string,
+  t: (text: string) => string,
 ): Column<Dividend>[] {
   return [
     {
@@ -51,7 +53,7 @@ function buildColumns(
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: t('Phone'),
       skeleton: 'w-32',
       cell: (d) => <CodeCell value={d.investorPhone && formatPhone(d.investorPhone)} />,
     },
@@ -121,14 +123,14 @@ function buildColumns(
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (d) => <DateTimeCell value={d.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (d) => <DateTimeCell value={d.updatedAt} />,
@@ -137,6 +139,7 @@ function buildColumns(
 }
 
 export default function DividendsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(DIVIDENDS_TABLE)
   const projects = useProjectOptions()
@@ -160,12 +163,12 @@ export default function DividendsPage() {
   return (
     <>
       <PageHeader
-        title="Dividends"
-        description="Interest accrued to investors per project and period."
+        title={t('Dividends')}
+        description={t('Interest accrued to investors per project and period.')}
         actions={
           <Can table={DIVIDENDS_TABLE} action="create">
             <ButtonLink to={RECORDS.dividends.create} icon={Plus}>
-              Create dividend
+              {t('Create dividend')}
             </ButtonLink>
           </Can>
         }
@@ -188,7 +191,7 @@ export default function DividendsPage() {
           options={fields.fieldOptions('type')}
         />
         <DateRangeFilter
-          label={`Period (${fields.fieldLabel('from_date')})`}
+          label={t('Period ({field})', { field: fields.fieldLabel('from_date') })}
           from={list.filter('from')}
           to={list.filter('to')}
           onChange={({ from, to }) => list.setFilters({ from, to })}
@@ -196,7 +199,7 @@ export default function DividendsPage() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel, opt),
+          ...buildColumns(fields.fieldLabel, opt, t),
           actionsColumn<Dividend>({
             table: DIVIDENDS_TABLE,
             onView: (d) => navigate(RECORDS.dividends.detail(d.id)),
@@ -209,7 +212,7 @@ export default function DividendsPage() {
         onRowClick={(d) => navigate(RECORDS.dividends.detail(d.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading dividends"
+        loadingLabel={t('Loading dividends')}
         emptyState={
           <ListEmptyState
             noun="dividends"
@@ -239,7 +242,9 @@ export default function DividendsPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: `The dividend of ${toDelete.investorName ?? 'this investor'}`,
+            name: toDelete.investorName
+              ? t('The dividend of {investor}', { investor: toDelete.investorName })
+              : t('The dividend of this investor'),
           }
         }
         onClose={() => setToDelete(null)}

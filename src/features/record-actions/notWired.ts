@@ -1,3 +1,4 @@
+import { translate } from '@/shared/i18n'
 import { toast } from '@/shared/lib/toast'
 
 const TITLES = {
@@ -11,5 +12,8 @@ const TITLES = {
  * instead of faking success. Replace each call with the real mutation when it's wired.
  */
 export function notWired(action: keyof typeof TITLES) {
-  toast.info(TITLES[action], "The backend endpoint isn't wired yet, so nothing was changed.")
+  toast.info(
+    translate(TITLES[action]),
+    translate("The backend endpoint isn't wired yet, so nothing was changed."),
+  )
 }

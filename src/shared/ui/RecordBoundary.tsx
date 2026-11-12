@@ -4,6 +4,7 @@ import { RecordNotFoundError } from '@/shared/api/ucode'
 import { Button, ButtonLink } from './Button'
 import { EmptyState } from './EmptyState'
 import { PageLoader } from './PageLoader'
+import { useT } from '@/shared/i18n'
 
 interface RecordBoundaryProps<T> {
   query: UseQueryResult<T>
@@ -23,17 +24,18 @@ export function RecordBoundary<T>({
   alsoPending,
   children,
 }: RecordBoundaryProps<T>) {
-  if (query.isPending || alsoPending) return <PageLoader label={`Loading ${noun}`} />
+  const t = useT()
+  if (query.isPending || alsoPending) return <PageLoader label={t('Loading {noun}', { noun })} />
   if (query.error instanceof RecordNotFoundError) {
     return (
       <div className="rounded-md border border-line bg-surface">
         <EmptyState
           variant="no-results"
-          title={`This ${noun} doesn't exist`}
-          description="It may have been deleted, or the link is wrong."
+          title={t("This {noun} doesn't exist", { noun })}
+          description={t('It may have been deleted, or the link is wrong.')}
           action={
             <ButtonLink to={back.to} variant="secondary">
-              Back to {back.label}
+              {t('Back to {label}', { label: back.label })}
             </ButtonLink>
           }
         />
@@ -45,15 +47,15 @@ export function RecordBoundary<T>({
       <div className="rounded-md border border-line bg-surface">
         <EmptyState
           variant="error"
-          title={`Couldn't load this ${noun}`}
-          description="It may have been deleted, or the connection dropped."
+          title={t("Couldn't load this {noun}", { noun })}
+          description={t('It may have been deleted, or the connection dropped.')}
           action={
             <div className="flex gap-2">
               <ButtonLink to={back.to} variant="secondary">
-                Back to {back.label}
+                {t('Back to {label}', { label: back.label })}
               </ButtonLink>
               <Button variant="dark" loading={query.isFetching} onClick={() => query.refetch()}>
-                Try again
+                {t('Try again')}
               </Button>
             </div>
           }

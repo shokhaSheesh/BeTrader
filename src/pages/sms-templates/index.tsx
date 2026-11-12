@@ -23,8 +23,12 @@ import {
   Pagination,
   SearchInput,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<SmsTemplate>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<SmsTemplate>[] {
   return [
     {
       id: 'en',
@@ -41,14 +45,14 @@ function buildColumns(label: (f: string) => string): Column<SmsTemplate>[] {
     { id: 'text', header: label('text'), cell: (r) => <LongTextCell value={r.text} /> },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -57,6 +61,7 @@ function buildColumns(label: (f: string) => string): Column<SmsTemplate>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(SMS_TEMPLATES_TABLE)
   const navigate = useNavigate()
@@ -70,12 +75,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="SMS templates"
-        description="Texts of the SMS messages the platform sends."
+        title={t('SMS templates')}
+        description={t('Texts of the SMS messages the platform sends.')}
         actions={
           <Can table={SMS_TEMPLATES_TABLE} action="create">
             <ButtonLink to={RECORDS.smsTemplates.create} icon={Plus}>
-              Add template
+              {t('Add template')}
             </ButtonLink>
           </Can>
         }
@@ -84,12 +89,12 @@ export default function Page() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search templates"
+          placeholder={t('Search templates')}
         />
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<SmsTemplate>({
             table: SMS_TEMPLATES_TABLE,
             onView: (r) => navigate(RECORDS.smsTemplates.detail(r.id)),
@@ -102,7 +107,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.smsTemplates.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading SMS templates"
+        loadingLabel={t('Loading SMS templates')}
         emptyState={
           <ListEmptyState
             noun="SMS templates"
@@ -129,7 +134,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="template"
         table={SMS_TEMPLATES_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.en ?? 'This template' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.en ?? t('This template') }}
         onClose={() => setToDelete(null)}
       />
     </>

@@ -3,8 +3,10 @@ import { useCreateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function CreatePage() {
+  const t = useT()
   const create = useCreateRecord({
     table: FINANCIAL_MODELING_TABLE,
     noun: 'price',
@@ -14,12 +16,12 @@ export default function CreatePage() {
   return (
     <>
       <PageHeader
-        back={{ to: RECORDS.financialModeling.list, label: 'Financial modeling' }}
-        title="Add price"
+        back={{ to: RECORDS.financialModeling.list, label: t('Financial modeling') }}
+        title={t('Add price')}
       />
       <RecordForm
         spec={FORM_SPECS.financialModeling}
-        submitLabel="Add price"
+        submitLabel={t('Add price')}
         cancelTo={RECORDS.financialModeling.list}
         submitting={create.submitting}
         onSubmit={create.submit}

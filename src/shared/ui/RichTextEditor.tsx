@@ -18,6 +18,7 @@ import {
 import { cn } from '@/shared/lib/cn'
 import { Button } from './Button'
 import { popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 interface RichTextEditorProps {
   id?: string
@@ -100,44 +101,45 @@ function Toolbar({ editor }: { editor: Editor }) {
       canRedo: e.can().redo(),
     }),
   })
+  const t = useT()
   const chain = () => editor.chain().focus()
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-line bg-surface-muted px-1.5 py-1">
       <Tool
         icon={Bold}
-        label="Bold"
+        label={t('Bold')}
         active={state.bold}
         onClick={() => chain().toggleBold().run()}
       />
       <Tool
         icon={Italic}
-        label="Italic"
+        label={t('Italic')}
         active={state.italic}
         onClick={() => chain().toggleItalic().run()}
       />
       <Tool
         icon={Underline}
-        label="Underline"
+        label={t('Underline')}
         active={state.underline}
         onClick={() => chain().toggleUnderline().run()}
       />
       <Divider />
       <Tool
         icon={Heading2}
-        label="Heading"
+        label={t('Heading')}
         active={state.heading}
         onClick={() => chain().toggleHeading({ level: 2 }).run()}
       />
       <Tool
         icon={List}
-        label="Bulleted list"
+        label={t('Bulleted list')}
         active={state.bullets}
         onClick={() => chain().toggleBulletList().run()}
       />
       <Tool
         icon={ListOrdered}
-        label="Numbered list"
+        label={t('Numbered list')}
         active={state.numbers}
         onClick={() => chain().toggleOrderedList().run()}
       />
@@ -146,13 +148,13 @@ function Toolbar({ editor }: { editor: Editor }) {
       <div className="ml-auto flex items-center gap-0.5">
         <Tool
           icon={Undo2}
-          label="Undo"
+          label={t('Undo')}
           disabled={!state.canUndo}
           onClick={() => chain().undo().run()}
         />
         <Tool
           icon={Redo2}
-          label="Redo"
+          label={t('Redo')}
           disabled={!state.canRedo}
           onClick={() => chain().redo().run()}
         />
@@ -198,6 +200,7 @@ const Divider = () => <span aria-hidden className="mx-1 h-5 w-px bg-line" />
 
 /** Add, change or remove the link on the selected text, in our own popover. */
 function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [href, setHref] = useState('')
   const [error, setError] = useState<ReactNode>(null)
@@ -205,7 +208,7 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
   const apply = () => {
     const url = href.trim()
     if (!SAFE_HREF.test(url)) {
-      setError('Use a full address: https://…, mailto: or tel:')
+      setError(t('Use a full address: https://…, mailto: or tel:'))
       return
     }
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
@@ -226,8 +229,8 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
       <Popover.Trigger asChild>
         <button
           type="button"
-          aria-label="Link"
-          title="Link"
+          aria-label={t('Link')}
+          title={t('Link')}
           aria-pressed={active}
           className={cn(
             'grid size-8 place-items-center rounded-xs text-fg-muted transition-colors hover:bg-surface hover:text-fg',
@@ -248,7 +251,7 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
             }}
           >
             <label htmlFor="rich-link" className="font-medium">
-              Link address
+              {t('Link address')}
             </label>
             <input
               id="rich-link"
@@ -273,12 +276,12 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
                     setOpen(false)
                   }}
                 >
-                  Remove link
+                  {t('Remove link')}
                 </Button>
               ) : (
                 <span />
               )}
-              <Button type="submit">{active ? 'Update' : 'Add link'}</Button>
+              <Button type="submit">{active ? t('Update') : t('Add link')}</Button>
             </div>
           </form>
         </Popover.Content>

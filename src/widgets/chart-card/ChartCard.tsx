@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { ChartColumn, Table2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { Badge } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 interface ChartCardProps {
   title: string
@@ -18,6 +19,7 @@ interface ChartCardProps {
 
 /** A titled panel holding one chart and its table view, switchable. */
 export function ChartCard({ title, description, aside, chart, table, mock }: ChartCardProps) {
+  const t = useT()
   const [view, setView] = useState<'chart' | 'table'>(chart ? 'chart' : 'table')
   return (
     <section className="rounded-md border border-line bg-surface">
@@ -25,7 +27,7 @@ export function ChartCard({ title, description, aside, chart, table, mock }: Cha
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             {title}
-            {mock && <Badge tone="warning">Mock data</Badge>}
+            {mock && <Badge tone="warning">{t('Mock data')}</Badge>}
           </h2>
           {description && <p className="mt-0.5 text-fg-muted">{description}</p>}
         </div>
@@ -35,19 +37,19 @@ export function ChartCard({ title, description, aside, chart, table, mock }: Cha
             <div
               className="flex rounded-full bg-surface-muted p-0.5"
               role="group"
-              aria-label="View"
+              aria-label={t('View')}
             >
               {(
                 [
-                  ['chart', ChartColumn, 'Chart'],
-                  ['table', Table2, 'Table'],
+                  ['chart', ChartColumn, 'Chart view'],
+                  ['table', Table2, 'Table view'],
                 ] as const
               ).map(([v, Icon, label]) => (
                 <button
                   key={v}
                   type="button"
                   aria-pressed={view === v}
-                  aria-label={`${label} view`}
+                  aria-label={t(label)}
                   onClick={() => setView(v)}
                   className={cn(
                     'grid size-8 place-items-center rounded-full text-fg-muted transition-colors',

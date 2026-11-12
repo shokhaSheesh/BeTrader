@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useInvestorOptions, useInvestorQuery } from '@/entities/investor'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
+import { useT } from '@/shared/i18n'
 import { investorLabel } from '@/shared/lib/format'
 import { FilterSearchSelect } from '@/shared/ui'
 
@@ -12,13 +13,14 @@ export function InvestorFilter({
   value: string | null
   onChange: (id: string | null) => void
 }) {
+  const t = useT()
   const [search, setSearch] = useState('')
   const options = useInvestorOptions(useDebouncedValue(search, 350))
   // The URL only has the id, so fetch the selected investor for its name.
   const selected = useInvestorQuery(value ?? undefined)
   return (
     <FilterSearchSelect
-      label="Investor"
+      label={t('Investor')}
       value={value}
       valueLabel={
         selected.data ? investorLabel(selected.data.fullName, selected.data.phone) : undefined
@@ -29,7 +31,7 @@ export function InvestorFilter({
       onSearchChange={setSearch}
       loading={options.isFetching}
       paging={options.paging}
-      placeholder="Name, phone or PINFL"
+      placeholder={t('Name, phone or PINFL')}
     />
   )
 }

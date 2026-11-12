@@ -296,7 +296,7 @@ export const FORM_SPECS = {
     table: 'employee',
     sections: [
       {
-        title: 'Account',
+        title: 'Sign-in',
         fields: [
           { name: 'login', kind: 'code' },
           {

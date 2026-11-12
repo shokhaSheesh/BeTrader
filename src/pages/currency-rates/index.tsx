@@ -27,11 +27,15 @@ import {
   PercentCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['from', 'to'] as const
 
 // "Amount" carries no currency in the backend, so none is shown (DESIGN.md §0).
-function buildColumns(label: (f: string) => string): Column<CurrencyRate>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<CurrencyRate>[] {
   return [
     {
       id: 'date',
@@ -64,14 +68,14 @@ function buildColumns(label: (f: string) => string): Column<CurrencyRate>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -80,6 +84,7 @@ function buildColumns(label: (f: string) => string): Column<CurrencyRate>[] {
 }
 
 export default function CurrencyRatesPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(CURRENCY_RATES_TABLE)
   const navigate = useNavigate()
@@ -96,12 +101,12 @@ export default function CurrencyRatesPage() {
   return (
     <>
       <PageHeader
-        title="Currency rates"
-        description="The daily USD rate used for conversions."
+        title={t('Currency rates')}
+        description={t('The daily USD rate used for conversions.')}
         actions={
           <Can table={CURRENCY_RATES_TABLE} action="create">
             <ButtonLink to={RECORDS.currencyRates.create} icon={Plus}>
-              Add currency rate
+              {t('Add currency rate')}
             </ButtonLink>
           </Can>
         }
@@ -116,7 +121,7 @@ export default function CurrencyRatesPage() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<CurrencyRate>({
             table: CURRENCY_RATES_TABLE,
             onView: (r) => navigate(RECORDS.currencyRates.detail(r.id)),
@@ -129,7 +134,7 @@ export default function CurrencyRatesPage() {
         onRowClick={(r) => navigate(RECORDS.currencyRates.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading currency rates"
+        loadingLabel={t('Loading currency rates')}
         emptyState={
           <ListEmptyState
             noun="currency rates"
@@ -159,7 +164,9 @@ export default function CurrencyRatesPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: toDelete.date ? `The rate for ${formatDate(toDelete.date)}` : 'This rate',
+            name: toDelete.date
+              ? t('The rate for {date}', { date: formatDate(toDelete.date) })
+              : t('This rate'),
           }
         }
         onClose={() => setToDelete(null)}

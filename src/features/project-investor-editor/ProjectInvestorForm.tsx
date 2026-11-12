@@ -26,6 +26,7 @@ import {
   Select,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({
   investors_id: z.string(),
@@ -90,9 +91,10 @@ interface ProjectInvestorFormProps {
 }
 
 export function ProjectInvestorForm(props: ProjectInvestorFormProps) {
+  const t = useT()
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <ProjectInvestorFormBody {...props} fields={fields} />
 }
 
@@ -104,6 +106,7 @@ function ProjectInvestorFormBody({
   submitting,
   fields,
 }: ProjectInvestorFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const projects = useProjectOptions()
   const [investorSearch, setInvestorSearch] = useState('')
@@ -135,7 +138,7 @@ function ProjectInvestorFormBody({
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
       for (const slug of missing)
-        setError(slug as keyof ProjectInvestorFormValues, { message: 'Required' })
+        setError(slug as keyof ProjectInvestorFormValues, { message: t('Required') })
       return
     }
     onSubmit(
@@ -152,7 +155,7 @@ function ProjectInvestorFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Investment">
+      <FormSection title={t('Investment')}>
         <Field
           label={label('investors_id')}
           htmlFor="investors_id"
@@ -176,7 +179,7 @@ function ProjectInvestorFormBody({
                 onSearchChange={setInvestorSearch}
                 loading={investors.isFetching}
                 paging={investors.paging}
-                placeholder="Search by name or phone"
+                placeholder={t('Search by name or phone')}
               />
             )}
           />
@@ -196,7 +199,7 @@ function ProjectInvestorFormBody({
                 value={field.value || undefined}
                 onChange={field.onChange}
                 options={projects.options}
-                placeholder={projects.isPending ? 'Loading…' : 'Select'}
+                placeholder={projects.isPending ? t('Loading…') : t('Select')}
               />
             )}
           />
@@ -235,7 +238,7 @@ function ProjectInvestorFormBody({
         )}
       </FormSection>
       {(has('status') || has('closing_date')) && (
-        <FormSection title="Status">
+        <FormSection title={t('Status')}>
           {has('status') && (
             <TextField
               label={label('status')}

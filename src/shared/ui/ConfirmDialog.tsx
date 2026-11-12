@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Dialog } from 'radix-ui'
 import { Button } from './Button'
+import { useT } from '@/shared/i18n'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -24,6 +25,7 @@ export function ConfirmDialog({
   danger,
   loading,
 }: ConfirmDialogProps) {
+  const t = useT()
   const guard = (next: boolean) => {
     if (!loading) onOpenChange(next)
   }
@@ -38,7 +40,7 @@ export function ConfirmDialog({
           </Dialog.Description>
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="secondary" onClick={() => guard(false)} disabled={loading}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button variant={danger ? 'danger' : 'dark'} onClick={onConfirm} loading={loading}>
               {confirmLabel}

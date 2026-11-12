@@ -14,6 +14,7 @@ import { usePermissions } from '@/shared/permissions'
 import { Loader, Tooltip } from '@/shared/ui'
 import { menuItem, popoverSurface } from '@/shared/ui/styles'
 import { Logo } from './Logo'
+import { useT } from '@/shared/i18n'
 
 const itemClass =
   'flex items-center gap-3 rounded-sm px-3 text-on-inverse-muted transition-colors hover:bg-inverse-hover hover:text-on-inverse focus-visible:outline-accent'
@@ -28,6 +29,7 @@ function activeItemPath(items: NavLeaf[], pathname: string) {
 }
 
 export function Sidebar() {
+  const t = useT()
   const permissions = usePermissions()
   // Only what the signed-in role may see (Menu API + table read rights); empty sections disappear.
   const navigation = NAVIGATION.flatMap<NavEntry>((entry) => {
@@ -57,16 +59,16 @@ export function Sidebar() {
       >
         {permissions.isPending && (
           <div className="flex justify-center py-6">
-            <Loader size={28} label="Loading menu" />
+            <Loader size={28} label={t('Loading menu')} />
           </div>
         )}
         {navigation.map((entry) =>
           entry.kind === 'link' ? (
             collapsed ? (
-              <Tooltip key={entry.to} content={entry.label}>
+              <Tooltip key={entry.to} content={t(entry.label)}>
                 <NavLink
                   to={entry.to}
-                  aria-label={entry.label}
+                  aria-label={t(entry.label)}
                   className={cn(itemClass, activeClass, 'size-10 justify-center px-0')}
                 >
                   <entry.icon size={18} strokeWidth={1.75} />
@@ -75,7 +77,7 @@ export function Sidebar() {
             ) : (
               <NavLink key={entry.to} to={entry.to} className={cn(itemClass, activeClass, 'h-10')}>
                 <entry.icon size={18} strokeWidth={1.75} />
-                {entry.label}
+                {t(entry.label)}
               </NavLink>
             )
           ) : collapsed ? (
@@ -92,11 +94,11 @@ export function Sidebar() {
         )}
       >
         {collapsed ? (
-          <Tooltip content="Expand sidebar">
+          <Tooltip content={t('Expand sidebar')}>
             <button
               type="button"
               onClick={toggle}
-              aria-label="Expand sidebar"
+              aria-label={t('Expand sidebar')}
               className={cn(itemClass, 'size-10 justify-center px-0')}
             >
               <ToggleIcon size={18} strokeWidth={1.75} />
@@ -105,7 +107,7 @@ export function Sidebar() {
         ) : (
           <button type="button" onClick={toggle} className={cn(itemClass, 'h-10 w-full')}>
             <ToggleIcon size={18} strokeWidth={1.75} />
-            Collapse
+            {t('Collapse')}
           </button>
         )}
       </div>
@@ -120,6 +122,7 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
   // null = follow the active route; boolean = the user toggled it explicitly.
   const [toggled, setToggled] = useState<boolean | null>(null)
   const open = toggled ?? containsActive
+  const t = useT()
 
   return (
     <div>
@@ -130,7 +133,7 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
         className={cn(itemClass, 'h-10 w-full text-left', containsActive && 'text-on-inverse')}
       >
         <group.icon size={18} strokeWidth={1.75} className={cn(containsActive && 'text-accent')} />
-        <span className="flex-1">{group.label}</span>
+        <span className="flex-1">{t(group.label)}</span>
         <ChevronDown
           size={16}
           className={cn('transition-transform duration-200', open && 'rotate-180')}
@@ -146,7 +149,7 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
               className={cn(itemClass, activeClass, 'h-9')}
             >
               <item.icon size={16} strokeWidth={1.75} />
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </div>
@@ -159,12 +162,13 @@ function SidebarGroup({ group }: { group: NavGroupEntry }) {
 function CollapsedGroup({ group }: { group: NavGroupEntry }) {
   const { pathname } = useLocation()
   const activePath = activeItemPath(group.items, pathname)
+  const t = useT()
 
   return (
     <D.Root modal={false}>
-      <Tooltip content={group.label}>
+      <Tooltip content={t(group.label)}>
         <D.Trigger
-          aria-label={group.label}
+          aria-label={t(group.label)}
           className={cn(
             itemClass,
             'size-10 justify-center px-0 data-[state=open]:bg-inverse-hover',
@@ -182,7 +186,7 @@ function CollapsedGroup({ group }: { group: NavGroupEntry }) {
           className={cn(popoverSurface, 'min-w-52')}
         >
           <D.Label className="px-2.5 py-1.5 text-xs font-medium text-fg-muted">
-            {group.label}
+            {t(group.label)}
           </D.Label>
           {group.items.map((item) => (
             <D.Item
@@ -192,7 +196,7 @@ function CollapsedGroup({ group }: { group: NavGroupEntry }) {
             >
               <Link to={item.to} aria-current={item.to === activePath ? 'page' : undefined}>
                 <item.icon size={16} strokeWidth={1.75} />
-                {item.label}
+                {t(item.label)}
               </Link>
             </D.Item>
           ))}

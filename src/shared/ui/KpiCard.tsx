@@ -6,6 +6,7 @@ import { TONE_CLASSES, type Tone } from '@/shared/lib/tones'
 import { Badge } from './Badge'
 import { Loader } from './Loader'
 import { Tooltip } from './Tooltip'
+import { useT } from '@/shared/i18n'
 
 interface KpiCardProps {
   /** What is counted, e.g. "Identified" */
@@ -36,6 +37,7 @@ export function KpiCard({
   footnote,
   pending,
 }: KpiCardProps) {
+  const t = useT()
   return (
     <div className="flex items-center justify-between gap-4 rounded-md border border-line bg-surface px-5 py-4">
       <div className="flex min-w-0 flex-col items-start gap-1">
@@ -43,7 +45,7 @@ export function KpiCard({
         {pending ? (
           <span className="flex items-center gap-2">
             <span className="text-2xl font-semibold tracking-tight text-fg-subtle">—</span>
-            <Badge tone="warning">Backend pending</Badge>
+            <Badge tone="warning">{t('Backend pending')}</Badge>
           </span>
         ) : display !== undefined ? (
           exact ? (
@@ -57,7 +59,7 @@ export function KpiCard({
           )
         ) : value === undefined ? (
           <span className="flex h-10 items-center">
-            <Loader size={28} label={`Loading ${label}`} />
+            <Loader size={28} label={t('Loading {label}', { label })} />
           </span>
         ) : (
           <span className="text-2xl leading-10 font-semibold tracking-tight">

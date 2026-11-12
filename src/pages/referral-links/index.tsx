@@ -30,6 +30,7 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['sender', 'active', 'from', 'to'] as const
 const ACTIVE = [
@@ -38,7 +39,10 @@ const ACTIVE = [
 ]
 const REGISTERED = { register_date: { $gte: '2000-01-01T00:00:00Z' } } // "has a registration date", counted by the backend
 
-function buildColumns(label: (f: string) => string): Column<ReferralLink>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<ReferralLink>[] {
   return [
     {
       id: 'sender',
@@ -65,7 +69,8 @@ function buildColumns(label: (f: string) => string): Column<ReferralLink>[] {
       id: 'is_active',
       header: label('is_active'),
       skeleton: 'w-16',
-      cell: (r) => (r.isActive ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>),
+      cell: (r) =>
+        r.isActive ? <Badge tone="success">{t('Active')}</Badge> : <Badge>{t('Inactive')}</Badge>,
     },
     {
       id: 'entered',
@@ -94,7 +99,7 @@ function buildColumns(label: (f: string) => string): Column<ReferralLink>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
@@ -103,6 +108,7 @@ function buildColumns(label: (f: string) => string): Column<ReferralLink>[] {
 }
 
 export default function ReferralLinksPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(REFERRAL_LINKS_TABLE)
   const navigate = useNavigate()
@@ -126,14 +132,14 @@ export default function ReferralLinksPage() {
   return (
     <>
       <PageHeader
-        title="Referral links"
-        description="Invites investors shared, and who joined through them."
+        title={t('Referral links')}
+        description={t('Invites investors shared, and who joined through them.')}
       />
       <KpiGrid>
-        <KpiCard label="Links shared" icon={Link2} tone="accent" value={total.data} />
-        <KpiCard label="Active" icon={Zap} tone="success" value={activeCount.data} />
+        <KpiCard label={t('Links shared')} icon={Link2} tone="accent" value={total.data} />
+        <KpiCard label={t('Active')} icon={Zap} tone="success" value={activeCount.data} />
         <KpiCard
-          label="Joined through a link"
+          label={t('Joined through a link')}
           icon={UserCheck}
           tone="info"
           value={registered.data}
@@ -145,10 +151,10 @@ export default function ReferralLinksPage() {
           onChange={(v) => list.setFilters({ sender: v })}
         />
         <FilterSelect
-          label="Status"
+          label={t('Status')}
           value={active}
           onChange={(v) => list.setFilters({ active: v })}
-          options={ACTIVE}
+          options={ACTIVE.map((o) => ({ ...o, label: t(o.label) }))}
         />
         <DateRangeFilter
           label={fields.fieldLabel('send_at')}
@@ -159,7 +165,7 @@ export default function ReferralLinksPage() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<ReferralLink>({
             table: REFERRAL_LINKS_TABLE,
             onView: (r) => navigate(RECORDS.referralLinks.detail(r.id)),
@@ -172,7 +178,7 @@ export default function ReferralLinksPage() {
         onRowClick={(r) => navigate(RECORDS.referralLinks.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading referral links"
+        loadingLabel={t('Loading referral links')}
         emptyState={
           <ListEmptyState
             noun="referral links"
@@ -202,7 +208,9 @@ export default function ReferralLinksPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: `The link shared by ${toDelete.senderName ?? 'this investor'}`,
+            name: toDelete.senderName
+              ? t('The link shared by {name}', { name: toDelete.senderName })
+              : t('The link shared by this investor'),
           }
         }
         onClose={() => setToDelete(null)}

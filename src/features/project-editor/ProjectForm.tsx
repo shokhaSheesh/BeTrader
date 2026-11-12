@@ -26,6 +26,7 @@ import {
   SwitchField,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const schema = z.object({
   name_en: z.string().trim(),
@@ -103,9 +104,10 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm(props: ProjectFormProps) {
+  const t = useT()
   const fields = useTableFields(PROJECTS_TABLE)
   // The form starts from the schema's defaults, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <ProjectFormBody {...props} fields={fields} />
 }
 
@@ -117,6 +119,7 @@ function ProjectFormBody({
   submitting,
   fields,
 }: ProjectFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const types = useProjectTypeOptions()
   const schemaFields = fields.data ?? []
   const {
@@ -144,7 +147,7 @@ function ProjectFormBody({
   return (
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
-      <FormSection title="Names">
+      <FormSection title={t('Names')}>
         <TextField label={label('name_en')} {...register('name_en')} />
         <TextField label={label('name_ru')} {...register('name_ru')} />
         <TextField label={label('name_uz')} {...register('name_uz')} />
@@ -157,7 +160,7 @@ function ProjectFormBody({
         />
       </FormSection>
 
-      <FormSection title="Investment terms">
+      <FormSection title={t('Investment terms')}>
         <Field label={label('project_types_id')} htmlFor="project_types_id">
           <Controller
             control={control}
@@ -168,7 +171,7 @@ function ProjectFormBody({
                 value={field.value || undefined}
                 onChange={field.onChange}
                 options={types.options}
-                placeholder={types.isPending ? 'Loading…' : 'Select'}
+                placeholder={types.isPending ? t('Loading…') : t('Select')}
               />
             )}
           />
@@ -216,7 +219,7 @@ function ProjectFormBody({
         </Field>
       </FormSection>
 
-      <FormSection title="Status and insurance">
+      <FormSection title={t('Status and insurance')}>
         <Field label={label('status')} htmlFor="status">
           <Controller
             control={control}
@@ -263,8 +266,8 @@ function ProjectFormBody({
               }
               onError={(error) =>
                 toast.error(
-                  "Couldn't upload the image",
-                  backendMessage(error) ?? 'Please try again.',
+                  t("Couldn't upload the image"),
+                  backendMessage(error) ?? t('Please try again.'),
                 )
               }
             />

@@ -2,8 +2,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { loginErrorMessage, useLoginMutation } from '@/features/auth/api/login'
+import { useT } from '@/shared/i18n'
 import { Button, NiyatMark, TextField } from '@/shared/ui'
 
+// Messages are translated when shown (below), so a language switch reaches them too.
 const schema = z.object({
   login: z.string().trim().min(1, 'Enter your login'),
   password: z.string().min(1, 'Enter your password'),
@@ -12,6 +14,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export default function LoginPage() {
+  const t = useT()
   const loginMutation = useLoginMutation()
   const {
     register,
@@ -30,22 +33,22 @@ export default function LoginPage() {
           <NiyatMark size={48} />
           <div>
             <h1 className="text-xl font-semibold">Niyat Admin</h1>
-            <p className="mt-1 text-fg-muted">Sign in with your admin account</p>
+            <p className="mt-1 text-fg-muted">{t('Sign in with your admin account')}</p>
           </div>
         </div>
 
         <TextField
-          label="Login"
+          label={t('Login')}
           autoComplete="username"
           autoFocus
-          error={errors.login?.message}
+          error={errors.login?.message && t(errors.login.message)}
           {...register('login')}
         />
         <TextField
-          label="Password"
+          label={t('Password')}
           type="password"
           autoComplete="current-password"
-          error={errors.password?.message}
+          error={errors.password?.message && t(errors.password.message)}
           {...register('password')}
         />
 
@@ -56,7 +59,7 @@ export default function LoginPage() {
         )}
 
         <Button type="submit" size="lg" loading={loginMutation.isPending} className="w-full">
-          Sign in
+          {t('Sign in')}
         </Button>
       </form>
     </div>

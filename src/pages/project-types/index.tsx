@@ -26,11 +26,13 @@ import {
   SearchInput,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // Every field of the `project_types` table; headers are the backend's labels.
 function buildColumns(
   label: (f: string) => string,
   optionLabel: (field: string, value: string) => string,
+  t: (text: string) => string,
 ): Column<ProjectType>[] {
   const percent = (value: number | null) => (value != null ? `${formatNumber(value)}%` : <Dash />)
   return [
@@ -38,57 +40,58 @@ function buildColumns(
       id: 'name_en',
       header: label('name_en'),
       skeleton: 'w-32',
-      cell: (t) => (
+      cell: (pt) => (
         <span className="font-medium">
-          <TextCell value={t.name} />
+          <TextCell value={pt.name} />
         </span>
       ),
     },
-    { id: 'name_ru', header: label('name_ru'), cell: (t) => <TextCell value={t.nameRu} /> },
-    { id: 'name_uz', header: label('name_uz'), cell: (t) => <TextCell value={t.nameUz} /> },
+    { id: 'name_ru', header: label('name_ru'), cell: (pt) => <TextCell value={pt.nameRu} /> },
+    { id: 'name_uz', header: label('name_uz'), cell: (pt) => <TextCell value={pt.nameUz} /> },
     {
       id: 'from_percent',
       header: label('from_percent'),
       align: 'right',
       skeleton: 'w-10',
-      cell: (t) => percent(t.fromPercent),
+      cell: (pt) => percent(pt.fromPercent),
     },
     {
       id: 'to_percent',
       header: label('to_percent'),
       align: 'right',
       skeleton: 'w-10',
-      cell: (t) => percent(t.toPercent),
+      cell: (pt) => percent(pt.toPercent),
     },
     {
       id: 'calculate_dividend',
       header: label('calculate_dividend'),
       skeleton: 'w-20',
-      cell: (t) => (
+      cell: (pt) => (
         <OptionsCell
-          values={t.dividendCalculation}
+          values={pt.dividendCalculation}
           label={(v) => optionLabel('calculate_dividend', v)}
         />
       ),
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
-      cell: (t) => <DateTimeCell value={t.createdAt} />,
+      cell: (pt) => <DateTimeCell value={pt.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
-      cell: (t) => <DateTimeCell value={t.updatedAt} />,
+      cell: (pt) => <DateTimeCell value={pt.updatedAt} />,
     },
   ]
 }
 
 export default function ProjectTypesPage() {
+  const t = useT()
   const list = useListParams()
   const query = useProjectTypesQuery({
     page: list.page,
@@ -100,11 +103,11 @@ export default function ProjectTypesPage() {
   const [toDelete, setToDelete] = useState<ProjectType | null>(null)
 
   const columns = [
-    ...buildColumns(fields.fieldLabel, fields.optionLabel),
+    ...buildColumns(fields.fieldLabel, fields.optionLabel, t),
     actionsColumn<ProjectType>({
       table: PROJECT_TYPES_TABLE,
-      onView: (t) => navigate(RECORDS.projectTypes.detail(t.id)),
-      onEdit: (t) => navigate(RECORDS.projectTypes.edit(t.id)),
+      onView: (pt) => navigate(RECORDS.projectTypes.detail(pt.id)),
+      onEdit: (pt) => navigate(RECORDS.projectTypes.edit(pt.id)),
       onDelete: setToDelete,
     }),
   ]
@@ -112,12 +115,12 @@ export default function ProjectTypesPage() {
   return (
     <>
       <PageHeader
-        title="Project types"
-        description="Yield ranges and dividend rules that projects are built on."
+        title={t('Project types')}
+        description={t('Yield ranges and dividend rules that projects are built on.')}
         actions={
           <Can table={PROJECT_TYPES_TABLE} action="create">
             <ButtonLink to={RECORDS.projectTypes.create} icon={Plus}>
-              Create project type
+              {t('Create project type')}
             </ButtonLink>
           </Can>
         }
@@ -127,16 +130,16 @@ export default function ProjectTypesPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search project types"
+          placeholder={t('Search project types')}
         />
       </FilterBar>
 
       <DataTable
         columns={columns}
         rows={query.data?.items}
-        getRowId={(t) => t.id}
-        onRowClick={(t) => navigate(RECORDS.projectTypes.detail(t.id))}
-        loadingLabel="Loading project types"
+        getRowId={(pt) => pt.id}
+        onRowClick={(pt) => navigate(RECORDS.projectTypes.detail(pt.id))}
+        loadingLabel={t('Loading project types')}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}

@@ -27,8 +27,12 @@ import {
   PageHeader,
   Pagination,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<FinancialModel>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<FinancialModel>[] {
   return [
     {
       id: 'date',
@@ -55,14 +59,14 @@ function buildColumns(label: (f: string) => string): Column<FinancialModel>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -71,6 +75,7 @@ function buildColumns(label: (f: string) => string): Column<FinancialModel>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams(['from', 'to'])
   const fields = useTableFields(FINANCIAL_MODELING_TABLE)
   const navigate = useNavigate()
@@ -85,12 +90,12 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Financial modeling"
-        description="Daily reference prices used for modeling returns."
+        title={t('Financial modeling')}
+        description={t('Daily reference prices used for modeling returns.')}
         actions={
           <Can table={FINANCIAL_MODELING_TABLE} action="create">
             <ButtonLink to={RECORDS.financialModeling.create} icon={Plus}>
-              Add price
+              {t('Add price')}
             </ButtonLink>
           </Can>
         }
@@ -105,7 +110,7 @@ export default function Page() {
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<FinancialModel>({
             table: FINANCIAL_MODELING_TABLE,
             onView: (r) => navigate(RECORDS.financialModeling.detail(r.id)),
@@ -118,7 +123,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.financialModeling.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading prices"
+        loadingLabel={t('Loading prices')}
         emptyState={
           <ListEmptyState
             noun="prices"
@@ -149,8 +154,11 @@ export default function Page() {
           toDelete && {
             id: toDelete.id,
             name: toDelete.date
-              ? `${toDelete.projectKeyName ?? 'Price'} for ${formatDate(toDelete.date)}`
-              : 'This price',
+              ? t('{name} for {date}', {
+                  name: toDelete.projectKeyName ?? t('Price'),
+                  date: formatDate(toDelete.date),
+                })
+              : t('This price'),
           }
         }
         onClose={() => setToDelete(null)}

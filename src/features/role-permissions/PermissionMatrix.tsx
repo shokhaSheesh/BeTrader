@@ -1,6 +1,7 @@
 import { Check, Minus } from 'lucide-react'
 import { NAVIGATION } from '@/shared/config/navigation'
 import type { Action, TablePermission } from '@/shared/permissions'
+import { useT, type Vars } from '@/shared/i18n'
 import { CheckboxBox } from '@/shared/ui'
 
 const ACTIONS: { key: Action; label: string }[] = [
@@ -13,23 +14,23 @@ const ACTIONS: { key: Action; label: string }[] = [
 type Tables = Map<string, TablePermission & { label: string }>
 
 /** Tables grouped like the sidebar ("Finance → Orders"); u-code system tables go last. */
-function groups(tables: Tables) {
+function groups(tables: Tables, t: (text: string, vars?: Vars) => string) {
   const seen = new Set<string>()
   const out: { title: string; rows: { slug: string; label: string }[] }[] = []
   for (const entry of NAVIGATION) {
     const leaves = entry.kind === 'link' ? [entry] : entry.items
     const rows = leaves.flatMap((l) =>
       l.resource.table && tables.has(l.resource.table)
-        ? [{ slug: l.resource.table, label: l.label }]
+        ? [{ slug: l.resource.table, label: t(l.label) }]
         : [],
     )
     rows.forEach((r) => seen.add(r.slug))
-    if (rows.length) out.push({ title: entry.label, rows })
+    if (rows.length) out.push({ title: t(entry.label), rows })
   }
   const rest = [...tables.entries()]
     .filter(([slug]) => !seen.has(slug))
     .map(([slug, t]) => ({ slug, label: t.label || slug }))
-  if (rest.length) out.push({ title: 'Other tables (not in this admin)', rows: rest })
+  if (rest.length) out.push({ title: t('Other tables (not in this admin)'), rows: rest })
   return out
 }
 
@@ -43,16 +44,17 @@ interface PermissionMatrixProps {
 
 /** A role's record rights per table: View / Create / Edit / Delete. */
 export function PermissionMatrix({ tables, onToggle, onToggleColumn }: PermissionMatrixProps) {
+  const t = useT()
   const all = [...tables.values()]
   const columnState = (a: Action) =>
-    all.every((t) => t[a]) ? true : all.some((t) => t[a]) ? 'mixed' : false
+    all.every((p) => p[a]) ? true : all.some((p) => p[a]) ? 'mixed' : false
   const th = 'h-10 px-4 text-xs font-medium whitespace-nowrap text-fg-muted'
   return (
     <div className="overflow-x-auto rounded-md border border-line bg-surface">
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-surface-muted">
-            <th className={`${th} text-left`}>Page</th>
+            <th className={`${th} text-left`}>{t('Page')}</th>
             {ACTIONS.map((a) => (
               <th key={a.key} className={`${th} w-28 text-center`}>
                 {onToggleColumn ? (
@@ -60,21 +62,21 @@ export function PermissionMatrix({ tables, onToggle, onToggleColumn }: Permissio
                     type="button"
                     role="checkbox"
                     aria-checked={columnState(a.key)}
-                    aria-label={`${a.label}: all pages`}
+                    aria-label={t('{action}: all pages', { action: t(a.label) })}
                     onClick={() => onToggleColumn(a.key, columnState(a.key) !== true)}
                     className="inline-flex items-center gap-2 rounded-sm px-2 py-1 hover:bg-line"
                   >
                     <CheckboxBox checked={columnState(a.key) === true} />
-                    {a.label}
+                    {t(a.label)}
                   </button>
                 ) : (
-                  a.label
+                  t(a.label)
                 )}
               </th>
             ))}
           </tr>
         </thead>
-        {groups(tables).map((g) => (
+        {groups(tables, t).map((g) => (
           <tbody key={g.title}>
             <tr className="border-t border-line">
               <th
@@ -85,7 +87,7 @@ export function PermissionMatrix({ tables, onToggle, onToggleColumn }: Permissio
               </th>
             </tr>
             {g.rows.map((r) => {
-              const t = tables.get(r.slug)!
+              const p = tables.get(r.slug)!
               return (
                 <tr key={r.slug} className="border-t border-line hover:bg-surface-hover">
                   <td className="h-12 px-4">
@@ -98,17 +100,17 @@ export function PermissionMatrix({ tables, onToggle, onToggleColumn }: Permissio
                         <button
                           type="button"
                           role="checkbox"
-                          aria-checked={t[a.key]}
-                          aria-label={`${a.label} ${r.label}`}
+                          aria-checked={p[a.key]}
+                          aria-label={t('{action} {page}', { action: t(a.label), page: r.label })}
                           onClick={() => onToggle(r.slug, a.key)}
                           className="inline-grid size-8 place-items-center rounded-sm hover:bg-surface-muted"
                         >
-                          <CheckboxBox checked={t[a.key]} />
+                          <CheckboxBox checked={p[a.key]} />
                         </button>
-                      ) : t[a.key] ? (
+                      ) : p[a.key] ? (
                         <span
                           role="img"
-                          aria-label="Allowed"
+                          aria-label={t('Allowed')}
                           className="inline-grid size-7 place-items-center rounded-full bg-success-tint text-success-text"
                         >
                           <Check size={16} strokeWidth={2.25} />
@@ -116,7 +118,7 @@ export function PermissionMatrix({ tables, onToggle, onToggleColumn }: Permissio
                       ) : (
                         <span
                           role="img"
-                          aria-label="Not allowed"
+                          aria-label={t('Not allowed')}
                           className="inline-grid size-7 place-items-center rounded-full bg-surface-muted text-fg-subtle"
                         >
                           <Minus size={16} />

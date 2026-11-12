@@ -21,9 +21,13 @@ import {
   TextCell,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 // `password` (hashed) and `user_id_auth` are sent by the backend but never shown (docs/API.md).
-function buildColumns(label: (f: string) => string): Column<Employee>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<Employee>[] {
   return [
     {
       id: 'login',
@@ -49,14 +53,14 @@ function buildColumns(label: (f: string) => string): Column<Employee>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -65,6 +69,7 @@ function buildColumns(label: (f: string) => string): Column<Employee>[] {
 }
 
 export default function EmployeesPage() {
+  const t = useT()
   const list = useListParams()
   const fields = useTableFields(EMPLOYEES_TABLE)
   const navigate = useNavigate()
@@ -74,12 +79,12 @@ export default function EmployeesPage() {
   return (
     <>
       <PageHeader
-        title="Employees"
-        description="Staff accounts that can sign in to the admin."
+        title={t('Employees')}
+        description={t('Staff accounts that can sign in to the admin.')}
         actions={
           <Can table={EMPLOYEES_TABLE} action="create">
             <ButtonLink to={RECORDS.employees.create} icon={Plus}>
-              Add employee
+              {t('Add employee')}
             </ButtonLink>
           </Can>
         }
@@ -88,12 +93,12 @@ export default function EmployeesPage() {
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Search by login"
+          placeholder={t('Search by login')}
         />
       </FilterBar>
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<Employee>({
             table: EMPLOYEES_TABLE,
             onView: (r) => navigate(RECORDS.employees.detail(r.id)),
@@ -107,7 +112,7 @@ export default function EmployeesPage() {
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={5}
-        loadingLabel="Loading employees"
+        loadingLabel={t('Loading employees')}
         emptyState={
           <ListEmptyState
             noun="employees"
@@ -133,7 +138,7 @@ export default function EmployeesPage() {
       <DeleteRecordDialog
         noun="employee"
         table={EMPLOYEES_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.login ?? 'This employee' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.login ?? t('This employee') }}
         onClose={() => setToDelete(null)}
       />
     </>

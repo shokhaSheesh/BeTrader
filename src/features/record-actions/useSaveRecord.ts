@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router'
 import { backendMessage } from '@/shared/api/errors'
 import { useCreateItemMutation, useUpdateItemMutation } from '@/shared/api/queries'
+import { translate } from '@/shared/i18n'
 import { toast } from '@/shared/lib/toast'
 
 interface RecordRoutes {
@@ -30,11 +31,14 @@ export function useCreateRecord({ table, noun, routes }: SaveOptions) {
     submit: (payload: Record<string, unknown>) =>
       create.mutate(payload, {
         onSuccess: (id) => {
-          toast.success(`${capitalize(noun)} created`)
+          toast.success(translate('{Noun} created', { Noun: capitalize(noun) }))
           navigate(id ? routes.detail(id) : routes.list, { replace: true })
         },
         onError: (error) =>
-          toast.error(`Couldn't create the ${noun}`, backendMessage(error) ?? 'Please try again.'),
+          toast.error(
+            translate("Couldn't create the {noun}", { noun }),
+            backendMessage(error) ?? translate('Please try again.'),
+          ),
       }),
   }
 }
@@ -51,18 +55,21 @@ export function useUpdateRecord({ table, noun, routes }: SaveOptions, id: string
     submit: (changes: Record<string, unknown>) => {
       if (!id) return
       if (Object.keys(changes).length === 0) {
-        toast.info('Nothing to save', 'No field was changed.')
+        toast.info(translate('Nothing to save'), translate('No field was changed.'))
         return navigate(routes.detail(id), { replace: true })
       }
       update.mutate(
         { id, values: changes },
         {
           onSuccess: () => {
-            toast.success('Changes saved')
+            toast.success(translate('Changes saved'))
             navigate(routes.detail(id), { replace: true })
           },
           onError: (error) =>
-            toast.error(`Couldn't save the ${noun}`, backendMessage(error) ?? 'Please try again.'),
+            toast.error(
+              translate("Couldn't save the {noun}", { noun }),
+              backendMessage(error) ?? translate('Please try again.'),
+            ),
         },
       )
     },

@@ -3,8 +3,10 @@ import { useCreateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function CreatePage() {
+  const t = useT()
   const create = useCreateRecord({
     table: NOTIFICATIONS_TABLE,
     noun: 'notification',
@@ -14,12 +16,13 @@ export default function CreatePage() {
   return (
     <>
       <PageHeader
-        back={{ to: RECORDS.notifications.list, label: 'Notifications' }}
-        title="Create notification"
+        back={{ to: RECORDS.notifications.list, label: t('Notifications') }}
+        title={t('Create notification')}
       />
       <RecordForm
         spec={FORM_SPECS.notifications}
-        submitLabel="Create notification"
+        submitLabel={t('Create notification')}
+
         cancelTo={RECORDS.notifications.list}
         submitting={create.submitting}
         onSubmit={create.submit}

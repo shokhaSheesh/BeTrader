@@ -3,6 +3,7 @@ import { PAGE_SIZES } from '@/shared/config/list'
 import { formatNumber } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/cn'
 import { Select } from './Select'
+import { useT } from '@/shared/i18n'
 
 interface PaginationProps {
   page: number
@@ -26,6 +27,7 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
 }: PaginationProps) {
+  const t = useT()
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1
   const to = Math.min(page * pageSize, total)
@@ -36,24 +38,31 @@ export function Pagination({
     <div className="flex items-center justify-between gap-4 px-4 py-3">
       <div className="flex items-center gap-3 text-fg-muted">
         <span className="num">
-          Showing {formatNumber(from)}–{formatNumber(to)} of {formatNumber(total)}
+          {t('Showing {from}–{to} of {total}', {
+            from: formatNumber(from),
+            to: formatNumber(to),
+            total: formatNumber(total),
+          })}
         </span>
         <Select
           size="sm"
           value={String(pageSize)}
           onChange={(v) => onPageSizeChange(Number(v))}
-          options={PAGE_SIZES.map((size) => ({ value: String(size), label: `${size} per page` }))}
-          aria-label="Rows per page"
+          options={PAGE_SIZES.map((size) => ({
+            value: String(size),
+            label: t('{size} per page', { size }),
+          }))}
+          aria-label={t('Rows per page')}
           className="num w-36"
         />
       </div>
-      <nav className="flex items-center gap-1" aria-label="Pagination">
+      <nav className="flex items-center gap-1" aria-label={t('Pagination')}>
         <button
           type="button"
           className={navButton}
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Previous page"
+          aria-label={t('Previous page')}
         >
           <ChevronLeft size={16} />
         </button>
@@ -82,7 +91,7 @@ export function Pagination({
           className={navButton}
           disabled={page >= pageCount}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Next page"
+          aria-label={t('Next page')}
         >
           <ChevronRight size={16} />
         </button>

@@ -32,6 +32,7 @@ import {
   TextArea,
   TextField,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 /**
  * Declarative form for simple tables: each field is a backend slug plus a kind.
@@ -132,9 +133,10 @@ function schemaFor(spec: FormSpec) {
 }
 
 export function RecordForm(props: RecordFormProps) {
+  const t = useT()
   const fields = useTableFields(props.spec.table)
   // The form starts from the schema's defaults and required flags, so it waits for the schema
-  if (fields.isPending) return <PageLoader label="Loading form" />
+  if (fields.isPending) return <PageLoader label={t('Loading form')} />
   return <RecordFormBody {...props} fields={fields} />
 }
 
@@ -148,6 +150,7 @@ function RecordFormBody({
   submitting,
   fields,
 }: RecordFormProps & { fields: ReturnType<typeof useTableFields> }) {
+  const t = useT()
   const schemaFields = fields.data ?? []
   const known = new Set(schemaFields.map((f) => f.slug))
   const policyTypes = usePolicyTypeOptions()
@@ -184,7 +187,7 @@ function RecordFormBody({
     // Fields the backend requires, checked here so the user sees which one is missing
     const missing = missingRequired(payload, schemaFields)
     if (missing.length) {
-      for (const slug of missing) setError(slug, { message: 'Required' })
+      for (const slug of missing) setError(slug, { message: t('Required') })
       return
     }
     onSubmit(
@@ -207,7 +210,7 @@ function RecordFormBody({
           <TextField
             key={f.name}
             label={L(f.name)}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
             className={f.kind === 'code' ? 'num' : undefined}
@@ -219,7 +222,7 @@ function RecordFormBody({
           <TextField
             key={f.name}
             label={L(f.name)}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             numeric
             error={error(f.name)}
@@ -232,7 +235,7 @@ function RecordFormBody({
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -257,7 +260,7 @@ function RecordFormBody({
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -270,7 +273,7 @@ function RecordFormBody({
                   value={typeof field.value === 'string' && field.value ? field.value : undefined}
                   onChange={field.onChange}
                   options={policyTypes.options}
-                  placeholder={policyTypes.isPending ? 'Loading…' : 'Select'}
+                  placeholder={policyTypes.isPending ? t('Loading…') : t('Select')}
                 />
               )}
             />
@@ -284,7 +287,7 @@ function RecordFormBody({
             type="password"
             autoComplete="new-password"
             label={L(f.name)}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name) && !isEdit}
             error={error(f.name)}
             {...register(f.name)}
@@ -296,7 +299,7 @@ function RecordFormBody({
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -320,7 +323,7 @@ function RecordFormBody({
           <TextArea
             key={f.name}
             label={L(f.name)}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             error={error(f.name)}
             {...register(f.name)}
           />
@@ -332,7 +335,7 @@ function RecordFormBody({
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -371,7 +374,7 @@ function RecordFormBody({
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -396,13 +399,13 @@ function RecordFormBody({
         const upload = (file: File) =>
           uploadFile(file, schemaFields.find((s) => s.slug === f.name)?.folder)
         const onError = (e: unknown) =>
-          toast.error("Couldn't upload the file", backendMessage(e) ?? 'Please try again.')
+          toast.error(t("Couldn't upload the file"), backendMessage(e) ?? t('Please try again.'))
         return (
           <Field
             key={f.name}
             label={L(f.name)}
             htmlFor={f.name}
-            hint={f.hint}
+            hint={f.hint && t(f.hint)}
             required={req(f.name)}
             error={error(f.name)}
           >
@@ -466,7 +469,11 @@ function RecordFormBody({
     <form noValidate onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
       <FormActions cancelTo={cancelTo} submitLabel={submitLabel} submitting={submitting} />
       {spec.sections.map((s) => (
-        <FormSection key={s.title} title={s.title} description={s.description}>
+        <FormSection
+          key={s.title}
+          title={t(s.title)}
+          description={s.description && t(s.description)}
+        >
           {/* A field shows only when this environment's schema has it */}
           {s.fields.filter((f) => known.has(f.name)).map(render)}
         </FormSection>
@@ -489,6 +496,7 @@ function LookupSelect({
   value: string
   onChange: (v: string) => void
 }) {
+  const t = useT()
   const lookup = useLookupOptions(table, labelField)
   return (
     <Select
@@ -496,7 +504,7 @@ function LookupSelect({
       value={value || undefined}
       onChange={onChange}
       options={lookup.options}
-      placeholder={lookup.isPending ? 'Loading…' : 'Select'}
+      placeholder={lookup.isPending ? t('Loading…') : t('Select')}
     />
   )
 }

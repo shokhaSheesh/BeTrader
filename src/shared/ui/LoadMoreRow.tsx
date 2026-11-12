@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Spinner } from './Spinner'
+import { useT } from '@/shared/i18n'
 
 /** Infinite scroll for a dropdown list: more results exist, and how to get them. */
 export interface Paging {
@@ -13,6 +14,7 @@ export interface Paging {
  * shows a loader while that page arrives (DESIGN.md §1). Renders nothing once all is loaded.
  */
 export function LoadMoreRow({ hasMore, loadingMore, onLoadMore }: Paging) {
+  const t = useT()
   const row = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function LoadMoreRow({ hasMore, loadingMore, onLoadMore }: Paging) {
     <div
       ref={row}
       role="status"
-      aria-label={loadingMore ? 'Loading more' : undefined}
+      aria-label={loadingMore ? t('Loading more') : undefined}
       className="flex h-9 items-center justify-center text-fg-muted"
     >
       {loadingMore && <Spinner size={14} />}

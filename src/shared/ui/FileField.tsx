@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { FileUp, Trash2 } from 'lucide-react'
 import { Button } from './Button'
 import { FileLink } from './cells'
+import { useT } from '@/shared/i18n'
 
 interface FileFieldProps {
   id?: string
@@ -21,6 +22,7 @@ interface FileFieldProps {
  * the button shows a loader while the file uploads (§1).
  */
 export function FileField({ id, value, onChange, upload, onError, accept }: FileFieldProps) {
+  const t = useT()
   const input = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -40,7 +42,7 @@ export function FileField({ id, value, onChange, upload, onError, accept }: File
 
   return (
     <div className="flex min-h-10 flex-wrap items-center gap-3">
-      {value ? <FileLink url={value} /> : <span className="text-fg-muted">No file</span>}
+      {value ? <FileLink url={value} /> : <span className="text-fg-muted">{t('No file')}</span>}
       <div className="flex items-center gap-2">
         <Button
           type="button"
@@ -49,11 +51,11 @@ export function FileField({ id, value, onChange, upload, onError, accept }: File
           loading={uploading}
           onClick={() => input.current?.click()}
         >
-          {value ? 'Replace file' : 'Upload file'}
+          {value ? t('Replace file') : t('Upload file')}
         </Button>
         {value && !uploading && (
           <Button type="button" variant="danger-ghost" icon={Trash2} onClick={() => onChange(null)}>
-            Remove
+            {t('Remove')}
           </Button>
         )}
       </div>

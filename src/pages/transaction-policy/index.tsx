@@ -22,8 +22,12 @@ import {
   Pagination,
   TextCell,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<TransactionPolicy>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<TransactionPolicy>[] {
   return [
     {
       id: 'policy_Type_id',
@@ -44,14 +48,14 @@ function buildColumns(label: (f: string) => string): Column<TransactionPolicy>[]
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -60,6 +64,7 @@ function buildColumns(label: (f: string) => string): Column<TransactionPolicy>[]
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(TRANSACTION_POLICY_TABLE)
   const navigate = useNavigate()
@@ -69,19 +74,21 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="Transaction policy"
-        description="Limits on top-ups and withdrawals: maximum amounts and how many per day or month."
+        title={t('Transaction policy')}
+        description={t(
+          'Limits on top-ups and withdrawals: maximum amounts and how many per day or month.',
+        )}
         actions={
           <Can table={TRANSACTION_POLICY_TABLE} action="create">
             <ButtonLink to={RECORDS.transactionPolicy.create} icon={Plus}>
-              Add policy
+              {t('Add policy')}
             </ButtonLink>
           </Can>
         }
       />
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<TransactionPolicy>({
             table: TRANSACTION_POLICY_TABLE,
             onView: (r) => navigate(RECORDS.transactionPolicy.detail(r.id)),
@@ -94,7 +101,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.transactionPolicy.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading policies"
+        loadingLabel={t('Loading policies')}
         emptyState={
           <ListEmptyState
             noun="policies"
@@ -121,7 +128,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="policy"
         table={TRANSACTION_POLICY_TABLE}
-        target={toDelete && { id: toDelete.id, name: toDelete.policyTypeLabel ?? 'This policy' }}
+        target={toDelete && { id: toDelete.id, name: toDelete.policyTypeLabel ?? t('This policy') }}
         onClose={() => setToDelete(null)}
       />
     </>

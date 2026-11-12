@@ -1,5 +1,6 @@
 import { Button } from './Button'
 import { EmptyState } from './EmptyState'
+import { useT } from '@/shared/i18n'
 
 interface ListEmptyStateProps {
   /** Plural, lowercase: "projects", "project types" */
@@ -23,15 +24,16 @@ export function ListEmptyState({
   filtered,
   onResetSearch,
 }: ListEmptyStateProps) {
+  const t = useT()
   if (isError) {
     return (
       <EmptyState
         variant="error"
-        title={`Couldn't load ${noun}`}
-        description="Something went wrong on our side or the connection dropped."
+        title={t("Couldn't load {noun}", { noun })}
+        description={t('Something went wrong on our side or the connection dropped.')}
         action={
           <Button variant="secondary" loading={retrying} onClick={onRetry}>
-            Try again
+            {t('Try again')}
           </Button>
         }
       />
@@ -41,13 +43,15 @@ export function ListEmptyState({
     return (
       <EmptyState
         variant="no-results"
-        title={filtered ? 'Nothing matches these filters' : 'Nothing matches this search'}
+        title={filtered ? t('Nothing matches these filters') : t('Nothing matches this search')}
         description={
-          filtered ? 'Try changing or resetting the filters.' : `No ${noun} found for “${search}”.`
+          filtered
+            ? t('Try changing or resetting the filters.')
+            : t('No {noun} found for “{search}”.', { noun, search })
         }
         action={
           <Button variant="secondary" onClick={onResetSearch}>
-            {filtered ? 'Reset filters' : 'Reset search'}
+            {filtered ? t('Reset filters') : t('Reset search')}
           </Button>
         }
       />
@@ -56,8 +60,10 @@ export function ListEmptyState({
   return (
     <EmptyState
       variant="empty"
-      title={`No ${noun} yet`}
-      description={`${noun.charAt(0).toUpperCase()}${noun.slice(1)} will appear here once they're created.`}
+      title={t('No {noun} yet', { noun })}
+      description={t("{Noun} will appear here once they're created.", {
+        Noun: `${noun.charAt(0).toUpperCase()}${noun.slice(1)}`,
+      })}
     />
   )
 }

@@ -31,6 +31,7 @@ import {
   SearchInput,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const FILTER_KEYS = ['identified', 'gender', 'from', 'to'] as const
 const IDENTIFICATION = [
@@ -42,6 +43,7 @@ const IDENTIFICATION = [
 function buildColumns(
   label: (f: string) => string,
   optionLabel: (f: string, v: string) => string,
+  t: (text: string) => string,
 ): Column<Investor>[] {
   const opt = (field: string) => (v: string) => optionLabel(field, v)
   return [
@@ -115,13 +117,13 @@ function buildColumns(
     { id: 'street', header: label('street'), cell: (i) => <TextCell value={i.street} /> },
     {
       id: 'is_identified',
-      header: 'Identification',
+      header: t('Identification'),
       skeleton: 'w-24',
       cell: (i) =>
         i.isIdentified ? (
-          <Badge tone="success">Identified</Badge>
+          <Badge tone="success">{t('Identified')}</Badge>
         ) : (
-          <Badge tone="warning">Not identified</Badge>
+          <Badge tone="warning">{t('Not identified')}</Badge>
         ),
     },
     {
@@ -170,7 +172,7 @@ function buildColumns(
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (i) => <DateTimeCell value={i.updatedAt} />,
@@ -182,6 +184,7 @@ const now = new Date()
 const MONTH_START = toIsoDate(now.getFullYear(), now.getMonth(), 1)
 
 export default function InvestorsPage() {
+  const t = useT()
   const list = useListParams(FILTER_KEYS)
   const fields = useTableFields(INVESTORS_TABLE)
   const [toDelete, setToDelete] = useState<Investor | null>(null)
@@ -215,31 +218,41 @@ export default function InvestorsPage() {
 
   return (
     <>
-      <PageHeader title="Investors" description="Everyone registered in the Niyat app." />
+      <PageHeader title={t('Investors')} description={t('Everyone registered in the Niyat app.')} />
 
       <KpiGrid>
-        <KpiCard label="Total investors" icon={Users} tone="accent" value={total.data} />
-        <KpiCard label="Identified" icon={BadgeCheck} tone="success" value={identifiedCount.data} />
+        <KpiCard label={t('Total investors')} icon={Users} tone="accent" value={total.data} />
         <KpiCard
-          label="Not identified"
+          label={t('Identified', { context: 'count' })}
+          icon={BadgeCheck}
+          tone="success"
+          value={identifiedCount.data}
+        />
+        <KpiCard
+          label={t('Not identified', { context: 'count' })}
           icon={UserX}
           tone="warning"
           value={notIdentifiedCount.data}
         />
-        <KpiCard label="New this month" icon={UserPlus} tone="info" value={newThisMonth.data} />
+        <KpiCard
+          label={t('New this month')}
+          icon={UserPlus}
+          tone="info"
+          value={newThisMonth.data}
+        />
       </KpiGrid>
 
       <FilterBar active={!!list.search || list.hasFilters} onReset={list.resetAll}>
         <SearchInput
           value={list.searchInput}
           onChange={list.setSearchInput}
-          placeholder="Name, phone or PINFL"
+          placeholder={t('Name, phone or PINFL')}
         />
         <FilterSelect
-          label="Identification"
+          label={t('Identification')}
           value={identified}
           onChange={(v) => list.setFilters({ identified: v })}
-          options={IDENTIFICATION}
+          options={IDENTIFICATION.map((o) => ({ ...o, label: t(o.label) }))}
         />
         <FilterMultiSelect
           label={fields.fieldLabel('gender')}
@@ -248,7 +261,7 @@ export default function InvestorsPage() {
           options={fields.fieldOptions('gender')}
         />
         <DateRangeFilter
-          label="Registered"
+          label={t('Registered')}
           from={list.filter('from')}
           to={list.filter('to')}
           onChange={({ from, to }) => list.setFilters({ from, to })}
@@ -257,7 +270,7 @@ export default function InvestorsPage() {
 
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel, fields.optionLabel),
+          ...buildColumns(fields.fieldLabel, fields.optionLabel, t),
           actionsColumn<Investor>({
             table: INVESTORS_TABLE,
             onView: (i) => navigate(RECORDS.investors.detail(i.id)),
@@ -270,7 +283,7 @@ export default function InvestorsPage() {
         onRowClick={(i) => navigate(RECORDS.investors.detail(i.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading investors"
+        loadingLabel={t('Loading investors')}
         emptyState={
           <ListEmptyState
             noun="investors"
@@ -300,7 +313,7 @@ export default function InvestorsPage() {
         target={
           toDelete && {
             id: toDelete.id,
-            name: toDelete.fullName ?? toDelete.phone ?? 'This investor',
+            name: toDelete.fullName ?? toDelete.phone ?? t('This investor'),
           }
         }
         onClose={() => setToDelete(null)}

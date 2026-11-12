@@ -18,8 +18,12 @@ import {
   PageHeader,
   Pagination,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
-function buildColumns(label: (f: string) => string): Column<RbaRule>[] {
+function buildColumns(
+  label: (f: string) => string,
+  t: (text: string) => string,
+): Column<RbaRule>[] {
   return [
     // Amounts carry no currency and scores no stated meaning in the backend: shown plainly, not colored (DESIGN.md §0).
     {
@@ -47,14 +51,14 @@ function buildColumns(label: (f: string) => string): Column<RbaRule>[] {
     },
     {
       id: 'created_at',
-      header: 'Created',
+      header: t('Created'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.createdAt} />,
     },
     {
       id: 'updated_at',
-      header: 'Last updated',
+      header: t('Last updated'),
       align: 'right',
       skeleton: 'w-32',
       cell: (r) => <DateTimeCell value={r.updatedAt} />,
@@ -63,6 +67,7 @@ function buildColumns(label: (f: string) => string): Column<RbaRule>[] {
 }
 
 export default function Page() {
+  const t = useT()
   const list = useListParams([])
   const fields = useTableFields(RBA_MATRIX_TABLE)
   const navigate = useNavigate()
@@ -76,19 +81,21 @@ export default function Page() {
   return (
     <>
       <PageHeader
-        title="RBA matrix"
-        description="Risk-based approach: the risk score given to each transaction amount band."
+        title={t('RBA matrix')}
+        description={t(
+          'Risk-based approach: the risk score given to each transaction amount band.',
+        )}
         actions={
           <Can table={RBA_MATRIX_TABLE} action="create">
             <ButtonLink to={RECORDS.rbaMatrix.create} icon={Plus}>
-              Add risk band
+              {t('Add risk band')}
             </ButtonLink>
           </Can>
         }
       />
       <DataTable
         columns={[
-          ...buildColumns(fields.fieldLabel),
+          ...buildColumns(fields.fieldLabel, t),
           actionsColumn<RbaRule>({
             table: RBA_MATRIX_TABLE,
             onView: (r) => navigate(RECORDS.rbaMatrix.detail(r.id)),
@@ -101,7 +108,7 @@ export default function Page() {
         onRowClick={(r) => navigate(RECORDS.rbaMatrix.detail(r.id))}
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
-        loadingLabel="Loading risk bands"
+        loadingLabel={t('Loading risk bands')}
         emptyState={
           <ListEmptyState
             noun="risk bands"
@@ -128,7 +135,7 @@ export default function Page() {
       <DeleteRecordDialog
         noun="risk band"
         table={RBA_MATRIX_TABLE}
-        target={toDelete && { id: toDelete.id, name: 'This risk band' }}
+        target={toDelete && { id: toDelete.id, name: t('This risk band') }}
         onClose={() => setToDelete(null)}
       />
     </>

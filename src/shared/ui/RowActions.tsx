@@ -2,6 +2,7 @@ import { DropdownMenu as D } from 'radix-ui'
 import { MoreHorizontal, type LucideIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { menuItem, popoverSurface } from './styles'
+import { useT } from '@/shared/i18n'
 
 export interface RowAction {
   label: string
@@ -11,17 +12,12 @@ export interface RowAction {
 }
 
 /** The ⋯ menu in a table's last column (DESIGN.md §3). */
-export function RowActions({
-  actions,
-  label = 'Row actions',
-}: {
-  actions: RowAction[]
-  label?: string
-}) {
+export function RowActions({ actions, label }: { actions: RowAction[]; label?: string }) {
+  const t = useT()
   return (
     <D.Root modal={false}>
       <D.Trigger
-        aria-label={label}
+        aria-label={label ?? t('Row actions')}
         onClick={(e) => e.stopPropagation()}
         className="grid size-8 place-items-center rounded-full text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[state=open]:bg-surface-muted"
       >

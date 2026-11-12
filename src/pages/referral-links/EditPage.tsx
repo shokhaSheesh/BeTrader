@@ -4,9 +4,11 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { FORM_SPECS, RecordForm } from '@/features/record-form'
 import { RECORDS } from '@/shared/config/routes'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
   const { id } = useParams()
+  const t = useT()
   const query = useReferralLinkQuery(id)
   const update = useUpdateRecord(
     { table: REFERRAL_LINKS_TABLE, noun: 'referral link', routes: RECORDS.referralLinks },
@@ -16,18 +18,19 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="referral link"
-      back={{ to: RECORDS.referralLinks.list, label: 'Referral links' }}
+      back={{ to: RECORDS.referralLinks.list, label: t('Referral links') }}
     >
       {(r) => (
         <>
           <PageHeader
-            back={{ to: RECORDS.referralLinks.detail(r.id), label: 'Referral link' }}
-            title="Edit referral link"
+            back={{ to: RECORDS.referralLinks.detail(r.id), label: t('Referral link') }}
+            title={t('Edit referral link')}
           />
           <RecordForm
             spec={FORM_SPECS.referralLinks}
             defaults={{ is_active: r.isActive ?? false }}
-            submitLabel="Save changes"
+            submitLabel={t('Save changes')}
+
             cancelTo={RECORDS.referralLinks.detail(r.id)}
             submitting={update.submitting}
             onSubmit={update.submit}

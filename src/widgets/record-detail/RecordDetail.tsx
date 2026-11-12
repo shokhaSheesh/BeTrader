@@ -15,6 +15,7 @@ import {
   RecordBoundary,
   type DetailItem,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 interface BaseRecord {
   id: string
@@ -59,6 +60,7 @@ export function RecordDetail<T extends BaseRecord>({
   deleteData,
   sections,
 }: RecordDetailProps<T>) {
+  const t = useT()
   const navigate = useNavigate()
   const fields = useTableFields(table)
   const { can } = usePermissions()
@@ -80,12 +82,12 @@ export function RecordDetail<T extends BaseRecord>({
                 <>
                   {showDelete && (
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   )}
                   {showEdit && (
                     <ButtonLink to={showEdit(r)} icon={Pencil}>
-                      Edit {noun}
+                      {t('Edit {noun}', { noun })}
                     </ButtonLink>
                   )}
                 </>
@@ -97,10 +99,10 @@ export function RecordDetail<T extends BaseRecord>({
               <DetailSection key={s.title} title={s.title} items={s.items} />
             ))}
             <DetailSection
-              title="Record"
+              title={t('Record')}
               items={[
-                { label: 'Created', value: <DateTimeCell value={r.createdAt} /> },
-                { label: 'Last updated', value: <DateTimeCell value={r.updatedAt} /> },
+                { label: t('Created'), value: <DateTimeCell value={r.createdAt} /> },
+                { label: t('Last updated'), value: <DateTimeCell value={r.updatedAt} /> },
                 { label: fields.fieldLabel('guid'), value: <CodeCell value={r.id} /> },
               ]}
             />

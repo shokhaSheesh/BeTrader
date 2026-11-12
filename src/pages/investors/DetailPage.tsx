@@ -25,18 +25,20 @@ import {
   RecordBoundary,
   type Column,
 } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 const dash = <span className="text-fg-subtle">—</span>
 const text = (v: string | null) => v ?? dash
 const numText = (v: string | null) => (v ? <span className="num">{v}</span> : dash)
 
 export default function InvestorDetailPage() {
+  const t = useT()
   const { id } = useParams()
   const navigate = useNavigate()
   const [deleting, setDeleting] = useState(false)
   const query = useInvestorQuery(id)
   const fields = useTableFields(INVESTORS_TABLE)
-  const back = { to: RECORDS.investors.list, label: 'Investors' }
+  const back = { to: RECORDS.investors.list, label: t('Investors') }
 
   return (
     <RecordBoundary query={query} noun="investor" back={back} alsoPending={fields.isPending}>
@@ -51,11 +53,11 @@ export default function InvestorDetailPage() {
               title={
                 <span className="flex items-center gap-3">
                   <ImageCell src={i.imageUrl} round size={40} />
-                  {i.fullName ?? (i.phone ? formatPhone(i.phone) : 'Investor')}
+                  {i.fullName ?? (i.phone ? formatPhone(i.phone) : t('Investor'))}
                   {i.isIdentified ? (
-                    <Badge tone="success">Identified</Badge>
+                    <Badge tone="success">{t('Identified')}</Badge>
                   ) : (
-                    <Badge tone="warning">Not identified</Badge>
+                    <Badge tone="warning">{t('Not identified')}</Badge>
                   )}
                 </span>
               }
@@ -66,12 +68,12 @@ export default function InvestorDetailPage() {
                 <>
                   <Can table={INVESTORS_TABLE} action="delete">
                     <Button variant="danger-ghost" icon={Trash2} onClick={() => setDeleting(true)}>
-                      Delete
+                      {t('Delete')}
                     </Button>
                   </Can>
                   <Can table={INVESTORS_TABLE} action="update">
                     <ButtonLink to={RECORDS.investors.edit(i.id)} icon={Pencil}>
-                      Edit investor
+                      {t('Edit investor')}
                     </ButtonLink>
                   </Can>
                 </>
@@ -79,7 +81,7 @@ export default function InvestorDetailPage() {
             />
             <div className="flex flex-col gap-6">
               <DetailSection
-                title="Personal"
+                title={t('Personal')}
                 items={[
                   { label: L('surname'), value: text(i.surname) },
                   { label: L('name'), value: text(i.name) },
@@ -91,7 +93,7 @@ export default function InvestorDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Identity document"
+                title={t('Identity document')}
                 items={[
                   { label: L('passport'), value: numText(i.passport) },
                   { label: L('pinfl'), value: numText(i.pinfl) },
@@ -100,7 +102,7 @@ export default function InvestorDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Contact and address"
+                title={t('Contact and address')}
                 items={[
                   {
                     label: L('phone'),
@@ -114,7 +116,7 @@ export default function InvestorDetailPage() {
               />
               <InvestorInvestments investorId={i.id} />
               <DetailSection
-                title="App and acquisition"
+                title={t('App and acquisition')}
                 items={[
                   { label: L('lang'), value: options('lang', i.languages) },
                   { label: L('platform_type'), value: options('platform_type', i.platforms) },
@@ -135,14 +137,14 @@ export default function InvestorDetailPage() {
                 ]}
               />
               <DetailSection
-                title="Record"
+                title={t('Record')}
                 items={[
                   {
                     label: L('created_time'),
                     value: <span className="num">{formatDateTime(i.createdTime)}</span>,
                   },
                   {
-                    label: 'Last updated',
+                    label: t('Last updated'),
                     value: <span className="num">{formatDateTime(i.updatedAt)}</span>,
                   },
                   { label: L('guid'), value: <span className="num text-fg-muted">{i.id}</span> },
@@ -153,7 +155,7 @@ export default function InvestorDetailPage() {
               noun="investor"
               table={INVESTORS_TABLE}
               target={
-                deleting ? { id: i.id, name: i.fullName ?? i.phone ?? 'This investor' } : null
+                deleting ? { id: i.id, name: i.fullName ?? i.phone ?? t('This investor') } : null
               }
               onClose={() => setDeleting(false)}
               onDeleted={() => navigate(RECORDS.investors.list, { replace: true })}
@@ -170,6 +172,7 @@ function InvestorInvestments({ investorId }: { investorId: string }) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const navigate = useNavigate()
+  const t = useT()
   const fields = useTableFields(PROJECT_INVESTORS_TABLE)
   const query = useProjectInvestorsQuery({
     page,
@@ -203,7 +206,7 @@ function InvestorInvestments({ investorId }: { investorId: string }) {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-base font-semibold">Investments</h2>
+      <h2 className="text-base font-semibold">{t('Investments')}</h2>
       <DataTable
         columns={columns}
         rows={query.data?.items}
@@ -212,19 +215,19 @@ function InvestorInvestments({ investorId }: { investorId: string }) {
         loading={query.isPending || fields.isPending}
         fetching={query.isFetching}
         skeletonRows={3}
-        loadingLabel="Loading investments"
+        loadingLabel={t('Loading investments')}
         emptyState={
           query.isError ? (
             <EmptyState
               variant="error"
-              title="Couldn't load investments"
-              description="The connection dropped or the server failed."
+              title={t("Couldn't load investments")}
+              description={t('The connection dropped or the server failed.')}
             />
           ) : (
             <EmptyState
               variant="empty"
-              title="No investments yet"
-              description="This investor hasn't invested in any project."
+              title={t('No investments yet')}
+              description={t("This investor hasn't invested in any project.")}
             />
           )
         }

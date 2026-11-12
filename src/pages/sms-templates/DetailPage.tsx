@@ -3,22 +3,26 @@ import { SMS_TEMPLATES_TABLE, useSmsTemplateQuery } from '@/entities/sms-templat
 import { RECORDS } from '@/shared/config/routes'
 import { TextCell } from '@/shared/ui'
 import { RecordDetail } from '@/widgets/record-detail'
+import { useLocalized, useT } from '@/shared/i18n'
 
 export default function DetailPage() {
   const { id } = useParams()
+  const t = useT()
+  const pick = useLocalized()
   return (
     <RecordDetail
       table={SMS_TEMPLATES_TABLE}
       noun="template"
       query={useSmsTemplateQuery(id)}
-      back={{ to: RECORDS.smsTemplates.list, label: 'SMS templates' }}
-      title={(r) => r.en ?? 'SMS template'}
+      back={{ to: RECORDS.smsTemplates.list, label: t('SMS templates') }}
+      title={(r) => pick(r.en, r.ru) ?? t('SMS template')}
       editTo={(r) => RECORDS.smsTemplates.edit(r.id)}
       wired
-      deleteName={(r) => r.en ?? 'This template'}
+      deleteName={(r) => pick(r.en, r.ru) ?? t('This template')}
       sections={(r, L) => [
         {
-          title: 'Texts',
+          title: t('Texts'),
+
           items: [
             { label: L('en'), value: <TextCell value={r.en} /> },
             { label: L('ru'), value: <TextCell value={r.ru} /> },

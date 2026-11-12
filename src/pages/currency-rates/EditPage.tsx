@@ -5,8 +5,10 @@ import { useUpdateRecord } from '@/features/record-actions'
 import { RECORDS } from '@/shared/config/routes'
 import { formatDate } from '@/shared/lib/format'
 import { PageHeader, RecordBoundary } from '@/shared/ui'
+import { useT } from '@/shared/i18n'
 
 export default function EditPage() {
+  const t = useT()
   const { id } = useParams()
   const query = useCurrencyRateQuery(id)
   const update = useUpdateRecord(
@@ -17,19 +19,25 @@ export default function EditPage() {
     <RecordBoundary
       query={query}
       noun="currency rate"
-      back={{ to: RECORDS.currencyRates.list, label: 'Currency rates' }}
+      back={{ to: RECORDS.currencyRates.list, label: t('Currency rates') }}
     >
       {(o) => {
-        const title = o.date ? `Rate for ${formatDate(o.date)}` : 'Currency rate'
+        const title = o.date
+          ? t('Rate for {date}', { date: formatDate(o.date) })
+          : t('Currency rate')
         return (
           <>
             <PageHeader
               back={{ to: RECORDS.currencyRates.detail(o.id), label: title }}
-              title={o.date ? `Edit rate for ${formatDate(o.date)}` : 'Edit currency rate'}
+              title={
+                o.date
+                  ? t('Edit rate for {date}', { date: formatDate(o.date) })
+                  : t('Edit currency rate')
+              }
             />
             <CurrencyRateForm
               rate={o}
-              submitLabel="Save changes"
+              submitLabel={t('Save changes')}
               cancelTo={RECORDS.currencyRates.detail(o.id)}
               submitting={update.submitting}
               onSubmit={update.submit}
