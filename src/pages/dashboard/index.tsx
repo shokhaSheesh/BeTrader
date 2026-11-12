@@ -1,7 +1,9 @@
 import { ExternalLink } from 'lucide-react'
 import { DASHBOARDS } from '@/shared/config/dashboards'
+import { MOCK_MODE } from '@/shared/config/mock'
 import { Button, PageHeader } from '@/shared/ui'
 import { EmbeddedDashboard } from '@/widgets/embedded-dashboard'
+import { NativeDashboard } from './NativeDashboard'
 
 /**
  * The analysts' Yandex DataLens dashboard, as u-code's Dashboard shows it.
@@ -10,7 +12,12 @@ import { EmbeddedDashboard } from '@/widgets/embedded-dashboard'
  * a server-side state, so our period filter can't drive it. The dashboard's own date
  * picker and tabs, inside the frame, do the filtering (docs/DASHBOARDS.md).
  */
+/** Demo mode draws the dashboard natively from the mock backend; the real backend keeps the DataLens embed. */
 export default function DashboardPage() {
+  return MOCK_MODE ? <NativeDashboard /> : <DataLensDashboard />
+}
+
+function DataLensDashboard() {
   return (
     <>
       <PageHeader

@@ -13,9 +13,10 @@ export function niceTicks(min: number, max: number, count = 4) {
   return { ticks, lo, hi }
 }
 
-/** 12 400 → "12.4K", 1 250 000 → "1.25M" (axis ticks only; values elsewhere use format.ts). */
+/** 12 400 → "12.4K", 1 250 000 → "1.25M", 4 800 000 000 → "4.8B" (axis ticks only; values elsewhere use format.ts). */
 export function compact(value: number) {
   const abs = Math.abs(value)
+  if (abs >= 1e9) return `${Number((value / 1e9).toFixed(2))}B`
   if (abs >= 1e6) return `${Number((value / 1e6).toFixed(2))}M`
   if (abs >= 1e3) return `${Number((value / 1e3).toFixed(1))}K`
   return String(Number(value.toFixed(2)))

@@ -57,8 +57,8 @@ export function seed(): Tables {
   // ── Projects ────────────────────────────────────────────────────────────────
   t.project_types = [
     { en: 'Conservative', ru: 'Консервативный', uz: 'Konservativ', from: 12, to: 15 },
-    { en: 'Balanced', ru: 'Сбалансированный', uz: 'Muvozanatli', from: 15, to: 18 },
-    { en: 'Growth', ru: 'Рост', uz: "O'sish", from: 30, to: 50 },
+    { en: 'Halal', ru: 'Халяльный', uz: 'Halol', from: 15, to: 18 },
+    { en: 'High-yield', ru: 'Высокодоходный', uz: 'Yuqori daromadli', from: 30, to: 50 },
   ].map((x) =>
     row(
       {
@@ -134,7 +134,7 @@ export function seed(): Tables {
   })
 
   // ── Investors and what they own ─────────────────────────────────────────────
-  t.investors = Array.from({ length: 64 }, (_, i) => investor(r, i))
+  t.investors = Array.from({ length: 1800 }, () => investor(r))
   t.account = t.investors.map((inv) =>
     row(
       {
@@ -177,11 +177,14 @@ export function seed(): Tables {
   // ── Orders, dividends, transactions ─────────────────────────────────────────
   const openProjects = t.projects.filter((x) => (x.status as string[])[0] === 'invest')
   let orderNo = 1000
-  t.orders = Array.from({ length: 140 }, () => {
+  t.orders = Array.from({ length: 1400 }, () => {
     const inv = r.pick(t.investors)
     const project = r.chance(0.85) ? r.pick(openProjects) : r.pick(t.projects)
     const buy = r.chance(0.76)
-    const created = r.pastDate(330, 0.2)
+    // An order comes after its investor signed up
+    const joined = Date.parse(String(inv.created_time))
+    // …usually within a couple of months of it
+    const created = new Date(joined + r.next() * Math.min(60 * 86_400_000, Date.now() - joined))
     const rate = r.float(12_050, 12_950, 2)
     const usd =
       r.pick([100, 250, 500, 1000, 1500, 2000, 3000, 5000, 7500, 10000]) +
@@ -283,7 +286,7 @@ export function seed(): Tables {
       status: ['confirmed'],
       when: new Date(String(d.to_date)),
     })),
-    ...Array.from({ length: 70 }, () => {
+    ...Array.from({ length: 600 }, () => {
       const inv = r.pick(t.investors)
       const topup = r.chance(0.75)
       const card = cardsOf(inv.guid)[0]
@@ -765,14 +768,15 @@ export function seed(): Tables {
   return t
 }
 
-function investor(r: Random, i: number): Row {
+function investor(r: Random): Row {
   const female = r.chance(0.42)
   const name = female ? r.pick(FEMALE_NAMES) : r.pick(MALE_NAMES)
   const surname = r.pick(SURNAMES) + (female ? 'a' : '')
   const patronymic = `${r.pick(FATHER_NAMES)} ${female ? 'qizi' : "o'g'li"}`
   const place = r.pick(CITIES)
-  // Newest first in the list: spread sign-ups over the last year
-  const created = r.pastDate((64 - i) * 5.6, (63 - i) * 5.6)
+  // Sign-ups grow over the year, with a three-week campaign burst about two months ago
+  const daysAgo = r.chance(0.18) ? r.float(40, 61, 4) : 365 * Math.pow(r.next(), 1.6)
+  const created = new Date(Date.now() - daysAgo * 86_400_000)
   const born = new Date(Date.UTC(r.int(1968, 2004), r.int(0, 11), r.int(1, 28)))
   const issued = new Date(Date.UTC(r.int(2015, 2024), r.int(0, 11), r.int(1, 28)))
   const dmy = (d: Date) =>

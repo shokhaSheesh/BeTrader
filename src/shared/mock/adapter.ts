@@ -8,6 +8,7 @@ import { env } from '@/shared/config/env'
 import { TARGET_ENVIRONMENT } from '@/shared/config/environments'
 import { UCODE_ROOT_MENU_ID } from '@/shared/config/ucode'
 import { runMockAggregation } from './aggregation'
+import { mockDashboard } from './dashboard'
 import menusFixture from './data/menus.json'
 import permissionTables from './data/permission-tables.json'
 import { FIELDS, createRow, db, deleteRow, getRow, listRows, updateRow } from './db'
@@ -215,6 +216,11 @@ const AUTH: [string, RegExp, Handler][] = [
 ]
 
 const ADMIN: [string, RegExp, Handler][] = [
+  [
+    'GET',
+    /^\/v1\/analytics\/dashboard$/,
+    ({ params }) => ok(mockDashboard(params as { from?: string; to?: string })),
+  ],
   ['GET', /^\/v3\/menus$/, ({ params }) => ok({ menus: menus[String(params.parent_id)] ?? null })],
   [
     'GET',
